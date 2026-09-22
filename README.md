@@ -2,7 +2,7 @@
 
 A modern, high-contrast, parent-first dashboard and timetable intelligence pipeline for **VIBGYOR High**.
 
-Specifically tailored for **Grade 1 (Grade 1F, Marathahalli)**, this system transforms raw, cryptic daily diary timetable PDFs into clear, actionable daily and weekly updates for busy parents.
+Specifically tailored for **Grade 1**, this system transforms raw, cryptic daily diary timetable PDFs into clear, actionable daily and weekly updates for busy parents.
 
 ---
 
