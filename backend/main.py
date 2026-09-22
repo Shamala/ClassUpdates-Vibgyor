@@ -353,6 +353,25 @@ if HAS_FASTAPI:
     def serve_static_data_js():
         return FileResponse(os.path.join(FRONTEND_DIR, "static_data.js"), media_type="application/javascript")
 
+    @app.get("/manifest.json")
+    def serve_manifest():
+        return FileResponse(os.path.join(FRONTEND_DIR, "manifest.json"), media_type="application/manifest+json")
+
+    @app.get("/sw.js")
+    def serve_service_worker():
+        return FileResponse(
+            os.path.join(FRONTEND_DIR, "sw.js"),
+            media_type="application/javascript",
+            headers={"Service-Worker-Allowed": "/"}
+        )
+
+    @app.get("/icons/{icon_name}")
+    def serve_icon(icon_name: str):
+        icon_path = os.path.join(FRONTEND_DIR, "icons", icon_name)
+        if os.path.exists(icon_path):
+            return FileResponse(icon_path, media_type="image/png")
+        return HTMLResponse(status_code=404, content="Icon not found")
+
     @app.get("/")
     def serve_root():
         index_path = os.path.join(FRONTEND_DIR, "index.html")

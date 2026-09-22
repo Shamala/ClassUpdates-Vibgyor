@@ -222,6 +222,9 @@ class TestVibgyorApi(unittest.TestCase):
             ("/style.css", "css"),
             ("/app.js", "javascript"),
             ("/static_data.js", "javascript"),
+            ("/manifest.json", "json"),
+            ("/sw.js", "javascript"),
+            ("/icons/icon-192.png", "image"),
         ]:
             status, headers, content = execute_http_request("GET", asset)
             self.assertEqual(status, 200, f"Failed to serve {asset}")

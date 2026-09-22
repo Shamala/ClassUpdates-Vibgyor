@@ -430,7 +430,11 @@ async function handleLoginSubmit(event) {
       state.student = student;
       localStorage.setItem("vibgyor_parent_student", JSON.stringify(student));
 
-      showToast("Signed in securely! (Zero server storage 🔒)", "success", 4000);
+      showToast(
+        "Signed in securely! (Zero server storage 🔒)",
+        "success",
+        4000,
+      );
       showDashboardView();
       renderStudentProfile();
       await loadAvailableDates();
@@ -463,11 +467,7 @@ async function handleLoginSubmit(event) {
         JSON.stringify(state.student),
       );
 
-      showToast(
-        data.message || "Signed in successfully!",
-        "success",
-        4000,
-      );
+      showToast(data.message || "Signed in successfully!", "success", 4000);
       showDashboardView();
       renderStudentProfile();
       await loadAvailableDates();
@@ -648,9 +648,96 @@ function togglePasswordVisibility() {
   pwdInput.type = pwdInput.type === "password" ? "text" : "password";
 }
 
+// --- PWA Installation & Service Worker Registration ---
+let deferredInstallPrompt = null;
+
+function initPWA() {
+  // 1. Register Service Worker for offline support
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("./sw.js")
+        .then((reg) => {
+          console.log("[PWA] Service Worker registered with scope:", reg.scope);
+        })
+        .catch((err) => {
+          console.warn("[PWA] Service Worker registration failed:", err);
+        });
+    });
+  }
+
+  const installBtn = document.getElementById("pwa-install-btn");
+  if (!installBtn) return;
+
+  // Check if app is already running in standalone / installed mode
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  if (isStandalone) {
+    installBtn.classList.add("hidden");
+    installBtn.classList.remove("flex");
+    return;
+  }
+
+  // 2. Listen for native browser install prompt (Android, Chrome, Edge)
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    installBtn.classList.remove("hidden");
+    installBtn.classList.add("flex");
+  });
+
+  // 3. Handle click on install button
+  installBtn.addEventListener("click", async () => {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      if (outcome === "accepted") {
+        showToast("Installing ClassUpdates to your device! 🎉", "success", 4000);
+      }
+      deferredInstallPrompt = null;
+      installBtn.classList.add("hidden");
+      installBtn.classList.remove("flex");
+    } else {
+      const isIos =
+        /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIos) {
+        showToast(
+          "To install on iPhone/iPad: Tap the Share button ⎋ at the bottom of Safari and select 'Add to Home Screen' ⊞",
+          "info",
+          7000,
+        );
+      } else {
+        showToast(
+          "To install: Open browser menu (⋮) and select 'Install app' or 'Add to Home Screen' 📲",
+          "info",
+          5000,
+        );
+      }
+    }
+  });
+
+  // 4. Listen for successful installation
+  window.addEventListener("appinstalled", () => {
+    installBtn.classList.add("hidden");
+    installBtn.classList.remove("flex");
+    deferredInstallPrompt = null;
+    showToast("ClassUpdates installed successfully! 📱", "success", 5000);
+  });
+
+  // If on iOS and not standalone, show the install button with iOS instructions
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIos && !isStandalone) {
+    installBtn.classList.remove("hidden");
+    installBtn.classList.add("flex");
+  }
+}
+
 // --- Initialization ---
 document.addEventListener("DOMContentLoaded", async () => {
   initTheme();
+  initPWA();
   setupEventListeners();
   await checkAuth();
 });
