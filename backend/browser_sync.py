@@ -129,12 +129,13 @@ def run_orion_browser_sync(
                 body_text = page.inner_text("body")
 
                 lines = [line.strip() for line in body_text.splitlines() if line.strip()]
-                student_name = "Surya Kudva"
-                enrolment = "EN10672780114"
-                school = "VIBGYOR Kids and High - HSR Layout"
+                student_name = "Student"
+                enrolment = "STU-GRADE1F"
+                school = "VIBGYOR High"
                 grade = "Grade 1"
                 division = "F"
                 academic_year = "2026 - 27"
+                parent_name = "Parent"
 
                 for idx, line in enumerate(lines):
                     if line.startswith("Enrolment Number"):
@@ -157,10 +158,14 @@ def run_orion_browser_sync(
                         parts = line.split(":", 1)
                         if len(parts) > 1 and parts[1].strip():
                             academic_year = parts[1].strip()
-                    elif "vijay kudva" in line.lower() and idx + 1 < len(lines):
-                        cand = lines[idx + 1]
-                        if not any(k in cand for k in [":", "Academic", "Enrolment", "School"]):
-                            student_name = cand
+                    elif line.startswith("Student Name") or line.startswith("Name"):
+                        parts = line.split(":", 1)
+                        if len(parts) > 1 and parts[1].strip():
+                            student_name = parts[1].strip()
+                    elif line.startswith("Parent") or line.startswith("Father") or line.startswith("Mother"):
+                        parts = line.split(":", 1)
+                        if len(parts) > 1 and parts[1].strip():
+                            parent_name = parts[1].strip()
 
                 student_info = {
                     "student_id": enrolment,
@@ -169,7 +174,7 @@ def run_orion_browser_sync(
                     "section": division,
                     "school": school,
                     "academic_year": academic_year,
-                    "parent_name": "Vijay Kudva",
+                    "parent_name": parent_name,
                 }
 
                 # Update database with real student profile
@@ -274,7 +279,8 @@ def run_orion_browser_sync(
             title = re.sub(r"<[^>]+>", " ", subj_raw)
             title = re.sub(r"&nbsp;", " ", title)
             title = re.sub(r"&amp;", "&", title)
-            title = re.sub(r"\s+", " ", title).replace("- (Surya kudva)", "").strip()
+            title = re.sub(r"-\s*\([^\)]+\)", "", title)
+            title = re.sub(r"\s+", " ", title).strip()
             if not title:
                 title = item.get("title") or item.get("otherSubCategory") or "School Circular"
 
@@ -283,7 +289,7 @@ def run_orion_browser_sync(
             summary = re.sub(r"&amp;", "&", summary)
             summary = re.sub(r"\s+", " ", summary).strip()
             if not summary:
-                summary = f"Official circular issued to parents of {student_info.get('name', 'Surya Kudva')}."
+                summary = f"Official circular issued to parents of {student_info.get('name', 'Student')}."
 
             category = "Academic"
             if any(k in title.lower() for k in ["sports", "football", "cricket", "basketball", "champs", "cup"]):
@@ -327,7 +333,7 @@ def run_orion_browser_sync(
         "student": student_info,
         "pdfs_synced": len(downloaded_files),
         "circulars_synced": circulars_count,
-        "message": f"Successfully synced live Orion data for {student_info.get('name', 'Surya Kudva')}.",
+        "message": f"Successfully synced live Orion data for {student_info.get('name', 'Student')}.",
     }
 
 
@@ -347,7 +353,7 @@ def authenticate_orion_credentials(
         return {"success": False, "message": "Username / Email is required."}
 
     # Demo accounts
-    if clean_u in ["demo", "demo@vibgyor.com", "parent@vibgyor.com", "surya", "vivaan", "test@vibgyor.com", "parent"]:
+    if clean_u in ["demo", "demo@vibgyor.com", "parent@vibgyor.com", "test@vibgyor.com", "parent"]:
         from backend.database import get_student_profile
         student = get_student_profile(db_path=db_path)
         return {
@@ -415,9 +421,9 @@ def authenticate_orion_credentials(
                 body_text = page.inner_text("body")
 
                 lines = [line.strip() for line in body_text.splitlines() if line.strip()]
-                student_name = "Surya Kudva"
-                enrolment = "EN10672780114"
-                school = "VIBGYOR Kids and High - HSR Layout"
+                student_name = "Student"
+                enrolment = "STU-GRADE1F"
+                school = "VIBGYOR High"
                 grade = "Grade 1"
                 division = "F"
                 academic_year = "2026 - 27"

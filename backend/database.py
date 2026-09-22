@@ -121,14 +121,14 @@ def init_db(db_path: Optional[str] = None):
             INSERT INTO students (student_id, name, grade, section, school, academic_year, roll_no, parent_name)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (
-            "EN10672780114",
-            "Surya Kudva",
+            "STU-GRADE1F",
+            "Student",
             "Grade 1",
             "F",
-            "VIBGYOR Kids and High - HSR Layout",
+            "VIBGYOR High",
             "2026 - 27",
             "",
-            "Vijay Kudva"
+            "Parent"
         ))
 
     # Standardize NIL across all period fields in the database
@@ -165,8 +165,6 @@ def init_db(db_path: Optional[str] = None):
     for r in cursor.fetchall():
         cleaned_tn = clean_teacher_note(r["teacher_note"])
         cursor.execute("UPDATE class_updates SET teacher_note = ? WHERE id = ?", (cleaned_tn, r["id"]))
-
-    cursor.execute("UPDATE students SET name = 'Surya Kudva' WHERE LOWER(name) = 'surya kudva';")
 
     conn.commit()
     conn.close()
@@ -291,14 +289,14 @@ def get_student_profile(student_id: Optional[str] = None, db_path: Optional[str]
     conn.close()
     if not row:
         return {
-            "student_id": "EN10672780114",
-            "name": "Surya Kudva",
+            "student_id": "STU-GRADE1F",
+            "name": "Student",
             "grade": "Grade 1",
             "section": "F",
-            "school": "VIBGYOR Kids and High - HSR Layout",
+            "school": "VIBGYOR High",
             "academic_year": "2026 - 27",
             "roll_no": "",
-            "parent_name": "Vijay Kudva"
+            "parent_name": "Parent"
         }
     return dict(row)
 
@@ -800,7 +798,8 @@ def seed_sample_data(db_path: Optional[str] = None):
                         title = re.sub(r"<[^>]+>", " ", subj_raw)
                         title = re.sub(r"&nbsp;", " ", title)
                         title = re.sub(r"&amp;", "&", title)
-                        title = re.sub(r"\s+", " ", title).replace("- (Surya kudva)", "").strip()
+                        title = re.sub(r"-\s*\([^\)]+\)", "", title)
+                        title = re.sub(r"\s+", " ", title).strip()
                         if not title:
                             continue
 

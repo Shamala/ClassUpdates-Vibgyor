@@ -144,18 +144,6 @@ const DEMO_STUDENT = {
   parent_name: "Demo Parent",
 };
 
-const KNOWN_STUDENTS = {
-  "nvkudva@gmail.com": {
-    student_id: "EN10672780114",
-    name: "Surya Kudva",
-    grade: "Grade 1",
-    section: "F",
-    school: "VIBGYOR Kids and High - HSR Layout",
-    academic_year: "2026 - 27",
-    parent_name: "Vijay Kudva",
-  },
-};
-
 function hashCode(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -166,10 +154,10 @@ function hashCode(str) {
 }
 
 function resolveStudentForUser(username) {
-  if (!username) return DEMO_STUDENT;
+  if (!username || username === "demo@vibgyor.com") return DEMO_STUDENT;
   const u = username.trim().toLowerCase();
 
-  // 1. Check if user previously saved a custom child name in localStorage
+  // 1. Check if user previously saved their child's name in localStorage
   try {
     const saved = localStorage.getItem("vibgyor_student_for_" + u);
     if (saved) {
@@ -180,29 +168,15 @@ function resolveStudentForUser(username) {
     }
   } catch (e) {}
 
-  // 2. Check known accounts (like user's account nvkudva@gmail.com)
-  if (KNOWN_STUDENTS[u]) {
-    return { ...KNOWN_STUDENTS[u] };
-  }
-  if (u.includes("kudva") || u.includes("surya") || u.includes("vijay")) {
-    return { ...KNOWN_STUDENTS["nvkudva@gmail.com"] };
-  }
-
-  // 3. For any other parent, format a clean student name
-  const rawPart = u.includes("@") ? u.split("@")[0] : u;
-  const cleanName = rawPart
-    .split(/[._-]/)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-
+  // 2. Default generic student profile for all parents
   return {
     student_id: "STU-" + Math.abs(hashCode(u)),
-    name: cleanName,
+    name: "Student",
     grade: "Grade 1",
     section: "F",
     school: "VIBGYOR High",
     academic_year: "2026 - 27",
-    parent_name: cleanName,
+    parent_name: "Parent",
   };
 }
 
@@ -214,7 +188,8 @@ function editStudentName() {
     return;
   }
   const currentName = state.student ? state.student.name : "";
-  const newName = prompt("Edit child's name:", currentName);
+  const placeholder = currentName === "Student" ? "" : currentName;
+  const newName = prompt("Enter child / student name:", placeholder);
   if (newName && newName.trim() && newName.trim() !== currentName) {
     state.student.name = newName.trim();
     if (state.currentUser && state.currentUser.username) {
@@ -222,13 +197,17 @@ function editStudentName() {
         "vibgyor_student_for_" + state.currentUser.username.toLowerCase(),
         JSON.stringify(state.student),
       );
-      localStorage.setItem(
-        "vibgyor_parent_student",
-        JSON.stringify(state.student),
-      );
     }
+    localStorage.setItem(
+      "vibgyor_parent_student",
+      JSON.stringify(state.student),
+    );
     renderStudentProfile();
-    showToast(`Updated child's name to ${state.student.name} ⭐`, "success", 3000);
+    showToast(
+      `Updated student name to ${state.student.name} ⭐`,
+      "success",
+      3000,
+    );
   }
 }
 
@@ -301,17 +280,28 @@ async function checkAuth() {
       const storedStudent = JSON.parse(
         localStorage.getItem("vibgyor_parent_student") || "null",
       );
-      const isBadName = storedStudent && storedStudent.name && storedStudent.name.includes("'s Ward");
+      const isBadName =
+        storedStudent &&
+        storedStudent.name &&
+        storedStudent.name.includes("'s Ward");
       if (token === "demo-local-session") {
         state.student = DEMO_STUDENT;
       } else if (storedStudent && !isBadName) {
         state.student = storedStudent;
       } else {
-        state.student = resolveStudentForUser(state.currentUser ? state.currentUser.username : "");
+        state.student = resolveStudentForUser(
+          state.currentUser ? state.currentUser.username : "",
+        );
       }
-      localStorage.setItem("vibgyor_parent_student", JSON.stringify(state.student));
+      localStorage.setItem(
+        "vibgyor_parent_student",
+        JSON.stringify(state.student),
+      );
     } catch (e) {
-      state.student = token === "demo-local-session" ? DEMO_STUDENT : resolveStudentForUser("");
+      state.student =
+        token === "demo-local-session"
+          ? DEMO_STUDENT
+          : resolveStudentForUser("");
     }
 
     showDashboardView();
@@ -362,17 +352,28 @@ async function checkAuth() {
       const storedStudent = JSON.parse(
         localStorage.getItem("vibgyor_parent_student") || "null",
       );
-      const isBadName = storedStudent && storedStudent.name && storedStudent.name.includes("'s Ward");
+      const isBadName =
+        storedStudent &&
+        storedStudent.name &&
+        storedStudent.name.includes("'s Ward");
       if (token === "demo-local-session") {
         state.student = DEMO_STUDENT;
       } else if (storedStudent && !isBadName) {
         state.student = storedStudent;
       } else {
-        state.student = resolveStudentForUser(state.currentUser ? state.currentUser.username : "");
+        state.student = resolveStudentForUser(
+          state.currentUser ? state.currentUser.username : "",
+        );
       }
-      localStorage.setItem("vibgyor_parent_student", JSON.stringify(state.student));
+      localStorage.setItem(
+        "vibgyor_parent_student",
+        JSON.stringify(state.student),
+      );
     } catch (e) {
-      state.student = token === "demo-local-session" ? DEMO_STUDENT : resolveStudentForUser("");
+      state.student =
+        token === "demo-local-session"
+          ? DEMO_STUDENT
+          : resolveStudentForUser("");
     }
     showDashboardView();
     renderStudentProfile();
@@ -427,16 +428,9 @@ async function handleLoginSubmit(event) {
       );
       const student = resolveStudentForUser(username);
       state.student = student;
-      localStorage.setItem(
-        "vibgyor_parent_student",
-        JSON.stringify(student),
-      );
+      localStorage.setItem("vibgyor_parent_student", JSON.stringify(student));
 
-      showToast(
-        `Welcome, ${student.name}'s parent! 🌟`,
-        "success",
-        4000,
-      );
+      showToast("Signed in securely! (Zero server storage 🔒)", "success", 4000);
       showDashboardView();
       renderStudentProfile();
       await loadAvailableDates();
@@ -469,7 +463,11 @@ async function handleLoginSubmit(event) {
         JSON.stringify(state.student),
       );
 
-      showToast(data.message || `Signed in as ${state.student.name}!`, "success", 4000);
+      showToast(
+        data.message || "Signed in successfully!",
+        "success",
+        4000,
+      );
       showDashboardView();
       renderStudentProfile();
       await loadAvailableDates();
@@ -496,12 +494,9 @@ async function handleLoginSubmit(event) {
     );
     const student = resolveStudentForUser(username);
     state.student = student;
-    localStorage.setItem(
-      "vibgyor_parent_student",
-      JSON.stringify(student),
-    );
+    localStorage.setItem("vibgyor_parent_student", JSON.stringify(student));
 
-    showToast(`Signed in as ${student.name}`, "info", 4000);
+    showToast("Signed in offline mode", "info", 4000);
     showDashboardView();
     renderStudentProfile();
     await loadAvailableDates();
@@ -1192,11 +1187,19 @@ function renderStudentProfile() {
     nameEl.textContent = state.student.name;
     if (!isDemo) {
       nameEl.title = "Click to edit child's name";
-      nameEl.classList.add("cursor-pointer", "hover:text-indigo-600", "dark:hover:text-indigo-400");
+      nameEl.classList.add(
+        "cursor-pointer",
+        "hover:text-indigo-600",
+        "dark:hover:text-indigo-400",
+      );
       nameEl.onclick = editStudentName;
     } else {
       nameEl.title = "";
-      nameEl.classList.remove("cursor-pointer", "hover:text-indigo-600", "dark:hover:text-indigo-400");
+      nameEl.classList.remove(
+        "cursor-pointer",
+        "hover:text-indigo-600",
+        "dark:hover:text-indigo-400",
+      );
       nameEl.onclick = null;
     }
   }
@@ -1227,7 +1230,7 @@ function renderStudentProfile() {
       .join("")
       .slice(0, 2)
       .toUpperCase();
-    avatarEl.textContent = initials || (isDemo ? "DS" : "SK");
+    avatarEl.textContent = initials || (isDemo ? "DS" : "ST");
   }
 }
 
