@@ -4,16 +4,16 @@
  */
 window.VIBGYOR_STATIC_DATA = {
   "student": {
-    "id": 4,
-    "student_id": "EN10672780114",
-    "name": "Surya Kudva",
-    "grade": "Grade I",
+    "id": 1,
+    "student_id": "DEMO-G1F-001",
+    "name": "Demo Student",
+    "grade": "Grade 1",
     "section": "F",
-    "school": "VIBGYOR Kids and High - HSR Layout",
+    "school": "VIBGYOR High (Demo)",
     "academic_year": "2026 - 27",
-    "roll_no": "",
-    "parent_name": "Vijay Kudva",
-    "created_at": "2026-09-22 06:41:32"
+    "roll_no": "01",
+    "parent_name": "Demo Parent",
+    "created_at": "2026-09-22 00:00:00"
   },
   "dates": [
     {

@@ -92,7 +92,7 @@ class TestVibgyorApi(unittest.TestCase):
         status, headers, data = execute_http_request("GET", "/api/student")
         self.assertEqual(status, 200)
         self.assertIn("application/json", headers.get("content-type", ""))
-        self.assertEqual(data["name"], "Surya Kudva")
+        self.assertEqual(data["name"], "Demo Student")
         self.assertIn(data["grade"], ["Grade 1", "Grade I"])
         self.assertEqual(data["section"], "F")
         self.assertIn("VIBGYOR", data["school"])

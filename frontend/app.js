@@ -132,6 +132,18 @@ function updateThemeToggleIcon(isDark) {
   }
 }
 
+const DEMO_STUDENT = {
+  id: 1,
+  student_id: "DEMO-G1F-001",
+  name: "Demo Student",
+  grade: "Grade 1",
+  section: "F",
+  school: "VIBGYOR High (Demo)",
+  academic_year: "2026 - 27",
+  roll_no: "01",
+  parent_name: "Demo Parent",
+};
+
 // --- View Controls (Login vs Dashboard) ---
 function showLoginView() {
   const loginView = document.getElementById("login-view");
@@ -141,6 +153,9 @@ function showLoginView() {
   const mobSnippet = document.getElementById("mobile-profile-snippet");
   const mobName = document.getElementById("mobile-student-name");
   const mobMeta = document.getElementById("mobile-student-meta");
+  const deskName = document.getElementById("student-name");
+  const deskMeta = document.getElementById("student-meta");
+  const deskAvatar = document.getElementById("student-avatar");
 
   if (loginView) loginView.classList.remove("hidden");
   if (dashboardView) dashboardView.classList.add("hidden");
@@ -149,6 +164,9 @@ function showLoginView() {
   if (mobSnippet) mobSnippet.classList.add("hidden");
   if (mobName) mobName.textContent = "";
   if (mobMeta) mobMeta.textContent = "";
+  if (deskName) deskName.textContent = "";
+  if (deskMeta) deskMeta.textContent = "";
+  if (deskAvatar) deskAvatar.textContent = "--";
 }
 
 function showDashboardView() {
@@ -166,29 +184,43 @@ function showDashboardView() {
 }
 
 async function checkAuth() {
-  if (isStaticMode()) {
-    const token = localStorage.getItem("orion_auth_token");
-    if (token) {
-      state.isAuthenticated = true;
-      state.authToken = token;
-      try {
-        const storedUser = JSON.parse(
-          localStorage.getItem("vibgyor_parent_user") || "null",
-        );
-        state.currentUser =
-          storedUser || { username: "demo@vibgyor.com", display_name: "Parent" };
-      } catch (e) {
-        state.currentUser = { username: "demo@vibgyor.com", display_name: "Parent" };
-      }
-      const staticData = getStaticData();
-      state.student = staticData ? staticData.student : null;
-      showDashboardView();
-      renderStudentProfile();
-      await loadAvailableDates();
-      return;
-    }
+  const token = localStorage.getItem("orion_auth_token");
+  if (!token) {
     state.isAuthenticated = false;
     showLoginView();
+    return;
+  }
+
+  if (isStaticMode()) {
+    state.isAuthenticated = true;
+    state.authToken = token;
+    try {
+      const storedUser = JSON.parse(
+        localStorage.getItem("vibgyor_parent_user") || "null",
+      );
+      state.currentUser = storedUser || {
+        username: "demo@vibgyor.com",
+        display_name: "Demo Parent",
+      };
+    } catch (e) {
+      state.currentUser = {
+        username: "demo@vibgyor.com",
+        display_name: "Demo Parent",
+      };
+    }
+
+    try {
+      const storedStudent = JSON.parse(
+        localStorage.getItem("vibgyor_parent_student") || "null",
+      );
+      state.student = storedStudent || DEMO_STUDENT;
+    } catch (e) {
+      state.student = DEMO_STUDENT;
+    }
+
+    showDashboardView();
+    renderStudentProfile();
+    await loadAvailableDates();
     return;
   }
 
@@ -201,7 +233,11 @@ async function checkAuth() {
       if (data.authenticated) {
         state.isAuthenticated = true;
         state.currentUser = data.user;
-        state.student = data.student;
+        state.student = data.student || DEMO_STUDENT;
+        localStorage.setItem(
+          "vibgyor_parent_student",
+          JSON.stringify(state.student),
+        );
         showDashboardView();
         renderStudentProfile();
         await loadAvailableDates();
@@ -210,25 +246,34 @@ async function checkAuth() {
     }
   } catch (err) {
     console.warn("Auth check API failed, checking local session:", err);
-    const token = localStorage.getItem("orion_auth_token");
-    if (token && getStaticData()) {
-      state.isAuthenticated = true;
-      state.authToken = token;
-      try {
-        const storedUser = JSON.parse(
-          localStorage.getItem("vibgyor_parent_user") || "null",
-        );
-        state.currentUser =
-          storedUser || { username: "demo@vibgyor.com", display_name: "Parent" };
-      } catch (e) {
-        state.currentUser = { username: "demo@vibgyor.com", display_name: "Parent" };
-      }
-      state.student = getStaticData().student;
-      showDashboardView();
-      renderStudentProfile();
-      await loadAvailableDates();
-      return;
+    state.isAuthenticated = true;
+    state.authToken = token;
+    try {
+      const storedUser = JSON.parse(
+        localStorage.getItem("vibgyor_parent_user") || "null",
+      );
+      state.currentUser = storedUser || {
+        username: "demo@vibgyor.com",
+        display_name: "Demo Parent",
+      };
+    } catch (e) {
+      state.currentUser = {
+        username: "demo@vibgyor.com",
+        display_name: "Demo Parent",
+      };
     }
+    try {
+      const storedStudent = JSON.parse(
+        localStorage.getItem("vibgyor_parent_student") || "null",
+      );
+      state.student = storedStudent || DEMO_STUDENT;
+    } catch (e) {
+      state.student = DEMO_STUDENT;
+    }
+    showDashboardView();
+    renderStudentProfile();
+    await loadAvailableDates();
+    return;
   }
   state.isAuthenticated = false;
   showLoginView();
@@ -268,15 +313,34 @@ async function handleLoginSubmit(event) {
       state.isAuthenticated = true;
       state.authToken = "gh-pages-local-session";
       localStorage.setItem("orion_auth_token", "gh-pages-local-session");
-      const displayName = username.includes("@") ? username.split("@")[0] : username;
+      const displayName = username.includes("@")
+        ? username.split("@")[0]
+        : username;
       state.currentUser = { username, display_name: displayName };
-      localStorage.setItem("vibgyor_parent_user", JSON.stringify(state.currentUser));
-      const staticData = getStaticData();
-      state.student = staticData
-        ? staticData.student
-        : { name: displayName, grade: "Grade 1F", school: "VIBGYOR High" };
+      localStorage.setItem(
+        "vibgyor_parent_user",
+        JSON.stringify(state.currentUser),
+      );
+      const customStudent = {
+        student_id: "USER-" + btoa(username).slice(0, 8),
+        name: displayName + "'s Ward",
+        grade: "Grade 1",
+        section: "F",
+        school: "VIBGYOR High",
+        academic_year: "2026 - 27",
+        parent_name: displayName,
+      };
+      state.student = customStudent;
+      localStorage.setItem(
+        "vibgyor_parent_student",
+        JSON.stringify(customStudent),
+      );
 
-      showToast("Signed in securely! (Zero server storage 🔒)", "success", 4000);
+      showToast(
+        "Signed in securely! (Zero server storage 🔒)",
+        "success",
+        4000,
+      );
       showDashboardView();
       renderStudentProfile();
       await loadAvailableDates();
@@ -300,6 +364,14 @@ async function handleLoginSubmit(event) {
       state.currentUser = data.user;
       state.student = data.student;
       localStorage.setItem("orion_auth_token", data.token);
+      localStorage.setItem(
+        "vibgyor_parent_user",
+        JSON.stringify(state.currentUser),
+      );
+      localStorage.setItem(
+        "vibgyor_parent_student",
+        JSON.stringify(state.student),
+      );
 
       showToast(data.message || "Signed in successfully!", "success", 4000);
       showDashboardView();
@@ -315,24 +387,40 @@ async function handleLoginSubmit(event) {
       }
     }
   } catch (err) {
-    // If backend is not reachable, fall back to offline client-side session
-    if (getStaticData()) {
-      state.isAuthenticated = true;
-      state.authToken = "local-offline-session";
-      localStorage.setItem("orion_auth_token", "local-offline-session");
-      const displayName = username.includes("@") ? username.split("@")[0] : username;
-      state.currentUser = { username, display_name: displayName };
-      localStorage.setItem("vibgyor_parent_user", JSON.stringify(state.currentUser));
-      state.student = getStaticData().student;
+    const displayName = username.includes("@")
+      ? username.split("@")[0]
+      : username;
+    state.isAuthenticated = true;
+    state.authToken = "local-offline-session";
+    localStorage.setItem("orion_auth_token", "local-offline-session");
+    state.currentUser = { username, display_name: displayName };
+    localStorage.setItem(
+      "vibgyor_parent_user",
+      JSON.stringify(state.currentUser),
+    );
+    const customStudent = {
+      student_id: "USER-" + btoa(username).slice(0, 8),
+      name: displayName + "'s Ward",
+      grade: "Grade 1",
+      section: "F",
+      school: "VIBGYOR High",
+      academic_year: "2026 - 27",
+      parent_name: displayName,
+    };
+    state.student = customStudent;
+    localStorage.setItem(
+      "vibgyor_parent_student",
+      JSON.stringify(customStudent),
+    );
 
-      showToast("Signed in offline mode (Zero server storage 🔒)", "info", 4000);
-      showDashboardView();
-      renderStudentProfile();
-      await loadAvailableDates();
-    } else if (errorAlert) {
-      errorText.textContent = "Network error connecting to Hubble Orion.";
-      errorAlert.classList.remove("hidden");
-    }
+    showToast(
+      "Signed in offline mode (Zero server storage 🔒)",
+      "info",
+      4000,
+    );
+    showDashboardView();
+    renderStudentProfile();
+    await loadAvailableDates();
   } finally {
     if (submitBtn) submitBtn.disabled = false;
     if (spinner) spinner.classList.add("hidden");
@@ -342,7 +430,6 @@ async function handleLoginSubmit(event) {
 
 async function handleDemoLogin() {
   const errorAlert = document.getElementById("login-error-alert");
-  const errorText = document.getElementById("login-error-text");
   const demoBtn = document.getElementById("demo-login-btn");
 
   if (errorAlert) errorAlert.classList.add("hidden");
@@ -351,17 +438,34 @@ async function handleDemoLogin() {
     demoBtn.classList.add("opacity-75");
   }
 
+  // Clear any existing stored user/student data first
+  localStorage.removeItem("vibgyor_parent_user");
+  localStorage.removeItem("vibgyor_parent_student");
+
   if (isStaticMode()) {
     setTimeout(async () => {
       state.isAuthenticated = true;
       state.authToken = "demo-local-session";
       localStorage.setItem("orion_auth_token", "demo-local-session");
-      state.currentUser = { username: "demo@vibgyor.com", display_name: "Demo Parent" };
-      localStorage.setItem("vibgyor_parent_user", JSON.stringify(state.currentUser));
-      const staticData = getStaticData();
-      state.student = staticData ? staticData.student : null;
+      state.currentUser = {
+        username: "demo@vibgyor.com",
+        display_name: "Demo Parent",
+      };
+      state.student = DEMO_STUDENT;
+      localStorage.setItem(
+        "vibgyor_parent_user",
+        JSON.stringify(state.currentUser),
+      );
+      localStorage.setItem(
+        "vibgyor_parent_student",
+        JSON.stringify(DEMO_STUDENT),
+      );
 
-      showToast("Signed in with Demo Account ⭐ (Client-side mode)", "success", 4000);
+      showToast(
+        "Signed in with Demo Account ⭐ (Sample Data)",
+        "success",
+        4000,
+      );
       showDashboardView();
       renderStudentProfile();
       await loadAvailableDates();
@@ -369,7 +473,7 @@ async function handleDemoLogin() {
         demoBtn.disabled = false;
         demoBtn.classList.remove("opacity-75");
       }
-    }, 300);
+    }, 200);
     return;
   }
 
@@ -384,8 +488,16 @@ async function handleDemoLogin() {
       state.isAuthenticated = true;
       state.authToken = data.token;
       state.currentUser = data.user;
-      state.student = data.student;
+      state.student = data.student || DEMO_STUDENT;
       localStorage.setItem("orion_auth_token", data.token);
+      localStorage.setItem(
+        "vibgyor_parent_user",
+        JSON.stringify(state.currentUser),
+      );
+      localStorage.setItem(
+        "vibgyor_parent_student",
+        JSON.stringify(state.student),
+      );
 
       showToast("Signed in with Demo Account ⭐", "success", 4000);
       showDashboardView();
@@ -399,22 +511,31 @@ async function handleDemoLogin() {
       }
     }
   } catch (err) {
-    if (getStaticData()) {
-      state.isAuthenticated = true;
-      state.authToken = "demo-local-session";
-      localStorage.setItem("orion_auth_token", "demo-local-session");
-      state.currentUser = { username: "demo@vibgyor.com", display_name: "Demo Parent" };
-      localStorage.setItem("vibgyor_parent_user", JSON.stringify(state.currentUser));
-      state.student = getStaticData().student;
+    state.isAuthenticated = true;
+    state.authToken = "demo-local-session";
+    localStorage.setItem("orion_auth_token", "demo-local-session");
+    state.currentUser = {
+      username: "demo@vibgyor.com",
+      display_name: "Demo Parent",
+    };
+    state.student = DEMO_STUDENT;
+    localStorage.setItem(
+      "vibgyor_parent_user",
+      JSON.stringify(state.currentUser),
+    );
+    localStorage.setItem(
+      "vibgyor_parent_student",
+      JSON.stringify(DEMO_STUDENT),
+    );
 
-      showToast("Signed in with Demo Account ⭐ (Offline mode)", "success", 4000);
-      showDashboardView();
-      renderStudentProfile();
-      await loadAvailableDates();
-    } else if (errorAlert) {
-      errorText.textContent = "Could not connect to server.";
-      errorAlert.classList.remove("hidden");
-    }
+    showToast(
+      "Signed in with Demo Account ⭐ (Sample Data)",
+      "success",
+      4000,
+    );
+    showDashboardView();
+    renderStudentProfile();
+    await loadAvailableDates();
   } finally {
     if (demoBtn) {
       demoBtn.disabled = false;
@@ -435,6 +556,8 @@ async function handleLogout() {
 
   localStorage.removeItem("orion_auth_token");
   localStorage.removeItem("vibgyor_parent_user");
+  localStorage.removeItem("vibgyor_parent_student");
+  sessionStorage.clear();
   state.authToken = "";
   state.isAuthenticated = false;
   state.currentUser = null;
@@ -561,12 +684,15 @@ function switchTab(tabName) {
 
 // --- API Calls & Client-Side Data Loading ---
 async function loadStudentProfile() {
+  if (state.student && state.student.student_id === "DEMO-G1F-001") {
+    renderStudentProfile();
+    return;
+  }
   if (isStaticMode()) {
-    const staticData = getStaticData();
-    if (staticData && staticData.student) {
-      state.student = staticData.student;
-      renderStudentProfile();
+    if (!state.student) {
+      state.student = DEMO_STUDENT;
     }
+    renderStudentProfile();
     return;
   }
 
@@ -580,14 +706,16 @@ async function loadStudentProfile() {
       return;
     }
   } catch (err) {
-    console.warn("Failed to load student profile from server, checking static data:", err);
+    console.warn(
+      "Failed to load student profile from server, keeping existing profile:",
+      err,
+    );
   }
 
-  const staticData = getStaticData();
-  if (staticData && staticData.student) {
-    state.student = staticData.student;
-    renderStudentProfile();
+  if (!state.student) {
+    state.student = DEMO_STUDENT;
   }
+  renderStudentProfile();
 }
 
 function loadStaticAvailableDates() {
@@ -655,7 +783,10 @@ async function loadAvailableDates() {
       return;
     }
   } catch (err) {
-    console.warn("Failed to load dates from server, falling back to static data:", err);
+    console.warn(
+      "Failed to load dates from server, falling back to static data:",
+      err,
+    );
   }
   loadStaticAvailableDates();
   if (state.selectedDate) {
@@ -723,7 +854,10 @@ async function loadDailyUpdate(date) {
       return;
     }
   } catch (err) {
-    console.warn("Failed to fetch daily update from backend, falling back to static:", err);
+    console.warn(
+      "Failed to fetch daily update from backend, falling back to static:",
+      err,
+    );
   } finally {
     if (container) container.classList.add("hidden");
   }
@@ -774,7 +908,10 @@ async function loadWeeklyUpdate(date) {
       return;
     }
   } catch (err) {
-    console.warn("Failed to fetch weekly update from server, falling back to static:", err);
+    console.warn(
+      "Failed to fetch weekly update from server, falling back to static:",
+      err,
+    );
   }
   loadStaticWeeklyUpdate();
 }
@@ -883,7 +1020,10 @@ async function toggleHomework(periodId) {
       return;
     }
   } catch (err) {
-    console.warn("Toggle error on server, falling back to local browser storage:", err);
+    console.warn(
+      "Toggle error on server, falling back to local browser storage:",
+      err,
+    );
   }
 
   // Fallback to local storage

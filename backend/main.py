@@ -89,9 +89,28 @@ except ImportError:
     HAS_FASTAPI = False
 
 
+DEMO_STUDENT = {
+    "id": 1,
+    "student_id": "DEMO-G1F-001",
+    "name": "Demo Student",
+    "grade": "Grade 1",
+    "section": "F",
+    "school": "VIBGYOR High (Demo)",
+    "academic_year": "2026 - 27",
+    "roll_no": "01",
+    "parent_name": "Demo Parent",
+}
+
+
 # Business logic handlers shared between FastAPI and Builtin Server
-def handle_get_student():
-    return get_student_profile()
+def handle_get_student(token: Optional[str] = None):
+    if token:
+        user = get_session_user(token)
+        if user:
+            if user.get("student_id") == "DEMO-G1F-001" or user.get("username") == "demo@vibgyor.com":
+                return DEMO_STUDENT
+            return get_student_profile(user.get("student_id"))
+    return DEMO_STUDENT
 
 
 def handle_get_dates():
@@ -136,9 +155,9 @@ def handle_auth_login(payload: Dict[str, Any]) -> Dict[str, Any]:
     password = (payload.get("password") or "").strip()
     is_demo = payload.get("is_demo", False)
 
-    if is_demo or username.lower() in ["demo", "demo@vibgyor.com", "parent@vibgyor.com", "surya", "vivaan", "test@vibgyor.com"]:
-        user = create_or_get_user("demo@vibgyor.com", display_name="Demo Parent")
-        student = get_student_profile()
+    if is_demo or username.lower() in ["demo", "demo@vibgyor.com", "parent@vibgyor.com", "test@vibgyor.com"]:
+        user = create_or_get_user("demo@vibgyor.com", display_name="Demo Parent", student_id="DEMO-G1F-001")
+        student = DEMO_STUDENT
         token = create_session(user["id"], user["username"], student_id=student.get("student_id"))
         return {
             "success": True,
@@ -176,7 +195,10 @@ def handle_auth_me(token: Optional[str]) -> Dict[str, Any]:
     session_user = get_session_user(token)
     if not session_user:
         return {"authenticated": False}
-    student = get_student_profile(session_user.get("student_id"))
+    if session_user.get("student_id") == "DEMO-G1F-001" or session_user.get("username") == "demo@vibgyor.com":
+        student = DEMO_STUDENT
+    else:
+        student = get_student_profile(session_user.get("student_id"))
     return {
         "authenticated": True,
         "user": session_user,
@@ -251,8 +273,9 @@ if HAS_FASTAPI:
         return response
 
     @app.get("/api/student")
-    def api_student():
-        return handle_get_student()
+    def api_student(request: Request):
+        token = _extract_token(request)
+        return handle_get_student(token)
 
     @app.get("/api/dates")
     def api_dates():
@@ -409,7 +432,8 @@ class VibgyorHTTPRequestHandler(BaseHTTPRequestHandler):
 
         # API Endpoints
         if path == "/api/student":
-            return self._send_json(handle_get_student())
+            token = self._get_token()
+            return self._send_json(handle_get_student(token))
 
         if path == "/api/dates":
             return self._send_json(handle_get_dates())

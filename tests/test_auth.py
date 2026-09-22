@@ -103,7 +103,7 @@ class TestVibgyorAuth(unittest.TestCase):
         self.assertIn("token", body)
         self.assertEqual(body.get("mode"), "demo")
         self.assertIn("student", body)
-        self.assertEqual(body["student"]["name"], "Surya Kudva")
+        self.assertEqual(body["student"]["name"], "Demo Student")
 
     def test_demo_login_by_username(self):
         """Test logging in by passing username 'demo'."""
@@ -136,7 +136,7 @@ class TestVibgyorAuth(unittest.TestCase):
         self.assertTrue(me_body.get("authenticated"))
         self.assertIn("user", me_body)
         self.assertIn("student", me_body)
-        self.assertEqual(me_body["student"]["name"], "Surya Kudva")
+        self.assertEqual(me_body["student"]["name"], "Demo Student")
 
     def test_logout(self):
         """Test /api/auth/logout clears the session."""
