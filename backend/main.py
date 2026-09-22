@@ -299,6 +299,18 @@ if HAS_FASTAPI:
     if os.path.exists(FRONTEND_DIR):
         app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
+    @app.get("/style.css")
+    def serve_style_css():
+        return FileResponse(os.path.join(FRONTEND_DIR, "style.css"), media_type="text/css")
+
+    @app.get("/app.js")
+    def serve_app_js():
+        return FileResponse(os.path.join(FRONTEND_DIR, "app.js"), media_type="application/javascript")
+
+    @app.get("/static_data.js")
+    def serve_static_data_js():
+        return FileResponse(os.path.join(FRONTEND_DIR, "static_data.js"), media_type="application/javascript")
+
     @app.get("/")
     def serve_root():
         index_path = os.path.join(FRONTEND_DIR, "index.html")

@@ -47,7 +47,7 @@
       })();
     </script>
     <!-- Custom Stylesheet -->
-    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="style.css" />
     <style>
       body {
         font-family:
@@ -500,12 +500,12 @@
             <span>Explore Demo / Sample Account</span>
           </button>
 
-          <!-- Security reassurance -->
+          <!-- 100% Privacy & Security Guarantee -->
           <div
-            class="pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1.5"
+            class="p-3 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/50 text-[11px] text-emerald-800 dark:text-emerald-300 flex items-start gap-2.5 text-left leading-relaxed"
           >
             <svg
-              class="w-3.5 h-3.5 text-emerald-500"
+              class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -517,7 +517,10 @@
                 d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
               />
             </svg>
-            <span>Authenticates directly with Hubble Orion Keycloak SSO</span>
+            <div>
+              <span class="font-bold block text-emerald-900 dark:text-emerald-200">🔒 100% Client-Side Privacy Guarantee</span>
+              <span>Your credentials (username & password) are never stored on any remote server. All homework checkmarks and preferences reside solely inside your browser (localStorage).</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1041,7 +1044,9 @@
     <!-- Toast Notification -->
     <div id="toast" class="hidden"></div>
 
+    <!-- Pre-bundled Data for GitHub Pages & Offline Client-Side Mode -->
+    <script src="static_data.js"></script>
     <!-- App Script -->
-    <script src="/static/app.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>

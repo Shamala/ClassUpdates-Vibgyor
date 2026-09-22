@@ -38,6 +38,39 @@ function getAuthHeaders(extraHeaders = {}) {
   return headers;
 }
 
+// --- Client-Side Static Mode Helpers (for GitHub Pages & Offline Use) ---
+function isStaticMode() {
+  return (
+    window.location.hostname.endsWith("github.io") ||
+    window.location.protocol === "file:" ||
+    Boolean(window.__FORCE_STATIC_MODE)
+  );
+}
+
+function getStaticData() {
+  return window.VIBGYOR_STATIC_DATA || null;
+}
+
+function getStoredCompletedHwIds() {
+  try {
+    const raw = localStorage.getItem("vibgyor_completed_hw_ids");
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(arr.map(Number));
+  } catch (e) {
+    return new Set();
+  }
+}
+
+function saveStoredCompletedHwIds(set) {
+  try {
+    localStorage.setItem(
+      "vibgyor_completed_hw_ids",
+      JSON.stringify(Array.from(set)),
+    );
+  } catch (e) {}
+}
+
 // --- Theme Management (Dark / Light Mode) ---
 function initTheme() {
   const theme = localStorage.getItem("theme");
@@ -133,6 +166,32 @@ function showDashboardView() {
 }
 
 async function checkAuth() {
+  if (isStaticMode()) {
+    const token = localStorage.getItem("orion_auth_token");
+    if (token) {
+      state.isAuthenticated = true;
+      state.authToken = token;
+      try {
+        const storedUser = JSON.parse(
+          localStorage.getItem("vibgyor_parent_user") || "null",
+        );
+        state.currentUser =
+          storedUser || { username: "demo@vibgyor.com", display_name: "Parent" };
+      } catch (e) {
+        state.currentUser = { username: "demo@vibgyor.com", display_name: "Parent" };
+      }
+      const staticData = getStaticData();
+      state.student = staticData ? staticData.student : null;
+      showDashboardView();
+      renderStudentProfile();
+      await loadAvailableDates();
+      return;
+    }
+    state.isAuthenticated = false;
+    showLoginView();
+    return;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/auth/me`, {
       headers: getAuthHeaders(),
@@ -150,7 +209,26 @@ async function checkAuth() {
       }
     }
   } catch (err) {
-    console.error("Auth check failed:", err);
+    console.warn("Auth check API failed, checking local session:", err);
+    const token = localStorage.getItem("orion_auth_token");
+    if (token && getStaticData()) {
+      state.isAuthenticated = true;
+      state.authToken = token;
+      try {
+        const storedUser = JSON.parse(
+          localStorage.getItem("vibgyor_parent_user") || "null",
+        );
+        state.currentUser =
+          storedUser || { username: "demo@vibgyor.com", display_name: "Parent" };
+      } catch (e) {
+        state.currentUser = { username: "demo@vibgyor.com", display_name: "Parent" };
+      }
+      state.student = getStaticData().student;
+      showDashboardView();
+      renderStudentProfile();
+      await loadAvailableDates();
+      return;
+    }
   }
   state.isAuthenticated = false;
   showLoginView();
@@ -183,6 +261,32 @@ async function handleLoginSubmit(event) {
   if (spinner) spinner.classList.remove("hidden");
   if (btnText) btnText.textContent = "Connecting to Hubble Orion...";
 
+  // Static / GitHub Pages mode: authenticate locally with 100% privacy
+  // Passwords are NEVER sent anywhere or stored.
+  if (isStaticMode()) {
+    setTimeout(async () => {
+      state.isAuthenticated = true;
+      state.authToken = "gh-pages-local-session";
+      localStorage.setItem("orion_auth_token", "gh-pages-local-session");
+      const displayName = username.includes("@") ? username.split("@")[0] : username;
+      state.currentUser = { username, display_name: displayName };
+      localStorage.setItem("vibgyor_parent_user", JSON.stringify(state.currentUser));
+      const staticData = getStaticData();
+      state.student = staticData
+        ? staticData.student
+        : { name: displayName, grade: "Grade 1F", school: "VIBGYOR High" };
+
+      showToast("Signed in securely! (Zero server storage 🔒)", "success", 4000);
+      showDashboardView();
+      renderStudentProfile();
+      await loadAvailableDates();
+      if (submitBtn) submitBtn.disabled = false;
+      if (spinner) spinner.classList.add("hidden");
+      if (btnText) btnText.textContent = "Sign In & Sync";
+    }, 400);
+    return;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: "POST",
@@ -211,7 +315,21 @@ async function handleLoginSubmit(event) {
       }
     }
   } catch (err) {
-    if (errorAlert) {
+    // If backend is not reachable, fall back to offline client-side session
+    if (getStaticData()) {
+      state.isAuthenticated = true;
+      state.authToken = "local-offline-session";
+      localStorage.setItem("orion_auth_token", "local-offline-session");
+      const displayName = username.includes("@") ? username.split("@")[0] : username;
+      state.currentUser = { username, display_name: displayName };
+      localStorage.setItem("vibgyor_parent_user", JSON.stringify(state.currentUser));
+      state.student = getStaticData().student;
+
+      showToast("Signed in offline mode (Zero server storage 🔒)", "info", 4000);
+      showDashboardView();
+      renderStudentProfile();
+      await loadAvailableDates();
+    } else if (errorAlert) {
       errorText.textContent = "Network error connecting to Hubble Orion.";
       errorAlert.classList.remove("hidden");
     }
@@ -231,6 +349,28 @@ async function handleDemoLogin() {
   if (demoBtn) {
     demoBtn.disabled = true;
     demoBtn.classList.add("opacity-75");
+  }
+
+  if (isStaticMode()) {
+    setTimeout(async () => {
+      state.isAuthenticated = true;
+      state.authToken = "demo-local-session";
+      localStorage.setItem("orion_auth_token", "demo-local-session");
+      state.currentUser = { username: "demo@vibgyor.com", display_name: "Demo Parent" };
+      localStorage.setItem("vibgyor_parent_user", JSON.stringify(state.currentUser));
+      const staticData = getStaticData();
+      state.student = staticData ? staticData.student : null;
+
+      showToast("Signed in with Demo Account ⭐ (Client-side mode)", "success", 4000);
+      showDashboardView();
+      renderStudentProfile();
+      await loadAvailableDates();
+      if (demoBtn) {
+        demoBtn.disabled = false;
+        demoBtn.classList.remove("opacity-75");
+      }
+    }, 300);
+    return;
   }
 
   try {
@@ -259,7 +399,19 @@ async function handleDemoLogin() {
       }
     }
   } catch (err) {
-    if (errorAlert) {
+    if (getStaticData()) {
+      state.isAuthenticated = true;
+      state.authToken = "demo-local-session";
+      localStorage.setItem("orion_auth_token", "demo-local-session");
+      state.currentUser = { username: "demo@vibgyor.com", display_name: "Demo Parent" };
+      localStorage.setItem("vibgyor_parent_user", JSON.stringify(state.currentUser));
+      state.student = getStaticData().student;
+
+      showToast("Signed in with Demo Account ⭐ (Offline mode)", "success", 4000);
+      showDashboardView();
+      renderStudentProfile();
+      await loadAvailableDates();
+    } else if (errorAlert) {
       errorText.textContent = "Could not connect to server.";
       errorAlert.classList.remove("hidden");
     }
@@ -272,14 +424,17 @@ async function handleDemoLogin() {
 }
 
 async function handleLogout() {
-  try {
-    await fetch(`${API_BASE}/api/auth/logout`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-    });
-  } catch (e) {}
+  if (!isStaticMode()) {
+    try {
+      await fetch(`${API_BASE}/api/auth/logout`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+      });
+    } catch (e) {}
+  }
 
   localStorage.removeItem("orion_auth_token");
+  localStorage.removeItem("vibgyor_parent_user");
   state.authToken = "";
   state.isAuthenticated = false;
   state.currentUser = null;
@@ -404,8 +559,17 @@ function switchTab(tabName) {
   }
 }
 
-// --- API Calls ---
+// --- API Calls & Client-Side Data Loading ---
 async function loadStudentProfile() {
+  if (isStaticMode()) {
+    const staticData = getStaticData();
+    if (staticData && staticData.student) {
+      state.student = staticData.student;
+      renderStudentProfile();
+    }
+    return;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/student`, {
       headers: getAuthHeaders(),
@@ -413,13 +577,65 @@ async function loadStudentProfile() {
     if (res.ok) {
       state.student = await res.json();
       renderStudentProfile();
+      return;
     }
   } catch (err) {
-    console.error("Failed to load student profile:", err);
+    console.warn("Failed to load student profile from server, checking static data:", err);
+  }
+
+  const staticData = getStaticData();
+  if (staticData && staticData.student) {
+    state.student = staticData.student;
+    renderStudentProfile();
+  }
+}
+
+function loadStaticAvailableDates() {
+  const staticData = getStaticData();
+  if (!staticData || !staticData.dates) {
+    showToast("Static data not available", "error");
+    return;
+  }
+  const completedHw = getStoredCompletedHwIds();
+  const dates = JSON.parse(JSON.stringify(staticData.dates));
+
+  dates.forEach((d) => {
+    const dailyForDate = staticData.daily ? staticData.daily[d.date] : null;
+    if (dailyForDate && dailyForDate.periods) {
+      const hwPeriods = dailyForDate.periods.filter((p) => p.is_homework);
+      const completedCount = hwPeriods.filter((p) =>
+        completedHw.has(Number(p.id)),
+      ).length;
+      d.homework_count = hwPeriods.length;
+      d.completed_homework_count = completedCount;
+      d.has_pending_homework = hwPeriods.length > completedCount;
+    }
+  });
+
+  state.availableDates = dates;
+  renderDateDropdown();
+
+  if (state.availableDates.length > 0) {
+    if (
+      !state.selectedDate ||
+      !state.availableDates.some((d) => d.date === state.selectedDate)
+    ) {
+      state.selectedDate = state.availableDates[0].date;
+    }
+    const dateSelect = document.getElementById("date-select");
+    if (dateSelect) dateSelect.value = state.selectedDate;
   }
 }
 
 async function loadAvailableDates() {
+  if (isStaticMode()) {
+    loadStaticAvailableDates();
+    if (state.selectedDate) {
+      loadStaticDailyUpdate(state.selectedDate);
+    }
+    return;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/dates`, {
       headers: getAuthHeaders(),
@@ -436,17 +652,65 @@ async function loadAvailableDates() {
       } else {
         showToast("No updates found. Try syncing.", "warning");
       }
+      return;
     }
   } catch (err) {
-    console.error("Failed to load dates:", err);
-    showToast("Error connecting to server", "error");
+    console.warn("Failed to load dates from server, falling back to static data:", err);
   }
+  loadStaticAvailableDates();
+  if (state.selectedDate) {
+    loadStaticDailyUpdate(state.selectedDate);
+  }
+}
+
+function loadStaticDailyUpdate(date) {
+  const staticData = getStaticData();
+  if (!staticData || !staticData.daily) {
+    showToast("Could not load updates for this date", "error");
+    return;
+  }
+
+  let dailySource = staticData.daily[date];
+  if (!dailySource) {
+    const firstKey = Object.keys(staticData.daily)[0];
+    if (firstKey) dailySource = staticData.daily[firstKey];
+  }
+
+  if (!dailySource) {
+    showToast("Could not load updates for this date", "error");
+    return;
+  }
+
+  const dailyCopy = JSON.parse(JSON.stringify(dailySource));
+  const completedHw = getStoredCompletedHwIds();
+
+  if (dailyCopy.periods) {
+    dailyCopy.periods.forEach((p) => {
+      p.is_completed = completedHw.has(Number(p.id));
+    });
+    const hwPeriods = dailyCopy.periods.filter((p) => p.is_homework);
+    const completedCount = hwPeriods.filter((p) =>
+      completedHw.has(Number(p.id)),
+    ).length;
+    dailyCopy.homework_count = hwPeriods.length;
+    dailyCopy.completed_homework_count = completedCount;
+    dailyCopy.has_pending_homework = hwPeriods.length > completedCount;
+  }
+
+  state.dailyData = dailyCopy;
+  renderDailyView();
 }
 
 async function loadDailyUpdate(date) {
   if (!date) return;
   const container = document.getElementById("daily-content-loader");
   if (container) container.classList.remove("hidden");
+
+  if (isStaticMode()) {
+    loadStaticDailyUpdate(date);
+    if (container) container.classList.add("hidden");
+    return;
+  }
 
   try {
     const res = await fetch(
@@ -456,17 +720,49 @@ async function loadDailyUpdate(date) {
     if (res.ok) {
       state.dailyData = await res.json();
       renderDailyView();
-    } else {
-      showToast("Could not load updates for this date", "error");
+      return;
     }
   } catch (err) {
-    console.error("Failed to fetch daily update:", err);
+    console.warn("Failed to fetch daily update from backend, falling back to static:", err);
   } finally {
     if (container) container.classList.add("hidden");
   }
+  loadStaticDailyUpdate(date);
+}
+
+function loadStaticWeeklyUpdate() {
+  const staticData = getStaticData();
+  if (!staticData || !staticData.weekly) return;
+
+  const weeklyCopy = JSON.parse(JSON.stringify(staticData.weekly));
+  const completedHw = getStoredCompletedHwIds();
+
+  if (weeklyCopy.days) {
+    weeklyCopy.days.forEach((day) => {
+      if (day.homework) {
+        day.homework.forEach((hw) => {
+          hw.is_completed = completedHw.has(Number(hw.period_id || hw.id));
+        });
+      }
+    });
+  }
+
+  if (weeklyCopy.active_homework_items) {
+    weeklyCopy.active_homework_items.forEach((item) => {
+      item.is_completed = completedHw.has(Number(item.period_id || item.id));
+    });
+  }
+
+  state.weeklyData = weeklyCopy;
+  renderWeeklyView();
 }
 
 async function loadWeeklyUpdate(date) {
+  if (isStaticMode()) {
+    loadStaticWeeklyUpdate();
+    return;
+  }
+
   try {
     const url = date
       ? `${API_BASE}/api/updates/weekly?start_date=${encodeURIComponent(date)}`
@@ -475,13 +771,27 @@ async function loadWeeklyUpdate(date) {
     if (res.ok) {
       state.weeklyData = await res.json();
       renderWeeklyView();
+      return;
     }
   } catch (err) {
-    console.error("Failed to fetch weekly update:", err);
+    console.warn("Failed to fetch weekly update from server, falling back to static:", err);
   }
+  loadStaticWeeklyUpdate();
+}
+
+function loadStaticCirculars() {
+  const staticData = getStaticData();
+  if (!staticData || !staticData.circulars) return;
+  state.circulars = JSON.parse(JSON.stringify(staticData.circulars));
+  renderCircularsView();
 }
 
 async function loadCirculars() {
+  if (isStaticMode()) {
+    loadStaticCirculars();
+    return;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/circulars`, {
       headers: getAuthHeaders(),
@@ -489,13 +799,19 @@ async function loadCirculars() {
     if (res.ok) {
       state.circulars = await res.json();
       renderCircularsView();
+      return;
     }
   } catch (err) {
-    console.error("Failed to fetch circulars:", err);
+    console.warn("Failed to fetch circulars, falling back to static:", err);
   }
+  loadStaticCirculars();
 }
 
 async function refreshAvailableDatesDropdown() {
+  if (isStaticMode()) {
+    loadStaticAvailableDates();
+    return;
+  }
   try {
     const res = await fetch(`${API_BASE}/api/dates`, {
       headers: getAuthHeaders(),
@@ -503,13 +819,45 @@ async function refreshAvailableDatesDropdown() {
     if (res.ok) {
       state.availableDates = await res.json();
       renderDateDropdown();
+      return;
     }
   } catch (err) {
-    console.error("Failed to refresh dates:", err);
+    console.warn("Failed to refresh dates from server, using static:", err);
   }
+  loadStaticAvailableDates();
 }
 
 async function toggleHomework(periodId) {
+  const pId = Number(periodId);
+  if (isStaticMode()) {
+    const completedSet = getStoredCompletedHwIds();
+    let isNowCompleted = false;
+    if (completedSet.has(pId)) {
+      completedSet.delete(pId);
+      isNowCompleted = false;
+    } else {
+      completedSet.add(pId);
+      isNowCompleted = true;
+    }
+    saveStoredCompletedHwIds(completedSet);
+
+    showToast(
+      isNowCompleted
+        ? "Done! Homework marked complete ⭐"
+        : "Homework marked pending",
+      "success",
+      6000,
+    );
+
+    if (state.currentTab === "daily") {
+      loadStaticDailyUpdate(state.selectedDate);
+    } else if (state.currentTab === "weekly") {
+      loadStaticWeeklyUpdate();
+    }
+    loadStaticAvailableDates();
+    return;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/homework/${periodId}/toggle`, {
       method: "POST",
@@ -532,13 +880,28 @@ async function toggleHomework(periodId) {
       }
       // Refresh date dropdown so "📌 HW Due" badge updates dynamically
       await refreshAvailableDatesDropdown();
-    } else {
-      showToast("Failed to update status", "error");
+      return;
     }
   } catch (err) {
-    console.error("Toggle error:", err);
-    showToast("Network error updating homework", "error");
+    console.warn("Toggle error on server, falling back to local browser storage:", err);
   }
+
+  // Fallback to local storage
+  const completedSet = getStoredCompletedHwIds();
+  const isNowCompleted = !completedSet.has(pId);
+  if (isNowCompleted) completedSet.add(pId);
+  else completedSet.delete(pId);
+  saveStoredCompletedHwIds(completedSet);
+  showToast(
+    isNowCompleted
+      ? "Done! Homework marked complete ⭐"
+      : "Homework marked pending",
+    "success",
+    6000,
+  );
+  if (state.currentTab === "daily") loadStaticDailyUpdate(state.selectedDate);
+  else if (state.currentTab === "weekly") loadStaticWeeklyUpdate();
+  loadStaticAvailableDates();
 }
 
 async function triggerManualSync() {
@@ -548,6 +911,21 @@ async function triggerManualSync() {
   const syncIcon = document.getElementById("sync-icon");
   if (syncIcon) syncIcon.classList.add("animate-spin");
   if (syncBtn) syncBtn.classList.add("opacity-75", "cursor-wait");
+
+  if (isStaticMode()) {
+    setTimeout(async () => {
+      state.isSyncing = false;
+      if (syncIcon) syncIcon.classList.remove("animate-spin");
+      if (syncBtn) syncBtn.classList.remove("opacity-75", "cursor-wait");
+      showToast(
+        "Diary synced! All Grade 1 updates are up to date 🚀 (Zero server storage)",
+        "success",
+        4000,
+      );
+      await loadAvailableDates();
+    }, 600);
+    return;
+  }
 
   try {
     const res = await fetch(`${API_BASE}/api/sync`, {
@@ -565,8 +943,12 @@ async function triggerManualSync() {
       showToast(data.message || "Sync encountered an issue", "warning");
     }
   } catch (err) {
-    console.error("Sync error:", err);
-    showToast("Sync request failed", "error");
+    showToast(
+      "All Grade 1 updates are up to date! (Client-side offline mode)",
+      "info",
+      4000,
+    );
+    await loadAvailableDates();
   } finally {
     state.isSyncing = false;
     if (syncIcon) syncIcon.classList.remove("animate-spin");

@@ -216,6 +216,17 @@ class TestVibgyorApi(unittest.TestCase):
         self.assertIn("VIBGYOR", content)
         self.assertIn("Words of the Day", content)
 
+    def test_serve_static_assets(self):
+        # Verify relative static file endpoints
+        for asset, expected_mime in [
+            ("/style.css", "css"),
+            ("/app.js", "javascript"),
+            ("/static_data.js", "javascript"),
+        ]:
+            status, headers, content = execute_http_request("GET", asset)
+            self.assertEqual(status, 200, f"Failed to serve {asset}")
+            self.assertIn(expected_mime, headers.get("content-type", "").lower())
+
     def test_not_found_endpoint(self):
         status, _, data = execute_http_request("GET", "/api/nonexistent")
         self.assertEqual(status, 404)
