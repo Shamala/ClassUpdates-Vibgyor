@@ -130,6 +130,25 @@ def _strip_identity(node: Any) -> Any:
     return node
 
 
+# SQLite row bookkeeping. The frontend never reads it, and on a runner whose
+# database is rebuilt from scratch every night it is the only thing that changes,
+# which would make an unchanged board look like new content and redeploy the
+# whole site daily.
+BOOKKEEPING_KEYS = {"created_at", "updated_at"}
+
+
+def _strip_bookkeeping(node: Any) -> Any:
+    if isinstance(node, dict):
+        return {
+            key: _strip_bookkeeping(value)
+            for key, value in node.items()
+            if key not in BOOKKEEPING_KEYS
+        }
+    if isinstance(node, list):
+        return [_strip_bookkeeping(item) for item in node]
+    return node
+
+
 def build_payload(db_path: Optional[str] = None) -> Dict[str, Any]:
     init_db(db_path)
     dates = get_available_dates()
@@ -148,7 +167,7 @@ def build_payload(db_path: Optional[str] = None) -> Dict[str, Any]:
         "circulars": _recent_circulars(get_circulars(), dates[0]["date"]),
         "synced_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
-    return _strip_identity(_strip_completion(payload))
+    return _strip_bookkeeping(_strip_identity(_strip_completion(payload)))
 
 
 SAMPLE_WORDS = ["apple", "river", "cloud", "stone", "bright", "quiet"]

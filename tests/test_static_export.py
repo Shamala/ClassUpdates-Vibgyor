@@ -21,6 +21,7 @@ from backend.static_export import (
     CIRCULAR_WINDOW_DAYS,
     CLASS_STUDENT,
     _recent_circulars,
+    _strip_bookkeeping,
     _strip_completion,
     _strip_identity,
     encrypt,
@@ -168,6 +169,32 @@ class TestEncryption(unittest.TestCase):
 
     def test_sync_time_stays_readable_for_the_lock_screen(self):
         self.assertEqual(encrypt(PAYLOAD, "x")["synced_at"], PAYLOAD["synced_at"])
+
+
+class TestBookkeepingStripped(unittest.TestCase):
+    """Row timestamps are noise to a parent and break change detection."""
+
+    def test_created_at_is_removed_at_every_depth(self):
+        payload = {
+            "circulars": [{"title": "Notice", "created_at": "2026-09-23 15:43:24"}],
+            "daily": {"2026-09-23": {"periods": [{"subject": "Math", "created_at": "x"}]}},
+        }
+        cleaned = _strip_bookkeeping(payload)
+        self.assertNotIn("created_at", cleaned["circulars"][0])
+        self.assertNotIn("created_at", cleaned["daily"]["2026-09-23"]["periods"][0])
+
+    def test_updated_at_is_removed_too(self):
+        self.assertEqual(_strip_bookkeeping({"a": 1, "updated_at": "x"}), {"a": 1})
+
+    def test_real_content_is_untouched(self):
+        payload = {"circulars": [{"title": "Notice", "publish_date": "2026-09-14"}]}
+        self.assertEqual(_strip_bookkeeping(payload), payload)
+
+    def test_two_builds_of_the_same_content_fingerprint_alike(self):
+        """The whole point: a rebuilt database must not look like new content."""
+        first = {"daily": {"d": [{"topic": "Fractions", "created_at": "2026-09-23 15:37:56"}]}}
+        second = {"daily": {"d": [{"topic": "Fractions", "created_at": "2026-09-24 08:31:02"}]}}
+        self.assertEqual(_strip_bookkeeping(first), _strip_bookkeeping(second))
 
 
 class TestCircularWindow(unittest.TestCase):
