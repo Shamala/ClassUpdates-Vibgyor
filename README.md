@@ -24,18 +24,24 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
 ### Privacy Safeguards:
 
 1. **Zero Password Storage**:
-   - When hosted on GitHub Pages or used in client-side mode, passwords are **never sent across the internet, recorded in logs, or saved on any remote server**.
-   - Authentication operates locally within your browser sandbox.
+   - Your Hubble Orion password is **not** configured in `.env` and is never written to disk or to the database. You type it into the sign-in form; it is used for that request and then discarded.
+   - Running locally, it is sent only to the server on your own machine, which uses it to sign in to Hubble Orion on your behalf. The browser keeps it in memory for the page session so **Sync Now** works without asking again, clears it on sign out, and forgets it on reload.
+   - On GitHub Pages there is no server at all, so nothing is sent anywhere.
 
-2. **100% Client-Side Browser Storage (`localStorage`)**:
+2. **What the published site deliberately does not contain**:
+   - No student name, enrolment number, internal ids, parent email or phone number. The published bundle carries only class content.
+   - If you set a student name on the published site, it stays in your own browser and is never uploaded.
+   - Be aware that the published site has no server to check a password against, so **its sign-in is not verified and anyone with the link can open the dashboard**. Credential checking against Hubble Orion only happens when you run the backend locally, where a wrong password is rejected.
+
+3. **100% Client-Side Browser Storage (`localStorage`)**:
    - Your interactive homework checkmarks (`vibgyor_completed_hw_ids`), display preferences (`theme`), and session state (`orion_auth_token`) exist purely inside your browser's private local storage.
    - Clicking **"Sign Out"** or clearing your browser site data immediately wipes all session tokens and preferences from your device.
 
-3. **Zero Third-Party Trackers & Telemetry**:
+4. **Zero Third-Party Trackers & Telemetry**:
    - No tracking pixels, Google Analytics, or third-party cookies are used.
    - Only Google Fonts (`Commissioner`) and Tailwind CSS are loaded from reputable CDNs.
 
-4. **Transparent & Fully Inspectable**:
+5. **Transparent & Fully Inspectable**:
    - The frontend code consists entirely of readable, open-source HTML, CSS, and vanilla JavaScript (`frontend/index.html`, `frontend/app.js`, `frontend/static_data.js`).
    - Anyone can open browser Developer Tools (**Inspect → Network**) to inspect and verify that no credentials or private data leave their machine.
 
@@ -44,14 +50,17 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
 ## 🌟 Key Highlights & Features
 
 1. **Hubble Orion Parent Login & Multi-User Support**
-   - Secure parent authentication supporting Hubble Orion credentials.
+   - Parent authentication against Hubble Orion: the credentials you type are checked by signing in to the portal, and a password it rejects is refused rather than waved through.
    - 1-click **Demo / Sample Mode** to instantly explore the dashboard with pre-seeded data without external credentials.
    - Session management with token authorization and persistent sign-in state.
 
 2. **Word Bank & Flashcard Drill (Surprise Dictation Prep)**
    - Grade 1 students face continuous surprise dictations in school.
    - **Mobile-Native Bottom Sheet**: No nested scroll traps on phones; displays "This Week's Focus" right on top above the fold.
-   - **Interactive Flashcards**: Practice spelling word-by-word with **Child-Tuned Audio Pronunciation** (`rate=0.75`, `pitch=1.05`), blind test hide/reveal, and shuffle.
+   - **Interactive Flashcards**: Practice spelling word-by-word with audio pronunciation, blind test hide/reveal, and shuffle.
+   - **Pronunciation tuned for clarity**: targets `en-US` (the word lists are standard storybook English), picks the clearest available voice and skips the novelty voices some platforms list first, and speaks at `rate=0.85` / `pitch=1.0` so phonemes stay distinct without sounding synthetic.
+   - **Works offline**: server-backed voices are silent without a connection, so an on-device voice wins any tie, is the only candidate when offline, and takes over automatically if a network voice fails or never starts.
+   - Homographs (`read`, `lead`, `live`, `tear`) cannot be resolved from a single word, since the engine has no sentence to disambiguate with. `PRONUNCIATION_OVERRIDES` in `frontend/app.js` lets you respell one to force the intended reading.
    - **Past Weeks Archive**: Collapsible weekly accordions to review previous vocabulary without cluttering the screen.
    - **1-Click Copy**: Instant clipboard copy for WhatsApp sharing or printing.
 
@@ -79,7 +88,11 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
    - School circulars categorized by Academic, Sports, Events, and Admin.
    - Search filter, clean summaries, and direct links.
 
-8. **Design & Accessibility**
+8. **Installable Progressive Web App**
+   - Installs to a phone or desktop home screen and opens like an app.
+   - A service worker pre-caches the shell, so previously loaded updates stay readable without a connection.
+
+9. **Design & Accessibility**
    - Seamless **Dark Mode & Light Mode** toggle with anti-flicker detection.
    - Expressive, calm typography powered by Google Fonts **Commissioner**.
    - Fully responsive for mobile and desktop screens.
@@ -97,19 +110,26 @@ ClassUpdates-Vibgyor/
 │   ├── database.py       # SQLite3 database manager & initial seeding
 │   ├── pdf_parser.py     # Multi-engine VIBGYOR timetable PDF parser
 │   ├── orion_client.py   # Orion portal client & offline fallback ingest
+│   ├── browser_sync.py   # Headless SSO sign-in, PDF & circular capture
+│   ├── student_profile.py # Extracts the student profile from the portal
 │   └── main.py           # REST API server & static asset host
 ├── frontend/
 │   ├── index.html        # Modern Tailwind parent dashboard
 │   ├── app.js            # Client-side reactivity & API / localStorage integration
 │   ├── static_data.js    # Pre-bundled Grade 1 sample dataset for GitHub Pages
-│   └── style.css         # Custom tokens & rainbow accent strip
+│   ├── style.css         # Custom tokens & rainbow accent strip
+│   ├── sw.js             # Service worker: offline shell & asset caching
+│   ├── manifest.json     # PWA manifest (installable app)
+│   └── icons/            # App and home screen icons
 ├── sample_data/
 │   ├── sample_2026-09-18.pdf
-│   └── sample_2026-09-21.pdf
+│   ├── sample_2026-09-21.pdf
+│   └── captured_notifications.json # Anonymised portal payload used by tests
 ├── tests/
-│   ├── test_pdf_parser.py # Tests parsing on both sample PDFs
-│   ├── test_api.py        # Integration tests for REST endpoints and static assets
-│   └── test_auth.py       # Authentication and session tests
+│   ├── test_pdf_parser.py      # Tests parsing on both sample PDFs
+│   ├── test_api.py             # Integration tests for REST endpoints and static assets
+│   ├── test_auth.py            # Authentication and session tests
+│   └── test_student_profile.py # Profile extraction from portal pages and APIs
 ├── .env.example
 ├── requirements.txt
 ├── start.sh
@@ -140,16 +160,16 @@ Open **[http://localhost:8000](http://localhost:8000)** in your browser.
 
 ## 🧪 Running Tests
 
-Run the complete test suite (25 tests covering PDF extraction, authentication, and REST APIs):
+Run the complete test suite (48 tests covering PDF extraction, authentication, student profile extraction, and REST APIs):
+
+```bash
+./venv/bin/python -m unittest discover -s tests -t .
+```
+
+`pytest` also works if you install it (`pip install pytest`), but it is not a dependency:
 
 ```bash
 ./venv/bin/pytest
-```
-
-Or with Python's built-in test discovery:
-
-```bash
-python3 -m unittest discover tests
 ```
 
 ### Test Coverage Highlights:
@@ -177,6 +197,15 @@ python3 -m unittest discover tests
   - `GET /api/auth/me`
   - `POST /api/auth/logout`
   - `GET /style.css`, `GET /app.js`, `GET /static_data.js`
+- **Authentication**:
+  - A password the portal rejects returns `401` and issues no session token.
+  - Credentials that cannot be checked at all (portal unreachable) return `503`, and are likewise refused.
+  - Empty credentials return `401`; demo mode signs in without contacting the portal and only ever sees the demo profile.
+- **Student profile extraction**:
+  - Both portal layouts: `Label : Value` on one line, and a label with its value on the next.
+  - The guardians nested beside the student in the profile API never win over the student's own name.
+  - Empty form fields rendered as their own captions are not mistaken for values.
+  - A failed lookup never overwrites a real profile already stored.
 
 ---
 
