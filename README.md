@@ -258,6 +258,16 @@ prints counts and status words only, and everything it prints passes through
 including the child's name — from the text first. `tests/test_scheduled_sync.py`
 holds that guarantee in place.
 
+### What the board shows
+
+An unattended run reaches far more of the portal's notification feed than a
+hurried manual sync ever did, so the published board caps circulars at
+`CIRCULAR_WINDOW_DAYS` (60) before the newest class update. The board stays a
+current-term noticeboard rather than the school's whole archive, and the local
+dashboard is unaffected — it still holds everything. The cutoff is anchored to
+the newest class update, not to today, so a board with no new data does not
+change shape overnight and force a pointless redeploy.
+
 ### Known limit: history
 
 A runner starts with an empty database, so each run rebuilds from whatever the

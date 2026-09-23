@@ -55,6 +55,29 @@ CLASS_STUDENT = {
 }
 
 
+# The shared board is a current-term noticeboard, not the school's whole archive.
+# An unattended sync reaches far more of the portal's notification feed than a
+# hurried manual one ever did, and without this the Circulars tab would fill with
+# months of notices nobody is looking for any more.
+CIRCULAR_WINDOW_DAYS = 60
+
+
+def _recent_circulars(circulars, anchor_date: str):
+    """Keeps the circulars published within the window before anchor_date.
+
+    Anchored to the newest class update rather than to today, so a board with no
+    new data does not quietly change shape (and force a redeploy) every night.
+    """
+    try:
+        anchor = datetime.strptime(anchor_date, "%Y-%m-%d").date()
+    except (TypeError, ValueError):
+        return circulars
+    cutoff = (anchor - timedelta(days=CIRCULAR_WINDOW_DAYS)).isoformat()
+    kept = [c for c in circulars if (c.get("publish_date") or "") >= cutoff]
+    # An unparseable or missing date on every row should not empty the tab.
+    return kept or circulars
+
+
 def _monday_of(iso_date: str) -> str:
     day = datetime.strptime(iso_date, "%Y-%m-%d").date()
     return (day - timedelta(days=day.weekday())).isoformat()
@@ -122,7 +145,7 @@ def build_payload(db_path: Optional[str] = None) -> Dict[str, Any]:
         "dates": dates,
         "daily": daily,
         "weekly": get_weekly_updates(start_date=_monday_of(dates[0]["date"])),
-        "circulars": get_circulars(),
+        "circulars": _recent_circulars(get_circulars(), dates[0]["date"]),
         "synced_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     return _strip_identity(_strip_completion(payload))

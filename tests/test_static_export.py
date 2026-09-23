@@ -11,13 +11,16 @@ import json
 import os
 import sys
 import unittest
+from datetime import datetime, timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 from backend.static_export import (
+    CIRCULAR_WINDOW_DAYS,
     CLASS_STUDENT,
+    _recent_circulars,
     _strip_completion,
     _strip_identity,
     encrypt,
@@ -165,6 +168,39 @@ class TestEncryption(unittest.TestCase):
 
     def test_sync_time_stays_readable_for_the_lock_screen(self):
         self.assertEqual(encrypt(PAYLOAD, "x")["synced_at"], PAYLOAD["synced_at"])
+
+
+class TestCircularWindow(unittest.TestCase):
+    """The board is a current-term noticeboard, not the school's whole archive."""
+
+    ANCHOR = "2026-09-23"
+
+    def circulars(self, *dates):
+        return [{"title": f"Notice {d}", "publish_date": d} for d in dates]
+
+    def test_recent_circulars_are_kept(self):
+        recent = self.circulars("2026-09-22", "2026-08-30")
+        self.assertEqual(_recent_circulars(recent, self.ANCHOR), recent)
+
+    def test_circulars_older_than_the_window_are_dropped(self):
+        kept = _recent_circulars(self.circulars("2026-09-22", "2026-01-05"), self.ANCHOR)
+        self.assertEqual([c["publish_date"] for c in kept], ["2026-09-22"])
+
+    def test_the_window_edge_is_inclusive(self):
+        edge = (
+            datetime.strptime(self.ANCHOR, "%Y-%m-%d") - timedelta(days=CIRCULAR_WINDOW_DAYS)
+        ).date().isoformat()
+        kept = _recent_circulars(self.circulars(edge), self.ANCHOR)
+        self.assertEqual(len(kept), 1)
+
+    def test_an_unusable_anchor_keeps_everything(self):
+        every = self.circulars("2026-09-22", "2024-01-05")
+        self.assertEqual(_recent_circulars(every, ""), every)
+
+    def test_missing_dates_do_not_empty_the_tab(self):
+        """Filtering every row away would look like the school stopped writing."""
+        undated = [{"title": "Notice", "publish_date": ""}]
+        self.assertEqual(_recent_circulars(undated, self.ANCHOR), undated)
 
 
 if __name__ == "__main__":
