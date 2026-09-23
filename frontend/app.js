@@ -153,20 +153,62 @@ function hashCode(str) {
   return hash;
 }
 
+// The backend/PDF sync only knows the real child's name when the Orion scrape
+// succeeds; otherwise it hands back one of these placeholders, which must never
+// be shown as if it were a name, nor overwrite a name the parent typed in.
+function isPlaceholderStudentName(name) {
+  if (!name) return true;
+  const n = String(name).trim().toLowerCase();
+  if (!n || n === "student" || n === "n/a" || n === "-") return true;
+  return n.includes("'s ward");
+}
+
+function getSavedStudentForUser(username) {
+  const u = (username || "").trim().toLowerCase();
+  if (!u) return null;
+  try {
+    const saved = localStorage.getItem("vibgyor_student_for_" + u);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    return parsed && parsed.name ? parsed : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Server profiles win on grade/section/school, but a name the parent set locally
+// wins over a server placeholder — otherwise every reload resets it to "Student".
+function applyStudentProfile(serverStudent, username) {
+  const u = (
+    username ||
+    (state.currentUser && state.currentUser.username) ||
+    ""
+  ).trim();
+  const student = serverStudent
+    ? { ...serverStudent }
+    : resolveStudentForUser(u);
+
+  if (isPlaceholderStudentName(student.name)) {
+    const saved = getSavedStudentForUser(u);
+    if (saved && !isPlaceholderStudentName(saved.name)) {
+      student.name = saved.name;
+    }
+  }
+
+  state.student = student;
+  try {
+    localStorage.setItem("vibgyor_parent_student", JSON.stringify(student));
+  } catch (e) {}
+  return student;
+}
+
 function resolveStudentForUser(username) {
   if (!username || username === "demo@vibgyor.com") return DEMO_STUDENT;
   const u = username.trim().toLowerCase();
 
   // 1. Check if user previously saved their child's name in localStorage
-  try {
-    const saved = localStorage.getItem("vibgyor_student_for_" + u);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed && parsed.name && !parsed.name.includes("'s Ward")) {
-        return parsed;
-      }
-    }
-  } catch (e) {}
+  const saved = getSavedStudentForUser(u);
+  if (saved && !isPlaceholderStudentName(saved.name)) return saved;
 
   // 2. Default generic student profile for all parents
   return {
@@ -188,10 +230,15 @@ function editStudentName() {
     return;
   }
   const currentName = state.student ? state.student.name : "";
-  const placeholder = currentName === "Student" ? "" : currentName;
+  const placeholder = isPlaceholderStudentName(currentName) ? "" : currentName;
   const newName = prompt("Enter child / student name:", placeholder);
   if (newName && newName.trim() && newName.trim() !== currentName) {
-    state.student.name = newName.trim();
+    // Match the backend's capitalisation so a typed name and a synced one look alike
+    state.student.name = newName
+      .trim()
+      .split(/\s+/)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
     if (state.currentUser && state.currentUser.username) {
       localStorage.setItem(
         "vibgyor_student_for_" + state.currentUser.username.toLowerCase(),
@@ -216,6 +263,7 @@ function showLoginView() {
   const loginView = document.getElementById("login-view");
   const dashboardView = document.getElementById("dashboard-view");
   const authControls = document.getElementById("authenticated-controls");
+  const dateWrap = document.getElementById("date-select-wrap");
   const tabsBar = document.getElementById("tabs-bar");
   const mobSnippet = document.getElementById("mobile-profile-snippet");
   const mobName = document.getElementById("mobile-student-name");
@@ -227,6 +275,7 @@ function showLoginView() {
   if (loginView) loginView.classList.remove("hidden");
   if (dashboardView) dashboardView.classList.add("hidden");
   if (authControls) authControls.classList.add("hidden");
+  if (dateWrap) dateWrap.classList.add("hidden");
   if (tabsBar) tabsBar.classList.add("hidden");
   if (mobSnippet) mobSnippet.classList.add("hidden");
   if (mobName) mobName.textContent = "";
@@ -240,12 +289,14 @@ function showDashboardView() {
   const loginView = document.getElementById("login-view");
   const dashboardView = document.getElementById("dashboard-view");
   const authControls = document.getElementById("authenticated-controls");
+  const dateWrap = document.getElementById("date-select-wrap");
   const tabsBar = document.getElementById("tabs-bar");
   const mobSnippet = document.getElementById("mobile-profile-snippet");
 
   if (loginView) loginView.classList.add("hidden");
   if (dashboardView) dashboardView.classList.remove("hidden");
   if (authControls) authControls.classList.remove("hidden");
+  if (dateWrap) dateWrap.classList.remove("hidden");
   if (tabsBar) tabsBar.classList.remove("hidden");
   if (mobSnippet) mobSnippet.classList.remove("hidden");
 }
@@ -280,23 +331,18 @@ async function checkAuth() {
       const storedStudent = JSON.parse(
         localStorage.getItem("vibgyor_parent_student") || "null",
       );
-      const isBadName =
-        storedStudent &&
-        storedStudent.name &&
-        storedStudent.name.includes("'s Ward");
       if (token === "demo-local-session") {
         state.student = DEMO_STUDENT;
-      } else if (storedStudent && !isBadName) {
-        state.student = storedStudent;
+        localStorage.setItem(
+          "vibgyor_parent_student",
+          JSON.stringify(state.student),
+        );
       } else {
-        state.student = resolveStudentForUser(
+        applyStudentProfile(
+          storedStudent,
           state.currentUser ? state.currentUser.username : "",
         );
       }
-      localStorage.setItem(
-        "vibgyor_parent_student",
-        JSON.stringify(state.student),
-      );
     } catch (e) {
       state.student =
         token === "demo-local-session"
@@ -319,10 +365,9 @@ async function checkAuth() {
       if (data.authenticated) {
         state.isAuthenticated = true;
         state.currentUser = data.user;
-        state.student = data.student || DEMO_STUDENT;
-        localStorage.setItem(
-          "vibgyor_parent_student",
-          JSON.stringify(state.student),
+        applyStudentProfile(
+          data.student,
+          data.user ? data.user.username : "",
         );
         showDashboardView();
         renderStudentProfile();
@@ -352,23 +397,18 @@ async function checkAuth() {
       const storedStudent = JSON.parse(
         localStorage.getItem("vibgyor_parent_student") || "null",
       );
-      const isBadName =
-        storedStudent &&
-        storedStudent.name &&
-        storedStudent.name.includes("'s Ward");
       if (token === "demo-local-session") {
         state.student = DEMO_STUDENT;
-      } else if (storedStudent && !isBadName) {
-        state.student = storedStudent;
+        localStorage.setItem(
+          "vibgyor_parent_student",
+          JSON.stringify(state.student),
+        );
       } else {
-        state.student = resolveStudentForUser(
+        applyStudentProfile(
+          storedStudent,
           state.currentUser ? state.currentUser.username : "",
         );
       }
-      localStorage.setItem(
-        "vibgyor_parent_student",
-        JSON.stringify(state.student),
-      );
     } catch (e) {
       state.student =
         token === "demo-local-session"
@@ -456,15 +496,11 @@ async function handleLoginSubmit(event) {
       state.isAuthenticated = true;
       state.authToken = data.token;
       state.currentUser = data.user;
-      state.student = data.student || resolveStudentForUser(username);
+      applyStudentProfile(data.student, username);
       localStorage.setItem("orion_auth_token", data.token);
       localStorage.setItem(
         "vibgyor_parent_user",
         JSON.stringify(state.currentUser),
-      );
-      localStorage.setItem(
-        "vibgyor_parent_student",
-        JSON.stringify(state.student),
       );
 
       showToast(data.message || "Signed in successfully!", "success", 4000);
@@ -1269,9 +1305,15 @@ function renderStudentProfile() {
   const mobMeta = document.getElementById("mobile-student-meta");
 
   const isDemo = state.student.student_id === "DEMO-G1F-001";
+  const isPlaceholder =
+    !isDemo && isPlaceholderStudentName(state.student.name);
+  const displayName = isPlaceholder ? "Add student name" : state.student.name;
 
   if (nameEl) {
-    nameEl.textContent = state.student.name;
+    nameEl.textContent = displayName;
+    nameEl.classList.toggle("italic", isPlaceholder);
+    nameEl.classList.toggle("text-indigo-600", isPlaceholder);
+    nameEl.classList.toggle("dark:text-indigo-400", isPlaceholder);
     if (!isDemo) {
       nameEl.title = "Click to edit child's name";
       nameEl.classList.add(
@@ -1294,7 +1336,8 @@ function renderStudentProfile() {
     metaEl.textContent = `${state.student.grade} ${state.student.section} • ${state.student.school}`;
   }
   if (mobName) {
-    mobName.textContent = state.student.name;
+    mobName.textContent = displayName;
+    mobName.classList.toggle("italic", isPlaceholder);
     if (!isDemo) {
       mobName.title = "Click to edit child's name";
       mobName.classList.add("cursor-pointer");
@@ -1309,15 +1352,21 @@ function renderStudentProfile() {
     mobMeta.textContent = `${state.student.grade} ${state.student.section}`;
   }
 
-  if (avatarEl && state.student.name) {
-    const initials = state.student.name
-      .trim()
-      .split(/\s+/)
-      .map((w) => w[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase();
-    avatarEl.textContent = initials || (isDemo ? "DS" : "ST");
+  if (avatarEl) {
+    if (isPlaceholder) {
+      avatarEl.textContent = "+";
+      avatarEl.title = "Click the name to set your child's name";
+    } else {
+      const initials = (state.student.name || "")
+        .trim()
+        .split(/\s+/)
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+      avatarEl.textContent = initials || (isDemo ? "DS" : "ST");
+      avatarEl.title = "";
+    }
   }
 }
 
