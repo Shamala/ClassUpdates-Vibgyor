@@ -24,14 +24,14 @@ The board refreshes itself daily; see [Unattended Sync](#-unattended-sync-github
 ## 🔒 Privacy & Data Security Architecture
 
 > [!IMPORTANT]
-> **Zero Remote Server Storage**: This application **does NOT store or transmit private credentials (usernames or passwords) to any remote database or external server**. All updates, preferences, and homework checkmarks are stored strictly inside the user's browser.
+> **Parents never enter a portal password.** The shared board asks for one thing, the class passcode, and has no sign-in form and no accounts. Each parent's own data — their child's name, their homework ticks, their theme — is held in their own browser and is uploaded nowhere, so no parent can see another's and neither can whoever publishes the board.
 
 ### Privacy Safeguards:
 
-1. **Zero Password Storage**:
-   - Your Hubble Orion password is **not** configured in `.env` and is never written to disk or to the database. You type it into the sign-in form; it is used for that request and then discarded.
-   - Running locally, it is sent only to the server on your own machine, which uses it to sign in to Hubble Orion on your behalf. The browser keeps it in memory for the page session so **Sync Now** works without asking again, clears it on sign out, and forgets it on reload.
-   - On GitHub Pages there is no server at all, so nothing is sent anywhere.
+1. **Where the Hubble Orion password lives** (there are exactly two places, and one of them stores it):
+   - **The published board never asks for one.** A parent enters the class passcode and lands on the updates. The sign-in form is not merely hidden there — the boot path returns before it is ever reached, and GitHub Pages has no server to check a password against anyway.
+   - **Running the backend locally**, you type your own credentials into the sign-in form. They are held in memory for that page session so **Sync Now** works without asking again, cleared on sign out, forgotten on reload, and never written to `.env`, to disk or to the database.
+   - **The daily unattended sync does store it**, as the `ORION_PASSWORD` secret on the `github-pages` environment. That is unavoidable: signing in to the portal at 14:00 with nobody present means the password has to be readable by something. GitHub encrypts secrets at rest, releases them only to the job that names the environment, and masks them in logs, and `scheduled_sync` redacts them a second time on the way out. If you would rather not make that trade, delete the secret and drop the `schedule:` block from `.github/workflows/sync.yml`; signing in locally and pressing **Sync Now** still works, and the password goes back to living only in your head.
 
 2. **What the published site deliberately does not contain**:
    - No student name, enrolment number, internal ids, parent email or phone number. The published bundle carries only class content.
@@ -340,6 +340,9 @@ full history and needs no new secret.
 Your Hubble Orion username and password are **not** configured here. You type them
 into the app when you sign in; they are used for that request and for a sync you
 start in the same session, and are never written to disk or kept by the server.
+The daily GitHub Actions sync is the one exception, and it keeps them as
+encrypted secrets rather than in this file — see
+[Unattended Sync](#-unattended-sync-github-actions).
 
 ```ini
 ORION_BASE_URL=https://hubbleorion.hubblehox.com
