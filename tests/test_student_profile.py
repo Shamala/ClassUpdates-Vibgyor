@@ -93,6 +93,63 @@ class TestParseProfilePayloads(unittest.TestCase):
         self.assertNotIn("name", got)
 
 
+class TestNotificationsPayload(unittest.TestCase):
+    """
+    The notifications endpoint (notification-to-user/by-user) is where the portal
+    actually exposes the student name, in snake_case. The Student Detail page does
+    not render it, which is why every sync used to store the placeholder.
+    """
+
+    def _capture(self, name="Aarav Rao", student_id="901234"):
+        return [{
+            "url": "https://.../notification-to-user/by-user?page=1",
+            "status": 200,
+            "body": {"status": 200, "data": {"totalCount": 1, "data": [{
+                "_id": "abc123",
+                "student_id": student_id,
+                "student_name": name,
+                "user_type": 2,
+                "attachmentFiles": [{"fileName": "1_F_22_nd_September.pdf"}],
+            }]}},
+        }]
+
+    def test_name_and_id_from_notifications(self):
+        got = parse_profile_payloads(self._capture())
+        self.assertEqual(got["name"], "Aarav Rao")
+        self.assertEqual(got["student_id"], "901234")
+
+    def test_numeric_student_id_is_stringified(self):
+        got = parse_profile_payloads(self._capture(student_id=901234))
+        self.assertEqual(got["student_id"], "901234")
+
+    def test_placeholder_in_notifications_is_rejected(self):
+        got = parse_profile_payloads(self._capture(name="Student"))
+        self.assertNotIn("name", got)
+
+    def test_notifications_url_is_captured(self):
+        from backend.student_profile import PROFILE_URL_HINTS
+        url = "https://run.app/api/notification-to-user/by-user?studentId=1"
+        self.assertTrue(any(tok in url.lower() for tok in PROFILE_URL_HINTS))
+
+
+class TestBuildStudentProfile(unittest.TestCase):
+    def test_api_name_beats_page_text_and_page_fills_the_rest(self):
+        from backend.student_profile import build_student_profile
+        page_text = "Student Name : Student\nGrade : 1F\nSchool : VIBGYOR High Marathahalli"
+        payloads = [{"data": {"data": [{"student_name": "Aarav Rao", "student_id": "901234"}]}}]
+        got = build_student_profile(page_text, api_payloads=payloads)
+        self.assertEqual(got["name"], "Aarav Rao")
+        self.assertEqual(got["student_id"], "901234")
+        self.assertEqual(got["grade"], "Grade 1")
+        self.assertEqual(got["section"], "F")
+        self.assertEqual(got["school"], "VIBGYOR High Marathahalli")
+
+    def test_nothing_found_falls_back_to_defaults(self):
+        from backend.student_profile import DEFAULT_PROFILE, build_student_profile
+        got = build_student_profile("Dashboard loading...", api_payloads=[])
+        self.assertEqual(got, DEFAULT_PROFILE)
+
+
 class TestPlaceholderGuard(unittest.TestCase):
     def test_placeholders(self):
         for value in ["Student", "student", " N/A ", "", "-", None, "Ravi's Ward"]:

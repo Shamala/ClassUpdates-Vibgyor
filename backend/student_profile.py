@@ -53,16 +53,36 @@ LABEL_ALIASES: Dict[str, List[str]] = {
     ],
 }
 
-# JSON keys the portal's own API uses, in priority order
+# JSON keys the portal's own API uses, in priority order.
+# The notifications endpoint (notification-to-user/by-user) is the most reliable
+# source: every record carries student_name / student_id, and unlike the profile
+# page it has kept the same shape across portal releases.
 API_KEYS: Dict[str, List[str]] = {
-    "student_id": ["enrolmentNumber", "enrollmentNumber", "admissionNumber", "grNumber", "studentCode", "studentId"],
-    "name": ["studentName", "fullName", "displayName", "name"],
-    "school": ["schoolName", "school", "campusName"],
-    "grade": ["gradeName", "grade", "className", "standard"],
-    "section": ["divisionName", "division", "section"],
-    "academic_year": ["academicYear", "academicSession", "session"],
-    "parent_name": ["parentName", "fatherName", "motherName", "guardianName"],
+    "student_id": [
+        "enrolmentNumber", "enrollmentNumber", "enrolment_number", "admissionNumber",
+        "admission_number", "grNumber", "studentCode", "studentId", "student_id",
+    ],
+    "name": ["studentName", "student_name", "fullName", "full_name", "displayName", "name"],
+    "school": ["schoolName", "school_name", "school", "campusName", "campus_name"],
+    "grade": ["gradeName", "grade_name", "grade", "className", "class_name", "standard"],
+    "section": ["divisionName", "division_name", "division", "sectionName", "section_name", "section"],
+    "academic_year": ["academicYear", "academic_year", "academicSession", "academic_session", "session"],
+    "parent_name": [
+        "parentName", "parent_name", "fatherName", "father_name",
+        "motherName", "mother_name", "guardianName", "guardian_name",
+    ],
 }
+
+# URL fragments whose JSON responses are worth mining for the profile
+PROFILE_URL_HINTS = (
+    "notification-to-user",
+    "by-user",
+    "communication",
+    "student",
+    "profile",
+    "user-detail",
+    "userdetail",
+)
 
 _NORMALISE_RE = re.compile(r"[^a-z0-9]+")
 # a value that is really just another label, e.g. the line after "Student Name"
@@ -194,41 +214,58 @@ def dump_profile_debug(body_text: str, debug_dir: Optional[str], page=None) -> O
         return None
 
 
-def extract_student_profile(
-    page,
-    api_payloads: Optional[List[Any]] = None,
-    debug_dir: Optional[str] = None,
-    navigate: bool = True,
-) -> Dict[str, str]:
-    """
-    Returns a full profile dict, falling back to DEFAULT_PROFILE for any field the
-    portal did not give us. Never raises: a scrape failure degrades to defaults.
-    """
-    profile = dict(DEFAULT_PROFILE)
-    body_text = ""
-
+def read_profile_page(page, navigate: bool = True) -> str:
+    """Loads the Student Detail page and returns its text. Never raises."""
     try:
         if navigate:
             page.goto(PROFILE_URL, wait_until="domcontentloaded", timeout=20000)
             page.wait_for_timeout(3000)
-        body_text = page.inner_text("body")
+        return page.inner_text("body")
     except Exception as exc:
         print(f"[student_profile] Could not load {PROFILE_URL}: {exc}")
+        return ""
 
+
+def build_student_profile(
+    body_text: str,
+    api_payloads: Optional[List[Any]] = None,
+    debug_dir: Optional[str] = None,
+    page=None,
+) -> Dict[str, str]:
+    """
+    Merges everything we know into a full profile, falling back to DEFAULT_PROFILE
+    for any field the portal did not give us.
+
+    The portal's own JSON wins over scraped page text: the Student Detail markup
+    has changed between releases, while the notifications endpoint has reliably
+    carried student_name / student_id throughout.
+    """
+    profile = dict(DEFAULT_PROFILE)
     from_text = parse_profile_text(body_text)
     from_api = parse_profile_payloads(api_payloads or [])
 
-    # The page's own JSON wins over scraped text where both have a field.
     profile.update({k: v for k, v in from_text.items() if v})
     profile.update({k: v for k, v in from_api.items() if v})
 
     if is_placeholder_student_name(profile.get("name")):
         dump = dump_profile_debug(body_text, debug_dir, page)
         print(
-            "[student_profile] Student name not found on the profile page; "
-            "using a placeholder. Raw page text saved to: " + (dump or "<not saved>")
+            "[student_profile] Student name not found in the profile page or any "
+            "captured API response; using a placeholder. Raw page text saved to: "
+            + (dump or "<not saved>")
         )
     return profile
+
+
+def extract_student_profile(
+    page,
+    api_payloads: Optional[List[Any]] = None,
+    debug_dir: Optional[str] = None,
+    navigate: bool = True,
+) -> Dict[str, str]:
+    """Convenience wrapper: read the profile page, then merge it with any payloads."""
+    body_text = read_profile_page(page, navigate=navigate)
+    return build_student_profile(body_text, api_payloads, debug_dir, page)
 
 
 def capture_profile_payloads(page, sink: List[Any]):
@@ -238,7 +275,7 @@ def capture_profile_payloads(page, sink: List[Any]):
     """
     def _handler(resp):
         url = (resp.url or "").lower()
-        if not any(tok in url for tok in ("student", "profile", "user-detail", "userdetail")):
+        if not any(tok in url for tok in PROFILE_URL_HINTS):
             return
         try:
             data = resp.json()

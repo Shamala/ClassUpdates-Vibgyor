@@ -18,6 +18,8 @@ except ImportError:
 
 from backend.database import (
     add_circular,
+    get_student_profile,
+    is_placeholder_student_name,
     init_db,
     purge_placeholder_circulars,
     upsert_class_update,
@@ -25,8 +27,10 @@ from backend.database import (
 )
 from backend.pdf_parser import parse_vibgyor_pdf
 from backend.student_profile import (
+    build_student_profile,
     capture_profile_payloads,
     extract_student_profile,
+    read_profile_page,
 )
 
 CHROME_PATHS = [
@@ -128,22 +132,8 @@ def run_orion_browser_sync(
                 page.wait_for_url(lambda u_cur: "hubbleorion.hubblehox.com" in u_cur and "api/auth" not in u_cur, timeout=25000)
                 page.wait_for_timeout(4000)
 
-            # Step 2: Extract real student profile from Student Detail page
-            student_info = extract_student_profile(
-                page,
-                api_payloads=profile_payloads,
-                debug_dir=os.path.join(target_downloads, "_debug"),
-            )
-            upsert_student(
-                student_id=student_info["student_id"],
-                name=student_info["name"],
-                grade=student_info["grade"],
-                section=student_info["section"],
-                school=student_info["school"],
-                academic_year=student_info["academic_year"],
-                parent_name=student_info.get("parent_name", ""),
-                db_path=db_path,
-            )
+            # Step 2: Visit the Student Detail page (grade / school / enrolment live here)
+            profile_page_text = read_profile_page(page)
 
             # Step 3: Trigger Class Updates and Circulars to capture notifications API
             page.goto("https://hubbleorion.hubblehox.com/dashboard/", wait_until="domcontentloaded", timeout=20000)
@@ -164,6 +154,28 @@ def run_orion_browser_sync(
                 page.wait_for_timeout(3000)
                 page.keyboard.press("Escape")
                 page.wait_for_timeout(1000)
+
+            # Step 3b: Resolve the profile last, so the notifications captured above
+            # (which carry student_name / student_id) can supply the real name.
+            student_info = build_student_profile(
+                profile_page_text,
+                api_payloads=profile_payloads + captured_notifications,
+                debug_dir=os.path.join(target_downloads, "_debug"),
+                page=page,
+            )
+            upsert_student(
+                student_id=student_info["student_id"],
+                name=student_info["name"],
+                grade=student_info["grade"],
+                section=student_info["section"],
+                school=student_info["school"],
+                academic_year=student_info["academic_year"],
+                parent_name=student_info.get("parent_name", ""),
+                db_path=db_path,
+            )
+            stored = get_student_profile(student_info["student_id"], db_path=db_path)
+            if stored and not is_placeholder_student_name(stored.get("name")):
+                student_info = {**student_info, **{k: v for k, v in stored.items() if v}}
 
             browser.close()
 
@@ -370,6 +382,15 @@ def authenticate_orion_credentials(
                         browser.close()
                         return {"success": False, "message": err_msg or "Invalid credentials on Hubble Orion."}
 
+                # Still parked on the SSO gateway means the credentials never took;
+                # without this we reported a successful "live" login for bad logins.
+                if "gateway.ampersandgroup.in" in page.url or page.query_selector("#kc-login"):
+                    browser.close()
+                    return {
+                        "success": False,
+                        "message": "Hubble Orion did not accept those credentials.",
+                    }
+
             # If logged in successfully, extract the real student profile
             student_info = extract_student_profile(
                 page,
@@ -389,6 +410,11 @@ def authenticate_orion_credentials(
                 db_path=db_path,
             )
             browser.close()
+            # upsert_student keeps a previously stored real name over a placeholder,
+            # so read the profile back rather than returning what this scrape saw.
+            stored = get_student_profile(student_info["student_id"], db_path=db_path)
+            if stored and not is_placeholder_student_name(stored.get("name")):
+                student_info = {**student_info, **{k: v for k, v in stored.items() if v}}
             return {"success": True, "student": student_info, "mode": "live"}
 
     except Exception as e:
