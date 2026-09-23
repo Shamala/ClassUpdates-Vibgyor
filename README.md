@@ -12,7 +12,12 @@ You can use the live web app directly in your browser without installing anythin
 
 👉 **[https://shamala.github.io/ClassUpdates-Vibgyor/](https://shamala.github.io/ClassUpdates-Vibgyor/)**
 
-Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grade 1 sample updates.
+It opens on a **class passcode** prompt. Parents of the class enter the passcode
+once per device and go straight to the updates — there is no account to create and
+no sign-in step. Without the passcode, **"See a sample"** shows the same dashboard
+filled with sanitised demo data.
+
+The board refreshes itself daily; see [Unattended Sync](#-unattended-sync-github-actions).
 
 ---
 
@@ -31,11 +36,12 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
 2. **What the published site deliberately does not contain**:
    - No student name, enrolment number, internal ids, parent email or phone number. The published bundle carries only class content.
    - If you set a student name on the published site, it stays in your own browser and is never uploaded.
-   - Be aware that the published site has no server to check a password against, so **its sign-in is not verified and anyone with the link can open the dashboard**. Credential checking against Hubble Orion only happens when you run the backend locally, where a wrong password is rejected.
+   - The link alone is not enough to read the class content. The bundle is **encrypted with the class passcode** before it is published, so fetching the data file directly returns ciphertext; the passcode is typed in the parent's browser and only ever used there to derive the key. The published site has no accounts and no sign-in form — the passcode is the whole gate.
 
 3. **100% Client-Side Browser Storage (`localStorage`)**:
-   - Your interactive homework checkmarks (`vibgyor_completed_hw_ids`), display preferences (`theme`), and session state (`orion_auth_token`) exist purely inside your browser's private local storage.
-   - Clicking **"Sign Out"** or clearing your browser site data immediately wipes all session tokens and preferences from your device.
+   - Everything personal stays in the browser that created it: homework checkmarks (`vibgyor_completed_hw_ids`), the class passcode once accepted (`vibgyor_class_passcode`), the child's name (`vibgyor_parent_student`, `vibgyor_student_for_<user>`), the last signed-in user (`vibgyor_parent_user`), display preference (`theme`) and local session state (`orion_auth_token`).
+   - None of it is uploaded, so one parent never sees another's child name or ticks, and none of it reaches the person who publishes the board.
+   - Clearing your browser site data wipes all of it, and signing out clears the local session.
 
 4. **No Tracking Cookies; Optional Cookieless Visit Counting**:
    - No tracking pixels, no Google Analytics, no third-party cookies, no advertising or profiling.
@@ -59,15 +65,16 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
    - No student name, enrolment number or internal id is published. A **"See a sample"** link shows the sanitised demo data to anyone without the passcode.
    - A freshness stamp shows when the board was last refreshed, and turns amber once it is more than a day and a half old.
 
-2. **Automatic Daily Updates on Sign-In**
-   - Signing in fetches the day's diary, homework and circulars by itself, so there is nothing to press.
-   - It runs in the background: the dashboard is usable within seconds while the portal is read behind it.
-   - No password is stored anywhere to make this work. It uses the one you just typed, held in memory for that page session only, so a reload restores your session but not your password. **Sync Now** is still there for a manual refresh.
+2. **Updates That Fetch Themselves**
+   - A GitHub Actions job signs in to the portal and republishes the board **daily at 14:00 IST**, with no machine of yours switched on. See [Unattended Sync](#-unattended-sync-github-actions).
+   - Running locally, signing in also fetches the day's diary, homework and circulars by itself, in the background, so the dashboard is usable within seconds while the portal is read behind it. **Sync Now** is still there for a manual refresh.
+   - Locally, no password is stored to make this work: it uses the one you just typed, held in memory for that page session only, so a reload restores your session but not your password.
 
-3. **Hubble Orion Parent Login & Multi-User Support**
+3. **Hubble Orion Parent Login (local backend only)**
    - Parent authentication against Hubble Orion: the credentials you type are checked by signing in to the portal, and a password it rejects is refused rather than waved through.
    - 1-click **Demo / Sample Mode** to instantly explore the dashboard with pre-seeded data without external credentials.
    - Session management with token authorization and persistent sign-in state.
+   - The **published board has none of this**: it is a shared class board behind one passcode, so there is nothing to sign in to.
 
 4. **Word Bank & Flashcard Drill (Surprise Dictation Prep)**
    - Grade 1 students face continuous surprise dictations in school.
@@ -108,6 +115,7 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
    - A service worker pre-caches the shell, so previously loaded updates stay readable without a connection.
 
 11. **Design & Accessibility**
+   - Naming the child uses an in-page dialog ("Whose updates are these?"), not the browser's `prompt()`, which stamps the site's hostname across the box and cannot be relabelled.
    - Seamless **Dark Mode & Light Mode** toggle with anti-flicker detection.
    - Expressive, calm typography powered by Google Fonts **Commissioner**.
    - Fully responsive for mobile and desktop screens.
@@ -120,7 +128,10 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
 ClassUpdates-Vibgyor/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml    # Automated GitHub Pages CI/CD workflow
+│       ├── deploy.yml    # Publishes frontend/ to GitHub Pages on every push to main
+│       └── sync.yml      # Daily unattended Orion sync, publish and deploy
+├── scripts/
+│   └── inject_analytics.py # Writes the analytics tag in at publish time
 ├── backend/
 │   ├── static_export.py  # Builds the encrypted class bundle + sanitised demo bundle
 │   ├── publish.py        # Republishes the class board after a successful sync
@@ -129,6 +140,7 @@ ClassUpdates-Vibgyor/
 │   ├── orion_client.py   # Orion portal client & offline fallback ingest
 │   ├── browser_sync.py   # Headless SSO sign-in, PDF & circular capture
 │   ├── student_profile.py # Extracts the student profile from the portal
+│   ├── scheduled_sync.py # Unattended sync entry point, with public-log redaction
 │   └── main.py           # REST API server & static asset host
 ├── frontend/
 │   ├── index.html        # Modern Tailwind parent dashboard
@@ -148,6 +160,7 @@ ClassUpdates-Vibgyor/
 │   ├── test_api.py             # Integration tests for REST endpoints and static assets
 │   ├── test_auth.py            # Authentication and session tests
 │   ├── test_static_export.py   # What the published board must and must not contain
+│   ├── test_scheduled_sync.py  # Nothing scraped may reach a public build log
 │   └── test_student_profile.py # Profile extraction from portal pages and APIs
 ├── .env.example
 ├── requirements.txt
@@ -159,7 +172,23 @@ ClassUpdates-Vibgyor/
 
 ## 🚀 Quick Start (Local Development)
 
-### 1. Launch the Application
+### 1. Install Dependencies
+
+```bash
+python3 -m venv venv
+./venv/bin/python -m pip install -r requirements.txt
+./venv/bin/python -m playwright install chromium
+```
+
+Invoke the tools as `python -m <tool>` rather than `./venv/bin/pip`. A virtual
+environment records its own path inside every console script it generates, so
+renaming or moving the directory leaves those scripts pointing at a path that no
+longer exists; going through the interpreter sidesteps that entirely.
+
+The last line downloads the headless browser that signs in to the portal. Skip it
+and the dashboard still runs on seeded sample data — only syncing needs it.
+
+### 2. Launch the Application
 
 Run the launcher script:
 
@@ -179,13 +208,14 @@ Open **[http://localhost:8000](http://localhost:8000)** in your browser.
 
 ## 🧪 Running Tests
 
-Run the complete test suite (72 tests covering PDF extraction, authentication, student profile extraction, published-bundle safety, scheduled-sync log hygiene, and REST APIs):
+Run the complete test suite (85 tests covering PDF extraction, authentication, student profile extraction, published-bundle safety, scheduled-sync log hygiene, and REST APIs):
 
 ```bash
 ./venv/bin/python -m unittest discover -s tests -t .
 ```
 
-`pytest` also works if you install it (`pip install pytest`), but it is not a dependency:
+`./venv/bin/pytest` runs the same suite — despite the name it is a small wrapper
+around `unittest.discover`, so it needs nothing extra installed:
 
 ```bash
 ./venv/bin/pytest
@@ -220,6 +250,14 @@ Run the complete test suite (72 tests covering PDF extraction, authentication, s
   - A password the portal rejects returns `401` and issues no session token.
   - Credentials that cannot be checked at all (portal unreachable) return `503`, and are likewise refused.
   - Empty credentials return `401`; demo mode signs in without contacting the portal and only ever sees the demo profile.
+- **Published bundle**:
+  - No student identity and no completion state survive into the published board.
+  - Circulars are capped to the current term, and the cutoff edge is inclusive.
+  - SQLite row timestamps are stripped, so a rebuilt database does not look like new content.
+- **Unattended sync**:
+  - The credentials, the passcode and every scraped value are redacted before anything is printed.
+  - A dry run publishes nothing; the step output reports truthfully whether it did.
+  - Missing credentials stop the run rather than falling back to anything.
 - **Student profile extraction**:
   - Both portal layouts: `Label : Value` on one line, and a label with its value on the next.
   - The guardians nested beside the student in the profile API never win over the student's own name.
@@ -305,7 +343,19 @@ start in the same session, and are never written to disk or kept by the server.
 
 ```ini
 ORION_BASE_URL=https://hubbleorion.hubblehox.com
-ORION_DOWNLOADS_DIR=
+ORION_DOWNLOADS_DIR=~/vibgyor
+
+# The passcode class parents type to open the published board. The class content
+# is encrypted with it, so the published file is ciphertext without it. Keep it
+# out of the repository; share it with parents directly.
+SITE_PASSCODE=
+# Republish the board to GitHub Pages after each successful local sync
+AUTO_PUBLISH=0
+
 PORT=8000
 HOST=0.0.0.0
 ```
+
+`SITE_PASSCODE` and `AUTO_PUBLISH` only matter when you publish from your own
+machine. The daily GitHub Actions run takes the passcode from the repository
+secret of the same name and publishes regardless.
