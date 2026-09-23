@@ -68,8 +68,9 @@ def run_orion_browser_sync(
     """
     init_db(db_path)
 
-    u = username or os.getenv("ORION_USERNAME", "")
-    p_word = password or os.getenv("ORION_PASSWORD", "")
+    # Supplied by the caller from what the parent typed in; never stored anywhere.
+    u = username or ""
+    p_word = password or ""
     target_downloads = (
         downloads_dir
         or os.getenv("ORION_DOWNLOADS_DIR")
@@ -81,7 +82,7 @@ def run_orion_browser_sync(
     if not u or not p_word:
         return {
             "status": "error",
-            "message": "Missing ORION_USERNAME or ORION_PASSWORD in configuration.",
+            "message": "Sign in with your Hubble Orion username and password to sync.",
         }
 
     try:

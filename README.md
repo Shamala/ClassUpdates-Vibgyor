@@ -182,12 +182,12 @@ python3 -m unittest discover tests
 
 ## ⚙️ Configuration (`.env`)
 
-For optional automated live synchronization directly from Hubble Orion:
+Your Hubble Orion username and password are **not** configured here. You type them
+into the app when you sign in; they are used for that request and for a sync you
+start in the same session, and are never written to disk or kept by the server.
 
 ```ini
 ORION_BASE_URL=https://hubbleorion.hubblehox.com
-ORION_USERNAME=parent_email@example.com
-ORION_PASSWORD=your_orion_password
 ORION_DOWNLOADS_DIR=
 PORT=8000
 HOST=0.0.0.0

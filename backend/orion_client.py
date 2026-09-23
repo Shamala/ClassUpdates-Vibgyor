@@ -42,8 +42,10 @@ class OrionClient:
             base_url
             or os.getenv("ORION_BASE_URL", "https://hubbleorion.hubblehox.com")
         ).rstrip("/")
-        self.username = username or os.getenv("ORION_USERNAME", "")
-        self.password = password or os.getenv("ORION_PASSWORD", "")
+        # Credentials are never read from configuration. The parent types them into
+        # the app and they are passed in per request, used, and discarded.
+        self.username = username or ""
+        self.password = password or ""
 
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.sample_data_dir = os.path.join(project_root, "sample_data")

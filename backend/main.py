@@ -319,8 +319,15 @@ if HAS_FASTAPI:
         return res
 
     @app.post("/api/sync")
-    def api_sync():
-        return handle_trigger_sync()
+    async def api_sync(request: Request):
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        return handle_trigger_sync(
+            username=(body or {}).get("username"),
+            password=(body or {}).get("password"),
+        )
 
     @app.get("/circulars/{filename}")
     def serve_circular_pdf(filename: str):
@@ -543,7 +550,16 @@ class VibgyorHTTPRequestHandler(BaseHTTPRequestHandler):
             return self._send_json_with_cookie(res, clear_cookie=True)
 
         if path == "/api/sync":
-            return self._send_json(handle_trigger_sync())
+            length = int(self.headers.get("Content-Length", 0))
+            body_str = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+            try:
+                payload = json.loads(body_str) or {}
+            except Exception:
+                payload = {}
+            return self._send_json(handle_trigger_sync(
+                username=payload.get("username"),
+                password=payload.get("password"),
+            ))
 
         hw_match = re.match(r"^/api/homework/(\d+)/toggle/?$", path)
         if hw_match:

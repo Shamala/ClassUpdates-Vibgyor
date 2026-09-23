@@ -132,6 +132,11 @@ function updateThemeToggleIcon(isDark) {
   }
 }
 
+// The password the parent typed, kept in memory for this page session only so that
+// Sync Now can authenticate against the portal. It is never written to
+// localStorage, never persisted by the server, and is gone on reload.
+let sessionCredentials = null;
+
 const DEMO_STUDENT = {
   id: 1,
   student_id: "DEMO-G1F-001",
@@ -502,6 +507,7 @@ async function handleLoginSubmit(event) {
       state.authToken = data.token;
       state.currentUser = data.user;
       applyStudentProfile(data.student, username);
+      if (data.mode !== "demo") sessionCredentials = { username, password };
       localStorage.setItem("orion_auth_token", data.token);
       localStorage.setItem(
         "vibgyor_parent_user",
@@ -651,6 +657,7 @@ async function handleDemoLogin() {
 }
 
 async function handleLogout() {
+  sessionCredentials = null;
   if (!isStaticMode()) {
     try {
       await fetch(`${API_BASE}/api/auth/logout`, {
@@ -1261,9 +1268,25 @@ async function triggerManualSync() {
   }
 
   try {
+    // The server keeps no password, so the sync carries the parent's own
+    // credentials. After a reload they are gone from memory and we ask again.
+    if (!sessionCredentials) {
+      const username =
+        (state.currentUser && state.currentUser.username) || "";
+      const password = username
+        ? prompt(`Enter the Hubble Orion password for ${username} to sync:`)
+        : null;
+      if (!password) {
+        showToast("Sync needs your Hubble Orion password", "info");
+        return;
+      }
+      sessionCredentials = { username, password };
+    }
+
     const res = await fetch(`${API_BASE}/api/sync`, {
       method: "POST",
-      headers: getAuthHeaders(),
+      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify(sessionCredentials),
     });
     const data = await res.json();
     if (data.status === "success") {
@@ -1273,6 +1296,8 @@ async function triggerManualSync() {
       );
       await loadAvailableDates();
     } else {
+      // the password we held may be the reason; ask again next time
+      sessionCredentials = null;
       showToast(data.message || "Sync encountered an issue", "warning");
     }
   } catch (err) {
