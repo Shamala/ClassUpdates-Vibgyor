@@ -52,6 +52,41 @@ def get_chrome_executable() -> Optional[str]:
     return None
 
 
+def _settle(page, timeout: int = 15000) -> None:
+    """Lets the single-page app finish navigating before anything is read off it."""
+    for state in ("domcontentloaded", "networkidle"):
+        try:
+            page.wait_for_load_state(state, timeout=timeout)
+        except Exception:
+            # networkidle never arrives on a page that polls; carry on regardless.
+            pass
+
+
+def _open_tile(page, label: str, timeout: int = 15000) -> bool:
+    """Opens a dashboard tile by its visible text, then closes it again.
+
+    query_selector returns a handle tied to one execution context, which a
+    single-page app throws away the moment it navigates: on a machine whose
+    timings differ from a laptop's, that race is the difference between a sync
+    and a crash. A locator is resolved afresh on each use, so it survives the
+    navigation, and a second attempt covers the case where one lands mid-flight.
+    """
+    for attempt in range(2):
+        try:
+            _settle(page)
+            tile = page.get_by_text(label, exact=True).first
+            tile.wait_for(state="visible", timeout=timeout)
+            tile.click(timeout=timeout)
+            page.wait_for_timeout(3000)
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(1000)
+            return True
+        except Exception as exc:
+            # The type alone: an exception message can carry page content.
+            print(f"[browser_sync] Attempt {attempt + 1} to open '{label}': {type(exc).__name__}")
+    return False
+
+
 def run_orion_browser_sync(
     username: Optional[str] = None,
     password: Optional[str] = None,
@@ -138,27 +173,15 @@ def run_orion_browser_sync(
                 page.wait_for_timeout(4000)
 
             # Step 2: Visit the Student Detail page (grade / school / enrolment live here)
+            _settle(page)
             profile_page_text = read_profile_page(page)
 
             # Step 3: Trigger Class Updates and Circulars to capture notifications API
             page.goto("https://hubbleorion.hubblehox.com/dashboard/", wait_until="domcontentloaded", timeout=20000)
             page.wait_for_timeout(3000)
 
-            # Click Class Updates
-            cu_el = page.query_selector('text="Class Updates"')
-            if cu_el:
-                cu_el.click()
-                page.wait_for_timeout(3000)
-                page.keyboard.press("Escape")
-                page.wait_for_timeout(1000)
-
-            # Click Circular
-            circ_el = page.query_selector('text="Circular"')
-            if circ_el:
-                circ_el.click()
-                page.wait_for_timeout(3000)
-                page.keyboard.press("Escape")
-                page.wait_for_timeout(1000)
+            _open_tile(page, "Class Updates")
+            _open_tile(page, "Circular")
 
             # Step 3b: Resolve the profile last, so the notifications captured above
             # (which carry student_name / student_id) can supply the real name.
