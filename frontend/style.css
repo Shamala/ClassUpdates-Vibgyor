@@ -266,6 +266,27 @@ body {
   transform: scale(1.1);
 }
 
+/* Never let a wide child force the page (and the sticky header) to scroll sideways */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Horizontally scrollable strips (e.g. the tab bar) without a visible scrollbar */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tabs must not shrink/wrap inside the scrollable strip */
+#tabs-bar > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 /* Tab Active Indicator */
 .tab-active {
   border-bottom: 3px solid #4f46e5;

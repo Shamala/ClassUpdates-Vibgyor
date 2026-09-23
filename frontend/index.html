@@ -9,10 +9,18 @@
     <meta name="theme-color" content="#4f46e5" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="ClassUpdates" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="icons/icon-192.png"
+    />
     <!-- Google Fonts: Commissioner -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -122,8 +130,40 @@
 
         <!-- Controls: Date Picker + Theme Toggle + Sync + Profile + Sign Out -->
         <div
-          class="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto justify-end"
+          class="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full sm:w-auto min-w-0 justify-end"
         >
+          <!-- Date Selector -->
+          <div
+            id="date-select-wrap"
+            class="relative basis-full order-first min-w-0 sm:order-none sm:basis-auto"
+          >
+            <label for="date-select" class="sr-only">Select Date</label>
+            <select
+              id="date-select"
+              class="w-full sm:w-64 appearance-none bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold py-2.5 pl-3 pr-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-2xs transition-colors"
+            >
+              <!-- Injected via JavaScript -->
+              <option value="">Loading dates...</option>
+            </select>
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400 dark:text-slate-500"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
+
           <!-- Theme Toggle Button (Always visible) -->
           <button
             id="theme-toggle-btn"
@@ -189,37 +229,8 @@
           <!-- Authenticated Controls (hidden when logged out) -->
           <div
             id="authenticated-controls"
-            class="flex items-center gap-2.5 sm:gap-3"
+            class="flex flex-wrap items-center gap-2.5 sm:gap-3 flex-1 sm:flex-initial min-w-0 justify-end"
           >
-            <!-- Date Selector -->
-            <div class="relative flex-1 sm:flex-initial">
-              <label for="date-select" class="sr-only">Select Date</label>
-              <select
-                id="date-select"
-                class="w-full sm:w-64 appearance-none bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold py-2.5 pl-3 pr-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-2xs transition-colors"
-              >
-                <!-- Injected via JavaScript -->
-                <option value="">Loading dates...</option>
-              </select>
-              <div
-                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400 dark:text-slate-500"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
-            </div>
-
             <!-- Sync Button -->
             <button
               id="sync-btn"
@@ -298,7 +309,7 @@
       <!-- Navigation Tabs Bar -->
       <div
         id="tabs-bar"
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-8 border-t border-slate-100 dark:border-slate-700/80 pt-3"
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-5 sm:gap-8 border-t border-slate-100 dark:border-slate-700/80 pt-3 overflow-x-auto no-scrollbar"
       >
         <button
           data-tab="daily"

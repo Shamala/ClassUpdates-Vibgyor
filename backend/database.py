@@ -301,6 +301,15 @@ def get_student_profile(student_id: Optional[str] = None, db_path: Optional[str]
     return dict(row)
 
 
+PLACEHOLDER_STUDENT_NAMES = {"", "student", "n/a", "-", "none"}
+
+
+def is_placeholder_student_name(name: Optional[str]) -> bool:
+    """True when `name` is a stand-in rather than a real child's name."""
+    n = (name or "").strip().lower()
+    return n in PLACEHOLDER_STUDENT_NAMES or "'s ward" in n
+
+
 def upsert_student(
     student_id: str,
     name: str,
@@ -318,9 +327,13 @@ def upsert_student(
     conn = get_db_connection(db_path)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM students WHERE student_id = 'VIB-2026-1F-042'")
-    cursor.execute("SELECT id FROM students WHERE student_id = ?", (student_id,))
+    cursor.execute("SELECT id, name FROM students WHERE student_id = ?", (student_id,))
     existing = cursor.fetchone()
     if existing:
+        # A failed scrape falls back to a placeholder name; never let it overwrite
+        # a real name that a previous, successful sync already stored.
+        if is_placeholder_student_name(clean_name) and not is_placeholder_student_name(existing["name"]):
+            clean_name = existing["name"]
         cursor.execute("""
             UPDATE students SET name = ?, grade = ?, section = ?, school = ?, academic_year = ?, roll_no = ?, parent_name = ?
             WHERE student_id = ?

@@ -18,12 +18,20 @@ except ImportError:
 
 from backend.database import (
     add_circular,
+    get_student_profile,
+    is_placeholder_student_name,
     init_db,
     purge_placeholder_circulars,
     upsert_class_update,
     upsert_student,
 )
 from backend.pdf_parser import parse_vibgyor_pdf
+from backend.student_profile import (
+    build_student_profile,
+    capture_profile_payloads,
+    extract_student_profile,
+    read_profile_page,
+)
 
 CHROME_PATHS = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -97,6 +105,7 @@ def run_orion_browser_sync(
                 pass
 
     downloaded_files: List[str] = []
+    profile_payloads: List[Any] = []
     circulars_count = 0
     student_info: Dict[str, str] = {}
 
@@ -109,6 +118,7 @@ def run_orion_browser_sync(
             )
             page = context.new_page()
             page.on("response", handle_response)
+            capture_profile_payloads(page, profile_payloads)
 
             # Step 1: Navigate to Dashboard / Login
             page.goto("https://hubbleorion.hubblehox.com/dashboard/", wait_until="domcontentloaded", timeout=30000)
@@ -122,74 +132,8 @@ def run_orion_browser_sync(
                 page.wait_for_url(lambda u_cur: "hubbleorion.hubblehox.com" in u_cur and "api/auth" not in u_cur, timeout=25000)
                 page.wait_for_timeout(4000)
 
-            # Step 2: Extract real student profile from Student Detail page
-            try:
-                page.goto("https://hubbleorion.hubblehox.com/student-detail/", wait_until="domcontentloaded", timeout=20000)
-                page.wait_for_timeout(3000)
-                body_text = page.inner_text("body")
-
-                lines = [line.strip() for line in body_text.splitlines() if line.strip()]
-                student_name = "Student"
-                enrolment = "STU-GRADE1F"
-                school = "VIBGYOR High"
-                grade = "Grade 1"
-                division = "F"
-                academic_year = "2026 - 27"
-                parent_name = "Parent"
-
-                for idx, line in enumerate(lines):
-                    if line.startswith("Enrolment Number"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            enrolment = parts[1].strip()
-                    elif line.startswith("School"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            school = parts[1].strip()
-                    elif line.startswith("Grade"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            grade = parts[1].strip()
-                    elif line.startswith("Division"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            division = parts[1].strip()
-                    elif line.startswith("Academic Year"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            academic_year = parts[1].strip()
-                    elif line.startswith("Student Name") or line.startswith("Name"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            student_name = parts[1].strip()
-                    elif line.startswith("Parent") or line.startswith("Father") or line.startswith("Mother"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            parent_name = parts[1].strip()
-
-                student_info = {
-                    "student_id": enrolment,
-                    "name": student_name,
-                    "grade": grade,
-                    "section": division,
-                    "school": school,
-                    "academic_year": academic_year,
-                    "parent_name": parent_name,
-                }
-
-                # Update database with real student profile
-                upsert_student(
-                    student_id=student_info["student_id"],
-                    name=student_info["name"],
-                    grade=student_info["grade"],
-                    section=student_info["section"],
-                    school=student_info["school"],
-                    academic_year=student_info["academic_year"],
-                    parent_name=student_info["parent_name"],
-                    db_path=db_path
-                )
-            except Exception as e:
-                print(f"[browser_sync] Warning extracting student detail: {e}")
+            # Step 2: Visit the Student Detail page (grade / school / enrolment live here)
+            profile_page_text = read_profile_page(page)
 
             # Step 3: Trigger Class Updates and Circulars to capture notifications API
             page.goto("https://hubbleorion.hubblehox.com/dashboard/", wait_until="domcontentloaded", timeout=20000)
@@ -210,6 +154,28 @@ def run_orion_browser_sync(
                 page.wait_for_timeout(3000)
                 page.keyboard.press("Escape")
                 page.wait_for_timeout(1000)
+
+            # Step 3b: Resolve the profile last, so the notifications captured above
+            # (which carry student_name / student_id) can supply the real name.
+            student_info = build_student_profile(
+                profile_page_text,
+                api_payloads=profile_payloads + captured_notifications,
+                debug_dir=os.path.join(target_downloads, "_debug"),
+                page=page,
+            )
+            upsert_student(
+                student_id=student_info["student_id"],
+                name=student_info["name"],
+                grade=student_info["grade"],
+                section=student_info["section"],
+                school=student_info["school"],
+                academic_year=student_info["academic_year"],
+                parent_name=student_info.get("parent_name", ""),
+                db_path=db_path,
+            )
+            stored = get_student_profile(student_info["student_id"], db_path=db_path)
+            if stored and not is_placeholder_student_name(stored.get("name")):
+                student_info = {**student_info, **{k: v for k, v in stored.items() if v}}
 
             browser.close()
 
@@ -389,6 +355,8 @@ def authenticate_orion_credentials(
                 viewport={"width": 1280, "height": 900}
             )
             page = context.new_page()
+            profile_payloads: List[Any] = []
+            capture_profile_payloads(page, profile_payloads)
 
             page.goto("https://hubbleorion.hubblehox.com/dashboard/", wait_until="domcontentloaded", timeout=25000)
             page.wait_for_timeout(2500)
@@ -414,66 +382,40 @@ def authenticate_orion_credentials(
                         browser.close()
                         return {"success": False, "message": err_msg or "Invalid credentials on Hubble Orion."}
 
-            # If logged in successfully, try extracting student info
-            try:
-                page.goto("https://hubbleorion.hubblehox.com/student-detail/", wait_until="domcontentloaded", timeout=15000)
-                page.wait_for_timeout(2500)
-                body_text = page.inner_text("body")
+                # Still parked on the SSO gateway means the credentials never took;
+                # without this we reported a successful "live" login for bad logins.
+                if "gateway.ampersandgroup.in" in page.url or page.query_selector("#kc-login"):
+                    browser.close()
+                    return {
+                        "success": False,
+                        "message": "Hubble Orion did not accept those credentials.",
+                    }
 
-                lines = [line.strip() for line in body_text.splitlines() if line.strip()]
-                student_name = "Student"
-                enrolment = "STU-GRADE1F"
-                school = "VIBGYOR High"
-                grade = "Grade 1"
-                division = "F"
-                academic_year = "2026 - 27"
-
-                for idx, line in enumerate(lines):
-                    if line.startswith("Enrolment Number"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            enrolment = parts[1].strip()
-                    elif line.startswith("School"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            school = parts[1].strip()
-                    elif line.startswith("Grade"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            grade = parts[1].strip()
-                    elif line.startswith("Division"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            division = parts[1].strip()
-                    elif line.startswith("Academic Year"):
-                        parts = line.split(":", 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            academic_year = parts[1].strip()
-
-                student_info = {
-                    "student_id": enrolment,
-                    "name": student_name,
-                    "grade": grade,
-                    "section": division,
-                    "school": school,
-                    "academic_year": academic_year,
-                    "parent_name": "",
-                }
-                upsert_student(
-                    student_id=student_info["student_id"],
-                    name=student_info["name"],
-                    grade=student_info["grade"],
-                    section=student_info["section"],
-                    school=student_info["school"],
-                    academic_year=student_info["academic_year"],
-                    db_path=db_path
-                )
-                browser.close()
-                return {"success": True, "student": student_info, "mode": "live"}
-            except Exception:
-                browser.close()
-                from backend.database import get_student_profile
-                return {"success": True, "student": get_student_profile(db_path=db_path), "mode": "live_fallback"}
+            # If logged in successfully, extract the real student profile
+            student_info = extract_student_profile(
+                page,
+                api_payloads=profile_payloads,
+                debug_dir=os.path.join(
+                    os.path.expanduser(os.getenv("ORION_DOWNLOADS_DIR", "~/vibgyor")), "_debug"
+                ),
+            )
+            upsert_student(
+                student_id=student_info["student_id"],
+                name=student_info["name"],
+                grade=student_info["grade"],
+                section=student_info["section"],
+                school=student_info["school"],
+                academic_year=student_info["academic_year"],
+                parent_name=student_info.get("parent_name", ""),
+                db_path=db_path,
+            )
+            browser.close()
+            # upsert_student keeps a previously stored real name over a placeholder,
+            # so read the profile back rather than returning what this scrape saw.
+            stored = get_student_profile(student_info["student_id"], db_path=db_path)
+            if stored and not is_placeholder_student_name(stored.get("name")):
+                student_info = {**student_info, **{k: v for k, v in stored.items() if v}}
+            return {"success": True, "student": student_info, "mode": "live"}
 
     except Exception as e:
         return {"success": False, "message": f"Connection error to Hubble Orion: {str(e)}"}

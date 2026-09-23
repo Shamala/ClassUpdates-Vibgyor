@@ -3,7 +3,7 @@
 // Provides 100% offline capability, instant loading & asset caching
 // =====================================================================
 
-const CACHE_NAME = "vibgyor-pwa-v1";
+const CACHE_NAME = "vibgyor-pwa-v2";
 
 const PRECACHE_ASSETS = [
   "./",
@@ -59,7 +59,9 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request).catch(() => {
         return new Response(
-          JSON.stringify({ error: "Offline mode active. Using local browser data." }),
+          JSON.stringify({
+            error: "Offline mode active. Using local browser data.",
+          }),
           { headers: { "Content-Type": "application/json" } },
         );
       }),
