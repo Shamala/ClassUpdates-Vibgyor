@@ -258,6 +258,17 @@ prints counts and status words only, and everything it prints passes through
 including the child's name — from the text first. `tests/test_scheduled_sync.py`
 holds that guarantee in place.
 
+### Why the sync job deploys the site itself
+
+A push made with the workflow's `GITHUB_TOKEN` deliberately does not start
+another workflow — GitHub's guard against recursive runs. So the publish commit
+lands on `main` and the Pages deploy never fires. The sync job therefore builds
+and deploys the site it just produced, rather than waiting for a deploy that
+will not come. Both workflows share the `pages` concurrency group so two
+deployments cannot collide, and both inject analytics through
+`scripts/inject_analytics.py` so the published page cannot differ depending on
+which one built it.
+
 ### What the board shows
 
 An unattended run reaches far more of the portal's notification feed than a

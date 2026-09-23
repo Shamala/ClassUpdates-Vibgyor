@@ -30,42 +30,12 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
-      # GoatCounter counts unique visitors per day from a salted hash of IP and
-      # user agent that rotates daily, so it needs no cookie and stores no
-      # identifier on the visitor's device. The site code is not sensitive; keeping
-      # it out of the repository is what makes analytics off by default for anyone
-      # who clones or forks this.
+      # The site code is not sensitive; keeping it out of the repository is what
+      # makes analytics off by default for anyone who clones or forks this.
       - name: Inject web analytics
         env:
           GOATCOUNTER_CODE: ${{ secrets.GOATCOUNTER_CODE }}
-        run: |
-          python3 - <<'PY'
-          import html as html_mod
-          import os
-
-          code = (os.environ.get("GOATCOUNTER_CODE") or "").strip()
-          path = "frontend/index.html"
-          marker = "<!--WEB_ANALYTICS-->"
-
-          with open(path) as fh:
-              page = fh.read()
-
-          if not code:
-              print("GOATCOUNTER_CODE is not set: publishing with no analytics script.")
-          elif marker not in page:
-              raise SystemExit(f"Expected marker {marker} in {path}")
-          else:
-              # accept either a bare site code or a full counter endpoint
-              endpoint = code if "://" in code else f"https://{code}.goatcounter.com/count"
-              tag = (
-                  '<script data-goatcounter="%s" async '
-                  'src="https://gc.zgo.at/count.js"></script>'
-                  % html_mod.escape(endpoint, quote=True)
-              )
-              with open(path, "w") as fh:
-                  fh.write(page.replace(marker, tag))
-              print("GoatCounter analytics injected.")
-          PY
+        run: python3 scripts/inject_analytics.py
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
