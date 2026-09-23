@@ -30,6 +30,38 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      # The Cloudflare beacon token is not a secret (it is visible in the page
+      # source of every site that uses it), but keeping it out of the repository
+      # means analytics is off by default for anyone who clones or forks this.
+      - name: Inject Cloudflare Web Analytics
+        env:
+          CF_BEACON_TOKEN: ${{ secrets.CF_BEACON_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+
+          token = (os.environ.get("CF_BEACON_TOKEN") or "").strip()
+          path = "frontend/index.html"
+          marker = "<!--CF_WEB_ANALYTICS-->"
+
+          with open(path) as fh:
+              html = fh.read()
+
+          if not token:
+              print("CF_BEACON_TOKEN is not set: publishing with no analytics script.")
+          elif marker not in html:
+              raise SystemExit(f"Expected marker {marker} in {path}")
+          else:
+              beacon = json.dumps({"token": token})
+              tag = (
+                  '<script defer src="https://static.cloudflareinsights.com/beacon.min.js" '
+                  f"data-cf-beacon='{beacon}'></script>"
+              )
+              with open(path, "w") as fh:
+                  fh.write(html.replace(marker, tag))
+              print("Cloudflare Web Analytics beacon injected.")
+          PY
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

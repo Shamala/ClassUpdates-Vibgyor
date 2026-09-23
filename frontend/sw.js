@@ -3,7 +3,7 @@
 // Provides 100% offline capability, instant loading & asset caching
 // =====================================================================
 
-const CACHE_NAME = "vibgyor-pwa-v8";
+const CACHE_NAME = "vibgyor-pwa-v9";
 
 const PRECACHE_ASSETS = [
   "./",
@@ -53,6 +53,10 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
+
+  // Analytics is third-party and must never be served from cache or retried
+  // offline; let it go straight to the network, or fail on its own.
+  if (url.hostname.endsWith("cloudflareinsights.com")) return;
 
   // Skip caching for backend API requests or external OAuth
   if (url.pathname.startsWith("/api/")) {

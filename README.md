@@ -37,9 +37,11 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
    - Your interactive homework checkmarks (`vibgyor_completed_hw_ids`), display preferences (`theme`), and session state (`orion_auth_token`) exist purely inside your browser's private local storage.
    - Clicking **"Sign Out"** or clearing your browser site data immediately wipes all session tokens and preferences from your device.
 
-4. **Zero Third-Party Trackers & Telemetry**:
-   - No tracking pixels, Google Analytics, or third-party cookies are used.
-   - Only Google Fonts (`Commissioner`) and Tailwind CSS are loaded from reputable CDNs.
+4. **No Tracking Cookies; Optional Cookieless Visit Counting**:
+   - No tracking pixels, no Google Analytics, no third-party cookies, no advertising or profiling.
+   - Google Fonts (`Commissioner`) and Tailwind CSS are loaded from reputable CDNs.
+   - The published site can optionally count visits with **Cloudflare Web Analytics**, which is cookieless, sets no identifiers and collects no personal data: page views, referrer and country only. It exists so the owner can tell whether the public link has spread beyond the family.
+   - It is **off unless the `CF_BEACON_TOKEN` repository secret is set**. Clone or fork this repository and the published page loads no analytics at all. The service worker never caches or replays it.
 
 5. **Transparent & Fully Inspectable**:
    - The frontend code consists entirely of readable, open-source HTML, CSS, and vanilla JavaScript (`frontend/index.html`, `frontend/app.js`, `frontend/static_data.js`).
