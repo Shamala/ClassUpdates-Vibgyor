@@ -33,6 +33,10 @@ from backend.student_profile import (
     read_profile_page,
 )
 
+# Usernames that intentionally bypass the portal. Kept deliberately small: each one
+# is an account anybody can sign in to without a password.
+DEMO_IDENTITIES = {"demo", "demo@vibgyor.com"}
+
 CHROME_PATHS = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/usr/bin/google-chrome",
@@ -316,16 +320,18 @@ def authenticate_orion_credentials(
     clean_p = (password or "").strip()
 
     if not clean_u:
-        return {"success": False, "message": "Username / Email is required."}
+        return {"success": False, "reason": "invalid_credentials", "message": "Username / Email is required."}
+    if not clean_p:
+        return {"success": False, "reason": "invalid_credentials", "message": "Password is required."}
 
-    # Demo accounts
-    if clean_u in ["demo", "demo@vibgyor.com", "parent@vibgyor.com", "test@vibgyor.com", "parent"]:
-        from backend.database import get_student_profile
-        student = get_student_profile(db_path=db_path)
+    # The demo identities are the only ones that skip the portal, and they never see
+    # the real profile. They used to include plausible addresses like
+    # parent@vibgyor.com, which let anyone in with any password.
+    if clean_u in DEMO_IDENTITIES:
         return {
             "success": True,
             "mode": "demo",
-            "student": student,
+            "student": None,
             "message": "Logged in via Demo Mode",
         }
 
@@ -333,13 +339,11 @@ def authenticate_orion_credentials(
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
-        from backend.database import get_student_profile
-        student = get_student_profile(db_path=db_path)
+        # We cannot check the password at all, so we must not grant access.
         return {
-            "success": True,
-            "mode": "offline",
-            "student": student,
-            "message": "Playwright unavailable; logged in with local profile.",
+            "success": False,
+            "reason": "unavailable",
+            "message": "Cannot verify credentials: Playwright is not installed. Run: pip install playwright",
         }
 
     chrome_exec = get_chrome_executable()
@@ -371,7 +375,8 @@ def authenticate_orion_credentials(
                 if err_el:
                     err_msg = err_el.inner_text().strip()
                     browser.close()
-                    return {"success": False, "message": err_msg or "Invalid username or password on Hubble Orion."}
+                    return {"success": False, "reason": "invalid_credentials",
+                            "message": err_msg or "Invalid username or password on Hubble Orion."}
 
                 try:
                     page.wait_for_url(lambda u_cur: "hubbleorion.hubblehox.com" in u_cur and "api/auth" not in u_cur, timeout=20000)
@@ -380,7 +385,8 @@ def authenticate_orion_credentials(
                     if err_el2:
                         err_msg = err_el2.inner_text().strip()
                         browser.close()
-                        return {"success": False, "message": err_msg or "Invalid credentials on Hubble Orion."}
+                        return {"success": False, "reason": "invalid_credentials",
+                                "message": err_msg or "Invalid credentials on Hubble Orion."}
 
                 # Still parked on the SSO gateway means the credentials never took;
                 # without this we reported a successful "live" login for bad logins.
@@ -388,6 +394,7 @@ def authenticate_orion_credentials(
                     browser.close()
                     return {
                         "success": False,
+                        "reason": "invalid_credentials",
                         "message": "Hubble Orion did not accept those credentials.",
                     }
 
@@ -418,6 +425,9 @@ def authenticate_orion_credentials(
             return {"success": True, "student": student_info, "mode": "live"}
 
     except Exception as e:
-        return {"success": False, "message": f"Connection error to Hubble Orion: {str(e)}"}
+        # Could not reach the portal. We still cannot verify the password, so this
+        # is a failure, not a reason to sign someone in.
+        return {"success": False, "reason": "unreachable",
+                "message": f"Could not reach Hubble Orion to verify your credentials: {str(e)}"}
 
 

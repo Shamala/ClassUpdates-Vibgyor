@@ -28,7 +28,7 @@ from backend.database import (
     seed_sample_data,
     toggle_homework_status,
 )
-from backend.browser_sync import authenticate_orion_credentials
+from backend.browser_sync import DEMO_IDENTITIES, authenticate_orion_credentials
 from backend.orion_client import trigger_sync
 
 # Project paths
@@ -155,7 +155,7 @@ def handle_auth_login(payload: Dict[str, Any]) -> Dict[str, Any]:
     password = (payload.get("password") or "").strip()
     is_demo = payload.get("is_demo", False)
 
-    if is_demo or username.lower() in ["demo", "demo@vibgyor.com", "parent@vibgyor.com", "test@vibgyor.com"]:
+    if is_demo or username.lower() in DEMO_IDENTITIES:
         user = create_or_get_user("demo@vibgyor.com", display_name="Demo Parent", student_id="DEMO-G1F-001")
         student = DEMO_STUDENT
         token = create_session(user["id"], user["username"], student_id=student.get("student_id"))
@@ -169,29 +169,23 @@ def handle_auth_login(payload: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     if not username or not password:
-        return {"success": False, "error": "Username/email and password are required"}
+        return {
+            "success": False,
+            "reason": "invalid_credentials",
+            "error": "Username/email and password are required",
+        }
 
     auth_res = authenticate_orion_credentials(username, password)
     if not auth_res.get("success"):
-        # Graceful fallback for offline / local sandbox mode
-        student = get_student_profile() or {
-            "student_id": "STU-GRADE1F",
-            "name": "Student",
-            "grade": "Grade 1",
-            "section": "F",
-            "school": "VIBGYOR High",
-            "academic_year": "2026 - 27",
-            "parent_name": "Parent",
-        }
-        user = create_or_get_user(username, student_id=student.get("student_id"), display_name="Parent")
-        token = create_session(user["id"], username, student_id=student.get("student_id"))
+        # There used to be a "graceful fallback" here that issued a session token
+        # whenever this check failed, so a wrong password signed you in as long as
+        # the failure was not fatal. A password we could not verify - because the
+        # portal rejected it, or because we could not reach the portal at all - is
+        # never a reason to grant access.
         return {
-            "success": True,
-            "token": token,
-            "mode": "offline",
-            "user": user,
-            "student": student,
-            "message": "Signed in successfully (offline mode)",
+            "success": False,
+            "reason": auth_res.get("reason", "invalid_credentials"),
+            "error": auth_res.get("message") or "Invalid username or password.",
         }
 
     student = auth_res.get("student") or get_student_profile()
@@ -266,7 +260,9 @@ if HAS_FASTAPI:
             body = {}
         res = handle_auth_login(body)
         if not res.get("success"):
-            raise HTTPException(status_code=401, detail=res.get("error", "Login failed"))
+            # 401 means the portal said no; 503 means we could not ask it.
+            status = 401 if res.get("reason") == "invalid_credentials" else 503
+            raise HTTPException(status_code=status, detail=res.get("error", "Login failed"))
         response = JSONResponse(content=res)
         if res.get("token"):
             response.set_cookie(
@@ -537,7 +533,8 @@ class VibgyorHTTPRequestHandler(BaseHTTPRequestHandler):
                 payload = {}
             res = handle_auth_login(payload)
             if not res.get("success"):
-                return self._send_json(res, status_code=401)
+                status = 401 if res.get("reason") == "invalid_credentials" else 503
+                return self._send_json(res, status_code=status)
             return self._send_json_with_cookie(res, token=res.get("token"))
 
         if path == "/api/auth/logout":

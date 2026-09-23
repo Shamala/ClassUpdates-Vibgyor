@@ -565,25 +565,15 @@ async function handleLoginSubmit(event) {
       }
     }
   } catch (err) {
-    const displayName = username.includes("@")
-      ? username.split("@")[0]
-      : username;
-    state.isAuthenticated = true;
-    state.authToken = "local-offline-session";
-    localStorage.setItem("orion_auth_token", "local-offline-session");
-    state.currentUser = { username, display_name: displayName };
-    localStorage.setItem(
-      "vibgyor_parent_user",
-      JSON.stringify(state.currentUser),
-    );
-    const student = resolveStudentForUser(username);
-    state.student = student;
-    localStorage.setItem("vibgyor_parent_student", JSON.stringify(student));
-
-    showToast("Signed in offline mode", "info", 4000);
-    showDashboardView();
-    renderStudentProfile();
-    await loadAvailableDates();
+    // The server is unreachable. We have no way to check the password, so show
+    // that plainly instead of signing the parent in with credentials nobody
+    // verified, which is what this branch used to do.
+    console.warn("Login request failed:", err);
+    if (errorAlert) {
+      errorText.textContent =
+        "Can't reach the ClassUpdates server right now, so your sign-in could not be verified. Check that it is running and try again.";
+      errorAlert.classList.remove("hidden");
+    }
   } finally {
     if (submitBtn) submitBtn.disabled = false;
     if (spinner) spinner.classList.add("hidden");
