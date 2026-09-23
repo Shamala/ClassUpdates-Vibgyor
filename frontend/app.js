@@ -239,33 +239,46 @@ function editStudentName() {
   ) {
     return;
   }
-  const currentName = state.student ? state.student.name : "";
-  const placeholder = isPlaceholderStudentName(currentName) ? "" : currentName;
-  const newName = prompt("Enter child / student name:", placeholder);
-  if (newName && newName.trim() && newName.trim() !== currentName) {
-    // Match the backend's capitalisation so a typed name and a synced one look alike
-    state.student.name = newName
-      .trim()
-      .split(/\s+/)
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
-    if (state.currentUser && state.currentUser.username) {
-      localStorage.setItem(
-        "vibgyor_student_for_" + state.currentUser.username.toLowerCase(),
-        JSON.stringify(state.student),
-      );
-    }
+  const modal = document.getElementById("name-modal");
+  const input = document.getElementById("name-modal-input");
+  const current = state.student ? state.student.name : "";
+  if (input) input.value = isPlaceholderStudentName(current) ? "" : current;
+  if (modal) modal.classList.remove("hidden");
+  if (input) {
+    input.focus();
+    input.select();
+  }
+}
+
+function closeNameModal() {
+  const modal = document.getElementById("name-modal");
+  if (modal) modal.classList.add("hidden");
+}
+
+function submitStudentName(event) {
+  if (event) event.preventDefault();
+  const input = document.getElementById("name-modal-input");
+  const entered = input ? input.value.trim() : "";
+  closeNameModal();
+  if (!entered || !state.student) return;
+
+  // Match the backend's capitalisation so a typed name and a synced one look alike
+  const name = entered
+    .split(/\s+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+  if (name === state.student.name) return;
+  state.student.name = name;
+
+  if (state.currentUser && state.currentUser.username) {
     localStorage.setItem(
-      "vibgyor_parent_student",
+      "vibgyor_student_for_" + state.currentUser.username.toLowerCase(),
       JSON.stringify(state.student),
     );
-    renderStudentProfile();
-    showToast(
-      `Updated student name to ${state.student.name} ⭐`,
-      "success",
-      3000,
-    );
   }
+  localStorage.setItem("vibgyor_parent_student", JSON.stringify(state.student));
+  renderStudentProfile();
+  showToast(`Updated student name to ${state.student.name} \u2b50`, "success", 3000);
 }
 
 // --- View Controls (Login vs Dashboard) ---
@@ -3365,6 +3378,8 @@ window.copyWeekWords = copyWeekWords;
 window.startWordDrill = startWordDrill;
 window.handlePasscodeSubmit = handlePasscodeSubmit;
 window.viewSampleInstead = viewSampleInstead;
+window.closeNameModal = closeNameModal;
+window.submitStudentName = submitStudentName;
 window.speakForSpelling = speakForSpelling;
 window.speakWord = speakForSpelling;
 window.toggleWordReveal = toggleWordReveal;
