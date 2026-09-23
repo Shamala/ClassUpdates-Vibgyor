@@ -150,6 +150,123 @@ class TestBuildStudentProfile(unittest.TestCase):
         self.assertEqual(got, DEFAULT_PROFILE)
 
 
+class TestRealPortalShapes(unittest.TestCase):
+    """
+    Shapes taken from a live Hubble Orion session. Names here are invented.
+
+    Two traps the portal sets:
+      1. /admin/studentProfile/<id> nests the guardians beside the student, and
+         they carry first_name/last_name too.
+      2. The Student Detail page renders empty form fields as their own captions,
+         so a two-line lookahead can read "Student Middle Name" as a value.
+    """
+
+    STUDENT_PROFILE = {"status": 200, "data": {"profile": {
+        "id": 111111, "first_name": "Aarav", "middle_name": "", "last_name": "rao",
+        "crt_grade": "Grade I", "crt_division": "F", "crt_board": "CBSE",
+        "crt_school": "VIBGYOR Kids and High - Test Layout",
+        "crt_enr_on": "EN10000000001", "academic_year_name": "2026 - 27",
+    }, "guardians": [
+        {"first_name": "Vikram", "last_name": "rao", "relation": "Father"},
+        {"first_name": "MEERA", "last_name": "RAO", "relation": "Mother"},
+    ]}}
+
+    GUARDIAN_STUDENT_DETAILS = {"success": True, "data": {"students": [{
+        "id": 111111, "student_name": "Aarav rao", "student_full_name": "Aarav rao",
+        "crt_enr_on": "EN10000000001", "grade_name": "Grade I", "division": "F",
+    }]}}
+
+    DETAIL_PAGE_TEXT = "\n".join([
+        "Student Detail", "VR", "Vikram rao", "Aarav rao",
+        "Academic Year : 2026 - 27",
+        "Enrolment Number : EN10000000001",
+        "School : VIBGYOR Kids and High - Test Layout",
+        "Grade : Grade I", "Board : CBSE", "Division : F", "House : Fire",
+        "Student", "Parent", "Contact Info", "Medical Info",
+        "Personal Details",
+        "Student Name", "Student Name",
+        "Student Middle Name", "Student Middle Name",
+        "Gender", "Male", "Gender",
+    ])
+
+    def test_guardian_name_never_wins(self):
+        got = parse_profile_payloads([self.STUDENT_PROFILE])
+        self.assertEqual(got["name"], "Aarav rao")
+        self.assertEqual(got["student_id"], "EN10000000001")
+        self.assertEqual(got["school"], "VIBGYOR Kids and High - Test Layout")
+
+    def test_explicit_student_name_field(self):
+        got = parse_profile_payloads([self.GUARDIAN_STUDENT_DETAILS])
+        self.assertEqual(got["name"], "Aarav rao")
+        self.assertEqual(got["grade"], "Grade I")
+        self.assertEqual(got["section"], "F")
+
+    def test_page_text_yields_fields_but_never_a_form_label(self):
+        got = parse_profile_text(self.DETAIL_PAGE_TEXT)
+        self.assertEqual(got["student_id"], "EN10000000001")
+        self.assertEqual(got["academic_year"], "2026 - 27")
+        self.assertEqual(got["section"], "F")
+        # the name is a bare line with no label, so text alone must not guess it
+        self.assertNotIn("name", got)
+        # "Parent" / "Contact Info" are tab captions, not a parent name
+        self.assertNotIn("parent_name", got)
+
+    def test_full_merge_matches_the_live_portal(self):
+        from backend.student_profile import build_student_profile
+        got = build_student_profile(
+            self.DETAIL_PAGE_TEXT,
+            api_payloads=[self.STUDENT_PROFILE, self.GUARDIAN_STUDENT_DETAILS],
+        )
+        self.assertEqual(got["name"], "Aarav rao")
+        self.assertEqual(got["student_id"], "EN10000000001")
+        self.assertEqual(got["grade"], "Grade I")
+        self.assertEqual(got["section"], "F")
+        self.assertEqual(got["academic_year"], "2026 - 27")
+        self.assertEqual(got["school"], "VIBGYOR Kids and High - Test Layout")
+
+
+class TestUpsertKeepsSpecificValues(unittest.TestCase):
+    """A later, less successful sync must not degrade what an earlier one stored."""
+
+    def setUp(self):
+        import tempfile
+        from backend.database import init_db
+        self.db = os.path.join(tempfile.mkdtemp(), "t.db")
+        init_db(self.db)
+
+    def _upsert(self, **kw):
+        from backend.database import upsert_student
+        args = {"student_id": "EN1", "name": "Aarav Rao", "grade": "Grade I",
+                "section": "F", "school": "VIBGYOR Kids and High - Test Layout",
+                "academic_year": "2026 - 27"}
+        args.update(kw)
+        upsert_student(db_path=self.db, **args)
+
+    def test_placeholders_do_not_overwrite_a_real_profile(self):
+        from backend.database import get_student_profile
+        self._upsert()
+        # a degraded sync that resolved nothing
+        self._upsert(name="Student", grade="Grade 1", school="VIBGYOR High")
+        got = get_student_profile("EN1", db_path=self.db)
+        self.assertEqual(got["name"], "Aarav Rao")
+        self.assertEqual(got["grade"], "Grade I")
+        self.assertEqual(got["school"], "VIBGYOR Kids and High - Test Layout")
+
+    def test_a_better_sync_still_updates(self):
+        from backend.database import get_student_profile
+        self._upsert(school="VIBGYOR High")
+        self._upsert(school="VIBGYOR Kids and High - Test Layout")
+        self.assertEqual(
+            get_student_profile("EN1", db_path=self.db)["school"],
+            "VIBGYOR Kids and High - Test Layout",
+        )
+
+    def test_lookup_without_id_skips_the_seeded_placeholder(self):
+        from backend.database import get_student_profile
+        self._upsert()
+        self.assertEqual(get_student_profile(db_path=self.db)["name"], "Aarav Rao")
+
+
 class TestPlaceholderGuard(unittest.TestCase):
     def test_placeholders(self):
         for value in ["Student", "student", " N/A ", "", "-", None, "Ravi's Ward"]:

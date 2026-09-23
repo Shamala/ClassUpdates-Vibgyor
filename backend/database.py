@@ -283,9 +283,16 @@ def get_student_profile(student_id: Optional[str] = None, db_path: Optional[str]
     cursor = conn.cursor()
     if student_id:
         cursor.execute("SELECT * FROM students WHERE student_id = ?", (student_id,))
+        row = cursor.fetchone()
     else:
-        cursor.execute("SELECT * FROM students ORDER BY id ASC LIMIT 1")
-    row = cursor.fetchone()
+        # init_db seeds a placeholder row, and it keeps the lowest id, so picking the
+        # first row would hand back "Student" even after a sync stored a real profile.
+        cursor.execute("SELECT * FROM students ORDER BY id ASC")
+        rows = cursor.fetchall()
+        row = next(
+            (r for r in rows if not is_placeholder_student_name(r["name"])),
+            rows[0] if rows else None,
+        )
     conn.close()
     if not row:
         return {
@@ -302,6 +309,20 @@ def get_student_profile(student_id: Optional[str] = None, db_path: Optional[str]
 
 
 PLACEHOLDER_STUDENT_NAMES = {"", "student", "n/a", "-", "none"}
+
+# What we fall back to when the portal tells us nothing. A sync that failed to read
+# a field hands these back, so they must never overwrite a more specific value that
+# an earlier, more successful sync already stored.
+DEFAULT_STUDENT_PROFILE = {
+    "student_id": "STU-GRADE1F",
+    "name": "Student",
+    "grade": "Grade 1",
+    "section": "F",
+    "school": "VIBGYOR High",
+    "academic_year": "2026 - 27",
+    "roll_no": "",
+    "parent_name": "",
+}
 
 
 def is_placeholder_student_name(name: Optional[str]) -> bool:
@@ -327,17 +348,29 @@ def upsert_student(
     conn = get_db_connection(db_path)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM students WHERE student_id = 'VIB-2026-1F-042'")
-    cursor.execute("SELECT id, name FROM students WHERE student_id = ?", (student_id,))
+    cursor.execute("SELECT * FROM students WHERE student_id = ?", (student_id,))
     existing = cursor.fetchone()
     if existing:
-        # A failed scrape falls back to a placeholder name; never let it overwrite
-        # a real name that a previous, successful sync already stored.
+        # A failed scrape hands back placeholders; never let them overwrite the more
+        # specific values a previous, more successful sync already stored.
         if is_placeholder_student_name(clean_name) and not is_placeholder_student_name(existing["name"]):
             clean_name = existing["name"]
+
+        incoming = {
+            "grade": grade, "section": section, "school": school,
+            "academic_year": academic_year, "roll_no": roll_no, "parent_name": clean_parent,
+        }
+        for field, value in incoming.items():
+            stored = (existing[field] or "").strip()
+            is_fallback = not (value or "").strip() or value == DEFAULT_STUDENT_PROFILE.get(field)
+            if is_fallback and stored and stored != DEFAULT_STUDENT_PROFILE.get(field):
+                incoming[field] = stored
+
         cursor.execute("""
             UPDATE students SET name = ?, grade = ?, section = ?, school = ?, academic_year = ?, roll_no = ?, parent_name = ?
             WHERE student_id = ?
-        """, (clean_name, grade, section, school, academic_year, roll_no, clean_parent, student_id))
+        """, (clean_name, incoming["grade"], incoming["section"], incoming["school"],
+              incoming["academic_year"], incoming["roll_no"], incoming["parent_name"], student_id))
     else:
         cursor.execute("""
             INSERT INTO students (student_id, name, grade, section, school, academic_year, roll_no, parent_name)

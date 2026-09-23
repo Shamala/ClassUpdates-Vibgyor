@@ -18,19 +18,11 @@ import re
 import time
 from typing import Any, Dict, Iterable, List, Optional
 
-from backend.database import is_placeholder_student_name
+from backend.database import DEFAULT_STUDENT_PROFILE, is_placeholder_student_name
 
 PROFILE_URL = "https://hubbleorion.hubblehox.com/student-detail/"
 
-DEFAULT_PROFILE: Dict[str, str] = {
-    "student_id": "STU-GRADE1F",
-    "name": "Student",
-    "grade": "Grade 1",
-    "section": "F",
-    "school": "VIBGYOR High",
-    "academic_year": "2026 - 27",
-    "parent_name": "",
-}
+DEFAULT_PROFILE: Dict[str, str] = dict(DEFAULT_STUDENT_PROFILE)
 
 # field -> labels as they may appear on the page (normalised: lowercase, alnum only)
 LABEL_ALIASES: Dict[str, List[str]] = {
@@ -47,38 +39,65 @@ LABEL_ALIASES: Dict[str, List[str]] = {
     "grade": ["gradename", "grade", "class", "standard", "std"],
     "section": ["division", "section", "div"],
     "academic_year": ["academicyear", "academicsession", "session", "year"],
-    "parent_name": [
-        "parentname", "fathername", "mothername", "guardianname",
-        "parent", "father", "mother", "guardian",
-    ],
+    "parent_name": ["parentname", "fathername", "mothername", "guardianname"],
 }
 
 # JSON keys the portal's own API uses, in priority order.
-# The notifications endpoint (notification-to-user/by-user) is the most reliable
-# source: every record carries student_name / student_id, and unlike the profile
-# page it has kept the same shape across portal releases.
+#
+# The Student Detail page shows the name as a bare line with no label (the visible
+# "Student Name" label belongs to an empty, disabled input), so it cannot be read
+# from the text. These endpoints carry it in structured form instead:
+#   /api/guardian-student-details            -> student_name, grade_name, division
+#   /admin/studentProfile/<id>               -> first_name/last_name, crt_* fields
+#   /api/ac-students/student-yearly-details/ -> first_name/last_name, enrollment_number
+#   /notification/notification-to-user/by-user -> student_name
 API_KEYS: Dict[str, List[str]] = {
     "student_id": [
-        "enrolmentNumber", "enrollmentNumber", "enrolment_number", "admissionNumber",
-        "admission_number", "grNumber", "studentCode", "studentId", "student_id",
+        "crt_enr_on", "enrollment_number", "enrolment_number", "enrolmentNumber",
+        "enrollmentNumber", "admissionNumber", "admission_number", "grNumber",
+        "studentCode", "studentId", "student_id",
     ],
-    "name": ["studentName", "student_name", "fullName", "full_name", "displayName", "name"],
-    "school": ["schoolName", "school_name", "school", "campusName", "campus_name"],
-    "grade": ["gradeName", "grade_name", "grade", "className", "class_name", "standard"],
-    "section": ["divisionName", "division_name", "division", "sectionName", "section_name", "section"],
-    "academic_year": ["academicYear", "academic_year", "academicSession", "academic_session", "session"],
+    "name": [
+        "student_full_name", "studentFullName", "student_name", "studentName",
+        "fullName", "full_name", "displayName",
+    ],
+    "school": ["crt_school", "school_name", "schoolName", "school", "brand_name", "campusName"],
+    "grade": ["crt_grade", "grade_name", "gradeName", "grade", "className", "class_name", "standard"],
+    "section": [
+        "crt_division", "division_name", "divisionName", "division",
+        "sectionName", "section_name", "section",
+    ],
+    "academic_year": [
+        "academic_year_name", "academicYearName", "academic_year", "academicYear",
+        "academicSession", "academic_session", "session",
+    ],
     "parent_name": [
         "parentName", "parent_name", "fatherName", "father_name",
         "motherName", "mother_name", "guardianName", "guardian_name",
     ],
 }
 
+# Composed from parts when the API gives the name in pieces rather than whole
+NAME_PART_KEYS = (
+    ("first_name", "middle_name", "last_name"),
+    ("firstName", "middleName", "lastName"),
+)
+
+# /admin/studentProfile/<id> nests the guardians next to the student, and they carry
+# first_name/last_name too. Only compose a name from an object that also carries one
+# of these, or the dashboard ends up greeting the parent by name.
+STUDENT_MARKER_KEYS = (
+    "crt_enr_on", "enrollment_number", "enrolment_number", "student_id",
+    "crt_grade", "grade_name", "crt_division", "student_yearly_id",
+)
+
 # URL fragments whose JSON responses are worth mining for the profile
 PROFILE_URL_HINTS = (
+    "student",
+    "guardian",
     "notification-to-user",
     "by-user",
     "communication",
-    "student",
     "profile",
     "user-detail",
     "userdetail",
@@ -87,6 +106,15 @@ PROFILE_URL_HINTS = (
 _NORMALISE_RE = re.compile(r"[^a-z0-9]+")
 # a value that is really just another label, e.g. the line after "Student Name"
 _MAX_VALUE_LEN = 80
+
+# The profile page renders empty form fields as their own captions, so a two-line
+# lookahead can pick up "Student Middle Name" or "Contact Info" as if it were a
+# value. No real name, school or year ends in one of these words.
+_LABEL_TAIL_WORDS = {
+    "name", "info", "information", "details", "detail", "photo", "id",
+    "number", "no", "date", "birth", "caste", "religion", "gender",
+    "nationality", "tongue", "type", "status",
+}
 
 
 def _normalise_label(text: str) -> str:
@@ -108,7 +136,10 @@ def _is_usable_value(value: str) -> bool:
     if not v or len(v) > _MAX_VALUE_LEN:
         return False
     # the next line being a label means this field simply had no value rendered
-    return _field_for_label(v) is None
+    if _field_for_label(v) is not None:
+        return False
+    words = _NORMALISE_RE.sub(" ", v.lower()).split()
+    return not (words and words[-1] in _LABEL_TAIL_WORDS)
 
 
 def _split_grade_and_section(profile: Dict[str, str]) -> None:
@@ -169,22 +200,54 @@ def _walk(payload: Any) -> Iterable[Dict[str, Any]]:
             yield from _walk(v)
 
 
+def _compose_name(objects: List[Dict[str, Any]]) -> Optional[str]:
+    """Builds the name from first/middle/last on student-bearing records only."""
+    for obj in objects:
+        if not any(marker in obj for marker in STUDENT_MARKER_KEYS):
+            continue
+        for first_key, middle_key, last_key in NAME_PART_KEYS:
+            first = obj.get(first_key)
+            if not isinstance(first, str) or not first.strip():
+                continue
+            parts = [first, obj.get(middle_key) or "", obj.get(last_key) or ""]
+            full = " ".join(p.strip() for p in parts if isinstance(p, str) and p.strip())
+            if _is_usable_value(full) and not is_placeholder_student_name(full):
+                return full
+    return None
+
+
 def parse_profile_payloads(payloads: Iterable[Any]) -> Dict[str, str]:
-    """Mines the portal's own JSON responses, which survive UI redesigns."""
-    found: Dict[str, str] = {}
+    """
+    Mines the portal's own JSON responses, which survive UI redesigns.
+
+    Fields are resolved by key priority across every captured object rather than by
+    whichever object happened to be seen first, so a specific key like student_name
+    always beats a generic one that some unrelated record also carries.
+    """
+    objects: List[Dict[str, Any]] = []
     for payload in payloads or []:
-        for obj in _walk(payload):
-            for field, keys in API_KEYS.items():
-                if field in found:
-                    continue
-                for key in keys:
-                    raw = obj.get(key)
-                    if isinstance(raw, (str, int)) and _is_usable_value(str(raw)):
-                        found[field] = str(raw).strip()
-                        break
-    # A generic "name" key is often the parent or the school; only trust a real one.
+        objects.extend(_walk(payload))
+
+    found: Dict[str, str] = {}
+    for field, keys in API_KEYS.items():
+        if field in found:
+            continue
+        for key in keys:
+            for obj in objects:
+                raw = obj.get(key)
+                if isinstance(raw, (str, int)) and _is_usable_value(str(raw)):
+                    found[field] = str(raw).strip()
+                    break
+            if field in found:
+                break
+
     if "name" in found and is_placeholder_student_name(found["name"]):
         found.pop("name")
+    if "name" not in found:
+        # no explicit student_name field; fall back to first/middle/last
+        composed = _compose_name(objects)
+        if composed:
+            found["name"] = composed
     _split_grade_and_section(found)
     return found
 
@@ -219,7 +282,12 @@ def read_profile_page(page, navigate: bool = True) -> str:
     try:
         if navigate:
             page.goto(PROFILE_URL, wait_until="domcontentloaded", timeout=20000)
-            page.wait_for_timeout(3000)
+            try:
+                # the profile is client-rendered; its API calls settle after load
+                page.wait_for_load_state("networkidle", timeout=15000)
+            except Exception:
+                pass
+            page.wait_for_timeout(2000)
         return page.inner_text("body")
     except Exception as exc:
         print(f"[student_profile] Could not load {PROFILE_URL}: {exc}")
