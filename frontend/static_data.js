@@ -141,8 +141,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:18"
+          "completed_at": null
         },
         {
           "id": 2,
@@ -159,8 +158,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:18"
+          "completed_at": null
         },
         {
           "id": 3,
@@ -177,8 +175,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:18"
+          "completed_at": null
         },
         {
           "id": 4,
@@ -195,8 +192,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:18"
+          "completed_at": null
         },
         {
           "id": 5,
@@ -213,8 +209,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": true,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:18"
+          "completed_at": null
         },
         {
           "id": 6,
@@ -231,8 +226,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": true,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:18"
+          "completed_at": null
         },
         {
           "id": 8,
@@ -249,8 +243,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:18"
+          "completed_at": null
         },
         {
           "id": 9,
@@ -267,8 +260,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "Sample skill",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:18"
+          "completed_at": null
         },
         {
           "id": 10,
@@ -285,8 +277,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:18"
+          "completed_at": null
         }
       ]
     },
@@ -323,8 +314,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:19"
+          "completed_at": null
         },
         {
           "id": 12,
@@ -341,8 +331,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "Sample skill",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:19"
+          "completed_at": null
         },
         {
           "id": 13,
@@ -359,8 +348,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:19"
+          "completed_at": null
         },
         {
           "id": 14,
@@ -377,8 +365,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:19"
+          "completed_at": null
         },
         {
           "id": 15,
@@ -395,8 +382,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:19"
+          "completed_at": null
         },
         {
           "id": 16,
@@ -413,8 +399,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:19"
+          "completed_at": null
         },
         {
           "id": 17,
@@ -431,8 +416,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:19"
+          "completed_at": null
         },
         {
           "id": 18,
@@ -449,8 +433,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:19"
+          "completed_at": null
         },
         {
           "id": 19,
@@ -467,8 +450,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": true,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:19"
+          "completed_at": null
         },
         {
           "id": 20,
@@ -485,8 +467,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": true,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:19"
+          "completed_at": null
         }
       ]
     },
@@ -523,8 +504,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:20"
+          "completed_at": null
         },
         {
           "id": 22,
@@ -541,8 +521,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "Sample skill",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:20"
+          "completed_at": null
         },
         {
           "id": 23,
@@ -559,8 +538,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:20"
+          "completed_at": null
         },
         {
           "id": 24,
@@ -577,8 +555,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:20"
+          "completed_at": null
         },
         {
           "id": 25,
@@ -595,8 +572,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:20"
+          "completed_at": null
         },
         {
           "id": 26,
@@ -613,8 +589,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "Sample skill",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:20"
+          "completed_at": null
         },
         {
           "id": 27,
@@ -631,8 +606,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": true,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:20"
+          "completed_at": null
         },
         {
           "id": 28,
@@ -649,8 +623,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:20"
+          "completed_at": null
         },
         {
           "id": 29,
@@ -667,8 +640,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:20"
+          "completed_at": null
         },
         {
           "id": 30,
@@ -685,8 +657,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:20"
+          "completed_at": null
         }
       ]
     },
@@ -723,8 +694,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:21"
+          "completed_at": null
         },
         {
           "id": 32,
@@ -741,8 +711,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:21"
+          "completed_at": null
         },
         {
           "id": 33,
@@ -759,8 +728,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:21"
+          "completed_at": null
         },
         {
           "id": 34,
@@ -777,8 +745,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:21"
+          "completed_at": null
         },
         {
           "id": 35,
@@ -795,8 +762,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "Sample skill",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:21"
+          "completed_at": null
         },
         {
           "id": 36,
@@ -813,8 +779,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:21"
+          "completed_at": null
         },
         {
           "id": 37,
@@ -831,8 +796,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "Sample skill",
           "is_homework": true,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:21"
+          "completed_at": null
         },
         {
           "id": 38,
@@ -849,8 +813,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:21"
+          "completed_at": null
         },
         {
           "id": 39,
@@ -867,8 +830,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:21"
+          "completed_at": null
         },
         {
           "id": 40,
@@ -885,8 +847,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:21"
+          "completed_at": null
         }
       ]
     },
@@ -923,8 +884,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:22"
+          "completed_at": null
         },
         {
           "id": 42,
@@ -941,8 +901,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:22"
+          "completed_at": null
         },
         {
           "id": 43,
@@ -959,8 +918,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:22"
+          "completed_at": null
         },
         {
           "id": 44,
@@ -977,8 +935,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "Sample skill",
           "is_homework": true,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:22"
+          "completed_at": null
         },
         {
           "id": 45,
@@ -995,8 +952,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:22"
+          "completed_at": null
         },
         {
           "id": 46,
@@ -1013,8 +969,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:22"
+          "completed_at": null
         },
         {
           "id": 47,
@@ -1031,8 +986,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:22"
+          "completed_at": null
         },
         {
           "id": 48,
@@ -1049,8 +1003,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:22"
+          "completed_at": null
         },
         {
           "id": 49,
@@ -1067,8 +1020,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:22"
+          "completed_at": null
         },
         {
           "id": 50,
@@ -1085,8 +1037,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:22"
+          "completed_at": null
         }
       ]
     },
@@ -1123,8 +1074,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:23"
+          "completed_at": null
         },
         {
           "id": 52,
@@ -1141,8 +1091,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:23"
+          "completed_at": null
         },
         {
           "id": 53,
@@ -1159,8 +1108,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:23"
+          "completed_at": null
         },
         {
           "id": 54,
@@ -1177,8 +1125,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:23"
+          "completed_at": null
         },
         {
           "id": 55,
@@ -1195,8 +1142,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:23"
+          "completed_at": null
         },
         {
           "id": 56,
@@ -1213,8 +1159,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:23"
+          "completed_at": null
         },
         {
           "id": 58,
@@ -1231,8 +1176,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": true,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:23"
+          "completed_at": null
         },
         {
           "id": 59,
@@ -1249,8 +1193,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "Sample skill",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:23"
+          "completed_at": null
         },
         {
           "id": 60,
@@ -1267,8 +1210,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:23"
+          "completed_at": null
         }
       ]
     },
@@ -1305,8 +1247,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": true,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:24"
+          "completed_at": null
         },
         {
           "id": 62,
@@ -1323,8 +1264,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "Sample skill",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:24"
+          "completed_at": null
         },
         {
           "id": 63,
@@ -1341,8 +1281,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:24"
+          "completed_at": null
         },
         {
           "id": 64,
@@ -1359,8 +1298,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:24"
+          "completed_at": null
         },
         {
           "id": 65,
@@ -1377,8 +1315,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "Sample skill",
           "is_homework": true,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:24"
+          "completed_at": null
         },
         {
           "id": 66,
@@ -1395,8 +1332,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:24"
+          "completed_at": null
         },
         {
           "id": 67,
@@ -1413,8 +1349,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:24"
+          "completed_at": null
         },
         {
           "id": 68,
@@ -1431,8 +1366,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:24"
+          "completed_at": null
         },
         {
           "id": 69,
@@ -1449,8 +1383,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:24"
+          "completed_at": null
         },
         {
           "id": 70,
@@ -1467,8 +1400,7 @@ window.VIBGYOR_STATIC_DATA = {
           "skill_assessed": "NIL",
           "is_homework": false,
           "is_completed": false,
-          "completed_at": null,
-          "created_at": "2026-09-23 15:43:24"
+          "completed_at": null
         }
       ]
     }
@@ -1510,8 +1442,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:20"
+            "completed_at": null
           },
           {
             "id": 22,
@@ -1528,8 +1459,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "Sample skill",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:20"
+            "completed_at": null
           },
           {
             "id": 23,
@@ -1546,8 +1476,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:20"
+            "completed_at": null
           },
           {
             "id": 24,
@@ -1564,8 +1493,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:20"
+            "completed_at": null
           },
           {
             "id": 25,
@@ -1582,8 +1510,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:20"
+            "completed_at": null
           },
           {
             "id": 26,
@@ -1600,8 +1527,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "Sample skill",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:20"
+            "completed_at": null
           },
           {
             "id": 27,
@@ -1618,8 +1544,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": true,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:20"
+            "completed_at": null
           },
           {
             "id": 28,
@@ -1636,8 +1561,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:20"
+            "completed_at": null
           },
           {
             "id": 29,
@@ -1654,8 +1578,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:20"
+            "completed_at": null
           },
           {
             "id": 30,
@@ -1672,8 +1595,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:20"
+            "completed_at": null
           }
         ]
       },
@@ -1710,8 +1632,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:19"
+            "completed_at": null
           },
           {
             "id": 12,
@@ -1728,8 +1649,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "Sample skill",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:19"
+            "completed_at": null
           },
           {
             "id": 13,
@@ -1746,8 +1666,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:19"
+            "completed_at": null
           },
           {
             "id": 14,
@@ -1764,8 +1683,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:19"
+            "completed_at": null
           },
           {
             "id": 15,
@@ -1782,8 +1700,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:19"
+            "completed_at": null
           },
           {
             "id": 16,
@@ -1800,8 +1717,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:19"
+            "completed_at": null
           },
           {
             "id": 17,
@@ -1818,8 +1734,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:19"
+            "completed_at": null
           },
           {
             "id": 18,
@@ -1836,8 +1751,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:19"
+            "completed_at": null
           },
           {
             "id": 19,
@@ -1854,8 +1768,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": true,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:19"
+            "completed_at": null
           },
           {
             "id": 20,
@@ -1872,8 +1785,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": true,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:19"
+            "completed_at": null
           }
         ]
       },
@@ -1910,8 +1822,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:18"
+            "completed_at": null
           },
           {
             "id": 2,
@@ -1928,8 +1839,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:18"
+            "completed_at": null
           },
           {
             "id": 3,
@@ -1946,8 +1856,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:18"
+            "completed_at": null
           },
           {
             "id": 4,
@@ -1964,8 +1873,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:18"
+            "completed_at": null
           },
           {
             "id": 5,
@@ -1982,8 +1890,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": true,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:18"
+            "completed_at": null
           },
           {
             "id": 6,
@@ -2000,8 +1907,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": true,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:18"
+            "completed_at": null
           },
           {
             "id": 8,
@@ -2018,8 +1924,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:18"
+            "completed_at": null
           },
           {
             "id": 9,
@@ -2036,8 +1941,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "Sample skill",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:18"
+            "completed_at": null
           },
           {
             "id": 10,
@@ -2054,8 +1958,7 @@ window.VIBGYOR_STATIC_DATA = {
             "skill_assessed": "NIL",
             "is_homework": false,
             "is_completed": false,
-            "completed_at": null,
-            "created_at": "2026-09-23 15:43:18"
+            "completed_at": null
           }
         ]
       },
@@ -2155,8 +2058,7 @@ window.VIBGYOR_STATIC_DATA = {
       "publish_date": "2026-09-14",
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
-      "is_read": false,
-      "created_at": "2026-09-23 15:43:24"
+      "is_read": false
     },
     {
       "id": 2,
@@ -2165,8 +2067,7 @@ window.VIBGYOR_STATIC_DATA = {
       "publish_date": "2026-09-14",
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
-      "is_read": false,
-      "created_at": "2026-09-23 15:43:24"
+      "is_read": false
     },
     {
       "id": 1,
@@ -2175,8 +2076,7 @@ window.VIBGYOR_STATIC_DATA = {
       "publish_date": "2026-09-14",
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
-      "is_read": false,
-      "created_at": "2026-09-23 15:43:24"
+      "is_read": false
     },
     {
       "id": 5,
@@ -2185,8 +2085,7 @@ window.VIBGYOR_STATIC_DATA = {
       "publish_date": "2026-09-10",
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
-      "is_read": false,
-      "created_at": "2026-09-23 15:43:24"
+      "is_read": false
     },
     {
       "id": 4,
@@ -2195,8 +2094,7 @@ window.VIBGYOR_STATIC_DATA = {
       "publish_date": "2026-09-10",
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
-      "is_read": false,
-      "created_at": "2026-09-23 15:43:24"
+      "is_read": false
     },
     {
       "id": 6,
@@ -2205,8 +2103,7 @@ window.VIBGYOR_STATIC_DATA = {
       "publish_date": "2026-08-29",
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
-      "is_read": false,
-      "created_at": "2026-09-23 15:43:24"
+      "is_read": false
     },
     {
       "id": 7,
@@ -2215,9 +2112,8 @@ window.VIBGYOR_STATIC_DATA = {
       "publish_date": "2026-08-12",
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
-      "is_read": false,
-      "created_at": "2026-09-23 15:43:24"
+      "is_read": false
     }
   ],
-  "synced_at": "2026-09-23T15:43:33+00:00"
+  "synced_at": "2026-09-23T15:48:18+00:00"
 };
