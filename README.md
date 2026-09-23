@@ -237,7 +237,9 @@ It is **manual only** until a run proves the school portal accepts a sign-in fro
 GitHub runner — datacentre IP ranges are often blocked or challenged. Once a run
 succeeds, uncomment the `schedule:` block at the top of the workflow.
 
-**Repository secrets it needs** (Settings → Secrets and variables → Actions):
+**Secrets it needs** (Settings → Secrets and variables → Actions). They live on the
+`github-pages` environment, which is why the job names that environment — an
+environment secret is invisible to a job that does not:
 
 | Secret | Purpose |
 | --- | --- |

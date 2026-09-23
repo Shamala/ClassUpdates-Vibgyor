@@ -23,6 +23,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # The portal credentials are environment secrets, and an environment secret
+    # only reaches a job that names its environment. Without this line they
+    # arrive empty and the job stops before it signs in.
+    environment: github-pages
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
