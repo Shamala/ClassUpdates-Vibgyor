@@ -8,6 +8,7 @@ given and anything it scraped must never appear in that log.
 
 import io
 import os
+import tempfile
 import sys
 import unittest
 from contextlib import redirect_stdout
@@ -82,6 +83,59 @@ class TestRedaction(ScheduledSyncTestCase):
         """A one or two character value would redact half the log."""
         os.environ["ORION_PASSWORD"] = "ab"
         self.assertEqual(scheduled_sync.redact("a babble of words"), "a babble of words")
+
+
+class TestStepOutput(ScheduledSyncTestCase):
+    """The workflow skips a whole site deployment when nothing changed."""
+
+    def outputs(self, tmp_path):
+        os.environ["GITHUB_OUTPUT"] = tmp_path
+        self.addCleanup(os.environ.pop, "GITHUB_OUTPUT", None)
+
+    def test_a_real_publish_is_reported(self):
+        path = os.path.join(tempfile.mkdtemp(), "out.txt")
+        self.outputs(path)
+        self.patch(
+            "run_orion_browser_sync",
+            lambda **kwargs: {"status": "success", "pdfs_synced": 1, "circulars_synced": 1},
+        )
+        self.patch("get_available_dates", lambda: [{"date": "2026-09-23"}])
+        self.patch("publish_class_board", lambda *a, **k: {"published": True, "branch": "main"})
+        self.run_job(publish=True)
+        self.assertIn("published=true", open(path).read())
+
+    def test_an_unchanged_board_is_reported_as_not_published(self):
+        path = os.path.join(tempfile.mkdtemp(), "out.txt")
+        self.outputs(path)
+        self.patch(
+            "run_orion_browser_sync",
+            lambda **kwargs: {"status": "success", "pdfs_synced": 0, "circulars_synced": 0},
+        )
+        self.patch("get_available_dates", lambda: [{"date": "2026-09-23"}])
+        self.patch("publish_class_board", lambda *a, **k: {"published": False, "reason": "no change"})
+        self.run_job(publish=True)
+        self.assertIn("published=false", open(path).read())
+
+    def test_a_dry_run_reports_nothing_published(self):
+        path = os.path.join(tempfile.mkdtemp(), "out.txt")
+        self.outputs(path)
+        self.patch(
+            "run_orion_browser_sync",
+            lambda **kwargs: {"status": "success", "pdfs_synced": 0, "circulars_synced": 0},
+        )
+        self.patch("get_available_dates", lambda: [])
+        self.run_job(publish=False)
+        self.assertIn("published=false", open(path).read())
+
+    def test_running_outside_a_workflow_is_harmless(self):
+        os.environ.pop("GITHUB_OUTPUT", None)
+        self.patch(
+            "run_orion_browser_sync",
+            lambda **kwargs: {"status": "success", "pdfs_synced": 0, "circulars_synced": 0},
+        )
+        self.patch("get_available_dates", lambda: [])
+        code, _ = self.run_job(publish=False)
+        self.assertEqual(code, 0)
 
 
 class TestRun(ScheduledSyncTestCase):

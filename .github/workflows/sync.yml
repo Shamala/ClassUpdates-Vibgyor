@@ -1,10 +1,12 @@
 name: Sync class updates
 
-# Manual only for now. Once a run proves Orion accepts a sign-in from a GitHub
-# runner, add the daily schedule here:
-#   schedule:
-#     - cron: "30 8 * * 1-5"   # 14:00 IST, weekdays
+# Runs itself daily and can also be triggered by hand. GitHub's scheduler is
+# best-effort and often starts several minutes late, which does not matter for a
+# once-a-day refresh. A repository with no activity for 60 days has its schedules
+# disabled, so this stops if the project goes quiet.
 on:
+  schedule:
+    - cron: "30 8 * * *"   # 14:00 IST, daily
   workflow_dispatch:
     inputs:
       publish:
@@ -60,6 +62,7 @@ jobs:
       # This repository is public, so this job's logs are public too. The sync
       # step prints counts only and redacts anything scraped; keep it that way.
       - name: Sync from Orion
+        id: sync
         env:
           ORION_USERNAME: ${{ secrets.ORION_USERNAME }}
           ORION_PASSWORD: ${{ secrets.ORION_PASSWORD }}
@@ -72,21 +75,21 @@ jobs:
       # job therefore deploys the site it just built rather than waiting for a
       # deploy that will not come.
       - name: Setup Pages
-        if: env.PUBLISH == 'true'
+        if: steps.sync.outputs.published == 'true'
         uses: actions/configure-pages@v6
 
       - name: Inject web analytics
-        if: env.PUBLISH == 'true'
+        if: steps.sync.outputs.published == 'true'
         env:
           GOATCOUNTER_CODE: ${{ secrets.GOATCOUNTER_CODE }}
         run: python3 scripts/inject_analytics.py
 
       - name: Upload Pages artifact
-        if: env.PUBLISH == 'true'
+        if: steps.sync.outputs.published == 'true'
         uses: actions/upload-pages-artifact@v5
         with:
           path: 'frontend'
 
       - name: Deploy to GitHub Pages
-        if: env.PUBLISH == 'true'
+        if: steps.sync.outputs.published == 'true'
         uses: actions/deploy-pages@v5

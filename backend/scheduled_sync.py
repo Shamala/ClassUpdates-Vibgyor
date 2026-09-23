@@ -45,6 +45,23 @@ def _truthy(value: Optional[str]) -> bool:
     return (value or "").strip().lower() in TRUTHY
 
 
+def _report_published(published: bool) -> None:
+    """Tells the calling workflow whether anything actually changed.
+
+    A republish that changed nothing still costs a full site deployment, so the
+    workflow skips it. Writing the step output here rather than parsing this
+    text keeps the two from drifting apart.
+    """
+    path = os.getenv("GITHUB_OUTPUT")
+    if not path:
+        return
+    try:
+        with open(path, "a") as handle:
+            handle.write(f"published={'true' if published else 'false'}\n")
+    except OSError as exc:
+        print(f"Could not write the step output: {type(exc).__name__}")
+
+
 def run(publish: Optional[bool] = None) -> int:
     username = (os.getenv("ORION_USERNAME") or "").strip()
     password = os.getenv("ORION_PASSWORD") or ""
@@ -74,6 +91,7 @@ def run(publish: Optional[bool] = None) -> int:
 
     if not publish:
         print("Dry run: the published board was left untouched.")
+        _report_published(False)
         return 0
 
     outcome = publish_class_board()
@@ -81,6 +99,7 @@ def run(publish: Optional[bool] = None) -> int:
         print(f"Board republished on {outcome.get('branch')}.")
     else:
         print("Board not republished: " + redact(outcome.get("reason", "unknown"), result))
+    _report_published(bool(outcome.get("published")))
     return 0
 
 

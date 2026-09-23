@@ -233,9 +233,14 @@ Run the complete test suite (72 tests covering PDF extraction, authentication, s
 `.github/workflows/sync.yml` runs a sync without a laptop involved, so the board can
 refresh on a schedule rather than whenever someone remembers to press **Sync Now**.
 
-It is **manual only** until a run proves the school portal accepts a sign-in from a
-GitHub runner — datacentre IP ranges are often blocked or challenged. Once a run
-succeeds, uncomment the `schedule:` block at the top of the workflow.
+It runs **daily at 14:00 IST** (`30 8 * * *`) and can also be started by hand from
+the **Actions** tab. GitHub's scheduler is best-effort and often starts several
+minutes late, which does not matter for a once-a-day refresh. A repository with no
+activity for 60 days has its schedules disabled, so this stops if the project goes
+quiet.
+
+A sync that finds nothing new skips the site deployment: `scheduled_sync` reports
+whether it published through a step output, and the Pages steps are gated on it.
 
 **Secrets it needs** (Settings → Secrets and variables → Actions). They live on the
 `github-pages` environment, which is why the job names that environment — an
@@ -247,8 +252,9 @@ environment secret is invisible to a job that does not:
 | `ORION_PASSWORD` | Portal password |
 | `SITE_PASSCODE` | Encrypts the published bundle; only needed when publishing |
 
-Run it from the **Actions** tab. Leave **Republish the board** unticked for a dry
-run: it signs in and reports counts without touching what parents can see.
+A manual run leaves **Republish the board** unticked by default, which is a dry
+run: it signs in and reports counts without touching what parents can see. A
+scheduled run always publishes.
 
 ### Why the job prints so little
 
@@ -283,9 +289,13 @@ change shape overnight and force a pointless redeploy.
 
 A runner starts with an empty database, so each run rebuilds from whatever the
 portal's notification feed still returns. Days that have aged out of that feed are
-not recovered, whereas the local database on a laptop keeps accumulating. A dry run
-reports how many days it managed to reach, which is the number to watch before
-switching the schedule on.
+not recovered, whereas the local database on a laptop keeps accumulating.
+
+In practice this has not bitten: the first unattended runs reproduced all 7 days
+held locally (15–23 Sep 2026) and the same 7 current-term circulars. Every run
+prints how many days it reached, which is the number to watch. If it ever drops,
+the fix is to seed the runner from the published bundle, which already holds the
+full history and needs no new secret.
 
 ## ⚙️ Configuration (`.env`)
 
