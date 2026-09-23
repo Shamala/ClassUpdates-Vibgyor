@@ -62,6 +62,32 @@ def _settle(page, timeout: int = 15000) -> None:
             pass
 
 
+def _visible(page, selector: str, timeout: int = 20000) -> bool:
+    """True once selector is on screen, False if it never arrives.
+
+    Asking query_selector whether an element exists samples one instant, and the
+    handle it returns belongs to the execution context of that instant. The
+    portal bounces through several redirects on its way to the sign-in form, so
+    either the sample lands too early or the context is gone by the time the
+    handle is used. Waiting on a locator lets the redirects finish first.
+    """
+    try:
+        page.locator(selector).first.wait_for(state="visible", timeout=timeout)
+        return True
+    except Exception:
+        return False
+
+
+def _text_of(page, selector: str, timeout: int = 2000) -> str:
+    """The text of selector if it is showing, otherwise empty. Never raises."""
+    try:
+        target = page.locator(selector).first
+        target.wait_for(state="visible", timeout=timeout)
+        return (target.inner_text() or "").strip()
+    except Exception:
+        return ""
+
+
 def _open_tile(page, label: str, timeout: int = 15000) -> bool:
     """Opens a dashboard tile by its visible text, then closes it again.
 
@@ -165,7 +191,9 @@ def run_orion_browser_sync(
             page.wait_for_timeout(3000)
 
             # Check if redirected to SSO
-            if "gateway.ampersandgroup.in" in page.url or page.query_selector("#email"):
+            _settle(page)
+            if "gateway.ampersandgroup.in" in page.url or _visible(page, "#email", timeout=5000):
+                _visible(page, "#email")
                 page.fill("#email", u)
                 page.fill("#password", p_word)
                 page.click("#kc-login")
@@ -389,15 +417,16 @@ def authenticate_orion_credentials(
             page.goto("https://hubbleorion.hubblehox.com/dashboard/", wait_until="domcontentloaded", timeout=25000)
             page.wait_for_timeout(2500)
 
-            if "gateway.ampersandgroup.in" in page.url or page.query_selector("#email"):
+            _settle(page)
+            if "gateway.ampersandgroup.in" in page.url or _visible(page, "#email", timeout=5000):
+                _visible(page, "#email")
                 page.fill("#email", clean_u)
                 page.fill("#password", clean_p)
                 page.click("#kc-login")
                 page.wait_for_timeout(2500)
 
-                err_el = page.query_selector(".alert-error, #input-error, .kc-feedback-text")
-                if err_el:
-                    err_msg = err_el.inner_text().strip()
+                err_msg = _text_of(page, ".alert-error, #input-error, .kc-feedback-text")
+                if err_msg:
                     browser.close()
                     return {"success": False, "reason": "invalid_credentials",
                             "message": err_msg or "Invalid username or password on Hubble Orion."}
@@ -405,16 +434,15 @@ def authenticate_orion_credentials(
                 try:
                     page.wait_for_url(lambda u_cur: "hubbleorion.hubblehox.com" in u_cur and "api/auth" not in u_cur, timeout=20000)
                 except Exception:
-                    err_el2 = page.query_selector(".alert-error, #input-error, .kc-feedback-text")
-                    if err_el2:
-                        err_msg = err_el2.inner_text().strip()
+                    err_msg = _text_of(page, ".alert-error, #input-error, .kc-feedback-text")
+                    if err_msg:
                         browser.close()
                         return {"success": False, "reason": "invalid_credentials",
                                 "message": err_msg or "Invalid credentials on Hubble Orion."}
 
                 # Still parked on the SSO gateway means the credentials never took;
                 # without this we reported a successful "live" login for bad logins.
-                if "gateway.ampersandgroup.in" in page.url or page.query_selector("#kc-login"):
+                if "gateway.ampersandgroup.in" in page.url or _visible(page, "#kc-login", timeout=3000):
                     browser.close()
                     return {
                         "success": False,
