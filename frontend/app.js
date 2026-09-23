@@ -518,6 +518,8 @@ async function handleLoginSubmit(event) {
       showDashboardView();
       renderStudentProfile();
       await loadAvailableDates();
+      // not awaited: the dashboard is usable while the portal is being read
+      autoSyncAfterSignIn();
     } else {
       if (errorAlert) {
         errorText.textContent =
@@ -802,7 +804,7 @@ function setupEventListeners() {
   // Sync button
   const syncBtn = document.getElementById("sync-btn");
   if (syncBtn) {
-    syncBtn.addEventListener("click", triggerManualSync);
+    syncBtn.addEventListener("click", () => triggerManualSync());
   }
 
   // Word history modal toggle
@@ -1244,7 +1246,20 @@ async function toggleHomework(periodId) {
   loadStaticAvailableDates();
 }
 
-async function triggerManualSync() {
+// Signing in is the app's cue to fetch the day's updates, so nobody has to press
+// Sync Now. It runs in the background against the credentials just typed, which
+// live in memory only: a page reload restores the session but not the password, so
+// there is nothing to sync with until the next sign-in.
+async function autoSyncAfterSignIn() {
+  if (isStaticMode()) return; // published site has no backend to sync with
+  if (!sessionCredentials) return; // demo mode, or nothing to authenticate with
+  await triggerManualSync({ auto: true });
+}
+
+async function triggerManualSync(options = {}) {
+  // An automatic run never interrupts the parent: it does not ask for a password
+  // it does not already have, and it stays quiet when there is nothing to report.
+  const isAuto = options.auto === true;
   if (state.isSyncing) return;
   state.isSyncing = true;
   const syncBtn = document.getElementById("sync-btn");
@@ -1271,6 +1286,7 @@ async function triggerManualSync() {
     // The server keeps no password, so the sync carries the parent's own
     // credentials. After a reload they are gone from memory and we ask again.
     if (!sessionCredentials) {
+      if (isAuto) return;
       const username =
         (state.currentUser && state.currentUser.username) || "";
       const password = username
@@ -1291,7 +1307,10 @@ async function triggerManualSync() {
     const data = await res.json();
     if (data.status === "success") {
       showToast(
-        data.message || "Timetable synchronized successfully!",
+        data.message ||
+          (isAuto
+            ? "Today's updates are in 🎒"
+            : "Timetable synchronized successfully!"),
         "success",
       );
       await loadAvailableDates();
@@ -1301,12 +1320,18 @@ async function triggerManualSync() {
       showToast(data.message || "Sync encountered an issue", "warning");
     }
   } catch (err) {
-    showToast(
-      "All Grade 1 updates are up to date! (Client-side offline mode)",
-      "info",
-      4000,
-    );
-    await loadAvailableDates();
+    if (isAuto) {
+      // Nothing was asked for, so nothing needs reporting. Whatever was already
+      // synced stays on screen.
+      console.warn("Automatic sync after sign-in failed:", err);
+    } else {
+      showToast(
+        "All Grade 1 updates are up to date! (Client-side offline mode)",
+        "info",
+        4000,
+      );
+      await loadAvailableDates();
+    }
   } finally {
     state.isSyncing = false;
     if (syncIcon) syncIcon.classList.remove("animate-spin");
