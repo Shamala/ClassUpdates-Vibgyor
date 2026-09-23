@@ -30,6 +30,7 @@ from backend.database import (
 )
 from backend.browser_sync import DEMO_IDENTITIES, authenticate_orion_credentials
 from backend.orion_client import trigger_sync
+from backend.publish import auto_publish_enabled, publish_class_board
 
 # Project paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -147,7 +148,18 @@ def handle_toggle_homework(period_id: int):
 
 
 def handle_trigger_sync(username: Optional[str] = None, password: Optional[str] = None):
-    return trigger_sync(username=username, password=password)
+    result = trigger_sync(username=username, password=password)
+
+    # A successful sync is the only moment the class board can go stale-free, so
+    # republish it here rather than leaving it to be remembered by hand.
+    if result.get("status") == "success" and auto_publish_enabled():
+        published = publish_class_board()
+        result["published"] = published
+        if published.get("published"):
+            result["message"] = (result.get("message") or "Synced.") + " Class board updated."
+        elif published.get("reason") and "no change" not in published["reason"]:
+            print(f"[publish] {published['reason']}")
+    return result
 
 
 def handle_auth_login(payload: Dict[str, Any]) -> Dict[str, Any]:

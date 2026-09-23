@@ -51,17 +51,25 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
 
 ## 🌟 Key Highlights & Features
 
-1. **Automatic Daily Updates on Sign-In**
+1. **Shared Class Board (published site)**
+   - The class diary is the same for every parent in the class, so the published site is a shared board rather than a per-child account.
+   - Parents open the link, enter the **class passcode** once per device, and see the daily diary, homework and circulars.
+   - The passcode does not merely hide a screen: the class content is **encrypted with it** before publishing, so fetching the data file directly returns ciphertext. The passcode is never uploaded; it only derives the key in the parent's browser.
+   - Each parent's child name and homework ticks stay in their own browser, so nobody sees anyone else's.
+   - No student name, enrolment number or internal id is published. A **"See a sample"** link shows the sanitised demo data to anyone without the passcode.
+   - A freshness stamp shows when the board was last refreshed, and turns amber once it is more than a day and a half old.
+
+2. **Automatic Daily Updates on Sign-In**
    - Signing in fetches the day's diary, homework and circulars by itself, so there is nothing to press.
    - It runs in the background: the dashboard is usable within seconds while the portal is read behind it.
    - No password is stored anywhere to make this work. It uses the one you just typed, held in memory for that page session only, so a reload restores your session but not your password. **Sync Now** is still there for a manual refresh.
 
-2. **Hubble Orion Parent Login & Multi-User Support**
+3. **Hubble Orion Parent Login & Multi-User Support**
    - Parent authentication against Hubble Orion: the credentials you type are checked by signing in to the portal, and a password it rejects is refused rather than waved through.
    - 1-click **Demo / Sample Mode** to instantly explore the dashboard with pre-seeded data without external credentials.
    - Session management with token authorization and persistent sign-in state.
 
-3. **Word Bank & Flashcard Drill (Surprise Dictation Prep)**
+4. **Word Bank & Flashcard Drill (Surprise Dictation Prep)**
    - Grade 1 students face continuous surprise dictations in school.
    - **Mobile-Native Bottom Sheet**: No nested scroll traps on phones; displays "This Week's Focus" right on top above the fold.
    - **Interactive Flashcards**: Practice spelling word-by-word with audio pronunciation, blind test hide/reveal, and shuffle.
@@ -71,35 +79,35 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
    - **Past Weeks Archive**: Collapsible weekly accordions to review previous vocabulary without cluttering the screen.
    - **1-Click Copy**: Instant clipboard copy for WhatsApp sharing or printing.
 
-4. **Active Homework (RWSH) Tracker with Real-Time Dropdown Sync**
+5. **Active Homework (RWSH) Tracker with Real-Time Dropdown Sync**
    - Automatically filters out inactive periods (`Nil`, `NIL`, `RWSH - NIL`).
    - Identifies active reinforcement homework (e.g. `RWSH-14,15` due 21/09/2026; Tinkercad Robotics project).
    - Interactive checklist persists completion status locally to `localStorage` (and SQLite when running with backend).
    - **Real-Time Date Dropdown Badging**: Automatically adds/removes `" 📌 HW Due"` badges in the date selector in real time when homework is toggled.
    - Handles double periods seamlessly with unified task counts.
 
-5. **Class Work (CWSH) & 10-Period Daily Timetable**
+6. **Class Work (CWSH) & 10-Period Daily Timetable**
    - Structured timetable covering Periods 1 through 10.
    - Distinct subject badges (Language Arts, Mathematics, Social Science, Robotics, Kannada, Hindi, SPA, Computers).
    - Displays Class Work done (CWSH, e.g. `CWSH-22`, `24A,B,C & D`) and Assessed Skills (e.g. `Computational fluency`, `Experiential Learning`).
 
-6. **Teacher's Notes & Cleaned Notices**
+7. **Teacher's Notes & Cleaned Notices**
    - Highlights remarks and guidance from teachers with clean, boilerplate-free formatting.
 
-7. **5-Day Weekly Consolidated Overview**
+8. **5-Day Weekly Consolidated Overview**
    - Monday-to-Friday curriculum matrix with disabled future day buttons.
    - Weekly Dictation Word Bank consolidating all vocabulary for weekend revision.
    - Weekly Homework Deadlines list with due dates.
 
-8. **Circulars & Notices Hub**
+9. **Circulars & Notices Hub**
    - School circulars categorized by Academic, Sports, Events, and Admin.
    - Search filter, clean summaries, and direct links.
 
-9. **Installable Progressive Web App**
+10. **Installable Progressive Web App**
    - Installs to a phone or desktop home screen and opens like an app.
    - A service worker pre-caches the shell, so previously loaded updates stay readable without a connection.
 
-10. **Design & Accessibility**
+11. **Design & Accessibility**
    - Seamless **Dark Mode & Light Mode** toggle with anti-flicker detection.
    - Expressive, calm typography powered by Google Fonts **Commissioner**.
    - Fully responsive for mobile and desktop screens.
@@ -114,6 +122,8 @@ ClassUpdates-Vibgyor/
 │   └── workflows/
 │       └── deploy.yml    # Automated GitHub Pages CI/CD workflow
 ├── backend/
+│   ├── static_export.py  # Builds the encrypted class bundle + sanitised demo bundle
+│   ├── publish.py        # Republishes the class board after a successful sync
 │   ├── database.py       # SQLite3 database manager & initial seeding
 │   ├── pdf_parser.py     # Multi-engine VIBGYOR timetable PDF parser
 │   ├── orion_client.py   # Orion portal client & offline fallback ingest
@@ -123,7 +133,8 @@ ClassUpdates-Vibgyor/
 ├── frontend/
 │   ├── index.html        # Modern Tailwind parent dashboard
 │   ├── app.js            # Client-side reactivity & API / localStorage integration
-│   ├── static_data.js    # Pre-bundled Grade 1 sample dataset for GitHub Pages
+│   ├── class_data.enc.js # Class content, encrypted with the class passcode
+│   ├── static_data.js    # Sanitised sample dataset (the "See a sample" view)
 │   ├── style.css         # Custom tokens & rainbow accent strip
 │   ├── sw.js             # Service worker: offline shell & asset caching
 │   ├── manifest.json     # PWA manifest (installable app)
@@ -136,6 +147,7 @@ ClassUpdates-Vibgyor/
 │   ├── test_pdf_parser.py      # Tests parsing on both sample PDFs
 │   ├── test_api.py             # Integration tests for REST endpoints and static assets
 │   ├── test_auth.py            # Authentication and session tests
+│   ├── test_static_export.py   # What the published board must and must not contain
 │   └── test_student_profile.py # Profile extraction from portal pages and APIs
 ├── .env.example
 ├── requirements.txt
@@ -167,7 +179,7 @@ Open **[http://localhost:8000](http://localhost:8000)** in your browser.
 
 ## 🧪 Running Tests
 
-Run the complete test suite (48 tests covering PDF extraction, authentication, student profile extraction, and REST APIs):
+Run the complete test suite (62 tests covering PDF extraction, authentication, student profile extraction, published-bundle safety, and REST APIs):
 
 ```bash
 ./venv/bin/python -m unittest discover -s tests -t .

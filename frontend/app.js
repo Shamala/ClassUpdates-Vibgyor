@@ -306,6 +306,7 @@ function showDashboardView() {
   if (loginView) loginView.classList.add("hidden");
   if (dashboardView) dashboardView.classList.remove("hidden");
   if (authControls) authControls.classList.remove("hidden");
+  renderSyncStamp();
   if (dateWrap) dateWrap.classList.remove("hidden");
   if (tabsBar) tabsBar.classList.remove("hidden");
   if (mobSnippet) mobSnippet.classList.remove("hidden");
@@ -775,10 +776,189 @@ function initPWA() {
 }
 
 // --- Initialization ---
+// --- Class passcode (published board only) ---
+//
+// The published class content is encrypted with the class passcode, so fetching
+// the data file directly yields ciphertext rather than the diary. The passcode
+// is never sent anywhere: it stays in this browser and only derives the key.
+const PASSCODE_STORAGE_KEY = "vibgyor_class_passcode";
+
+// True when showing the sample bundle to someone without the passcode. The real
+// refresh time must not be displayed over sample content.
+let viewingSample = false;
+
+function fromBase64(value) {
+  return Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
+}
+
+async function decryptClassData(passcode, blob) {
+  const baseKey = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(passcode),
+    "PBKDF2",
+    false,
+    ["deriveKey"],
+  );
+  const key = await crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: fromBase64(blob.salt),
+      iterations: blob.iterations,
+      hash: "SHA-256",
+    },
+    baseKey,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["decrypt"],
+  );
+  const plain = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: fromBase64(blob.iv) },
+    key,
+    fromBase64(blob.ciphertext),
+  );
+  return JSON.parse(new TextDecoder().decode(plain));
+}
+
+function showPasscodeView(message) {
+  const view = document.getElementById("passcode-view");
+  const login = document.getElementById("login-view");
+  const dash = document.getElementById("dashboard-view");
+  const header = document.getElementById("tabs-bar");
+  if (login) login.classList.add("hidden");
+  if (dash) dash.classList.add("hidden");
+  if (header) header.classList.add("hidden");
+  if (view) view.classList.remove("hidden");
+
+  const stamp = document.getElementById("passcode-synced-at");
+  const blob = window.VIBGYOR_ENCRYPTED_DATA;
+  if (stamp && blob && blob.synced_at) {
+    stamp.textContent = `Class updates last refreshed ${formatSyncStamp(blob.synced_at)}`;
+  }
+  const error = document.getElementById("passcode-error");
+  if (error) {
+    error.textContent = message || "";
+    error.classList.toggle("hidden", !message);
+  }
+  const input = document.getElementById("passcode-input");
+  if (input) {
+    input.value = "";
+    input.focus();
+  }
+}
+
+function hidePasscodeView() {
+  const view = document.getElementById("passcode-view");
+  if (view) view.classList.add("hidden");
+}
+
+// Resolves once the class content is available, or never - the passcode screen
+// drives the rest of the boot when it is not.
+async function unlockClassData() {
+  const blob = window.VIBGYOR_ENCRYPTED_DATA;
+  if (!blob || !blob.ciphertext) return true; // running against the backend
+  if (!window.crypto || !crypto.subtle) {
+    showPasscodeView("This browser cannot unlock the class updates.");
+    return false;
+  }
+
+  let saved = null;
+  try {
+    saved = localStorage.getItem(PASSCODE_STORAGE_KEY);
+  } catch (e) {}
+
+  if (saved) {
+    try {
+      window.VIBGYOR_STATIC_DATA = await decryptClassData(saved, blob);
+      return true;
+    } catch (e) {
+      // passcode changed since this browser last unlocked
+      try {
+        localStorage.removeItem(PASSCODE_STORAGE_KEY);
+      } catch (err) {}
+    }
+  }
+
+  showPasscodeView();
+  return false;
+}
+
+// Lets a parent who has not been given the passcode yet see what the board looks
+// like, using the sample bundle that ships alongside the encrypted one.
+function viewSampleInstead() {
+  viewingSample = true;
+  hidePasscodeView();
+  checkAuth();
+}
+
+async function handlePasscodeSubmit(event) {
+  if (event) event.preventDefault();
+  const input = document.getElementById("passcode-input");
+  const button = document.getElementById("passcode-submit");
+  const passcode = input ? input.value.trim() : "";
+  if (!passcode) return;
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Unlocking...";
+  }
+  try {
+    window.VIBGYOR_STATIC_DATA = await decryptClassData(
+      passcode,
+      window.VIBGYOR_ENCRYPTED_DATA,
+    );
+    try {
+      localStorage.setItem(PASSCODE_STORAGE_KEY, passcode);
+    } catch (e) {}
+    hidePasscodeView();
+    renderSyncStamp();
+    await checkAuth();
+  } catch (err) {
+    showPasscodeView("That passcode does not match. Check with the class parent who shared it.");
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = "View class updates";
+    }
+  }
+}
+
+function formatSyncStamp(iso) {
+  const when = new Date(iso);
+  if (isNaN(when.getTime())) return iso;
+  const mins = Math.round((Date.now() - when.getTime()) / 60000);
+  if (mins < 2) return "just now";
+  if (mins < 60) return `${mins} minutes ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.round(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+function renderSyncStamp() {
+  const el = document.getElementById("last-synced");
+  if (!el) return;
+  const blob = window.VIBGYOR_ENCRYPTED_DATA;
+  const iso = !viewingSample && blob && blob.synced_at;
+  if (!iso) {
+    el.classList.add("hidden");
+    return;
+  }
+  el.classList.remove("hidden");
+  el.textContent = `Updated ${formatSyncStamp(iso)}`;
+  const stale = (Date.now() - new Date(iso).getTime()) / 3600000 > 36;
+  el.title = stale
+    ? "These class updates have not been refreshed recently, so they may be out of date."
+    : "When these class updates were last refreshed from the school portal.";
+  el.classList.toggle("text-amber-600", stale);
+  el.classList.toggle("dark:text-amber-400", stale);
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   initTheme();
   initPWA();
   setupEventListeners();
+  if (!(await unlockClassData())) return; // passcode screen takes over
+  renderSyncStamp();
   await checkAuth();
 });
 
@@ -3136,6 +3316,8 @@ window.setWordModalMode = setWordModalMode;
 window.toggleWeekAccordion = toggleWeekAccordion;
 window.copyWeekWords = copyWeekWords;
 window.startWordDrill = startWordDrill;
+window.handlePasscodeSubmit = handlePasscodeSubmit;
+window.viewSampleInstead = viewSampleInstead;
 window.speakForSpelling = speakForSpelling;
 window.speakWord = speakForSpelling;
 window.toggleWordReveal = toggleWordReveal;
