@@ -30,6 +30,41 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      # The public repo only ever holds __PLACEHOLDER__ values. The real profile
+      # lives in repository secrets and is substituted into the build here, so it
+      # never appears in the source or in git history. Unset secrets are left as
+      # placeholders, which the app treats as "not configured".
+      - name: Inject student profile
+        env:
+          STUDENT_NAME: ${{ secrets.STUDENT_NAME }}
+          STUDENT_GRADE: ${{ secrets.STUDENT_GRADE }}
+          STUDENT_SECTION: ${{ secrets.STUDENT_SECTION }}
+          STUDENT_SCHOOL: ${{ secrets.STUDENT_SCHOOL }}
+          STUDENT_ACADEMIC_YEAR: ${{ secrets.STUDENT_ACADEMIC_YEAR }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+
+          path = "frontend/student-config.js"
+          with open(path) as fh:
+              content = fh.read()
+
+          filled = []
+          for key in ("NAME", "GRADE", "SECTION", "SCHOOL", "ACADEMIC_YEAR"):
+              value = (os.environ.get(f"STUDENT_{key}") or "").strip()
+              if not value:
+                  continue
+              # json.dumps keeps quotes and backslashes in the value safe as JS
+              content = content.replace(f'"__STUDENT_{key}__"', json.dumps(value))
+              filled.append(key)
+
+          with open(path, "w") as fh:
+              fh.write(content)
+
+          # names are never printed, only which fields were provided
+          print("student profile fields injected:", ", ".join(filled) or "none")
+          PY
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -163,6 +163,42 @@ function isPlaceholderStudentName(name) {
   return n.includes("'s ward");
 }
 
+// What the app shows when nothing better is known about the student.
+const GENERIC_STUDENT_FIELDS = {
+  grade: "Grade 1",
+  section: "F",
+  school: "VIBGYOR High",
+  academic_year: "2026 - 27",
+};
+
+// Profile supplied at deploy time by student-config.js. On GitHub Pages there is no
+// backend and no portal access, so this is the only way the real name can reach the
+// dashboard. Fields still holding their __PLACEHOLDER__ are treated as unset.
+function getConfiguredStudent() {
+  const config = window.VIBGYOR_STUDENT;
+  if (!config || typeof config !== "object") return null;
+
+  const field = (key) => {
+    const value = config[key];
+    if (typeof value !== "string") return "";
+    const trimmed = value.trim();
+    return /^__.*__$/.test(trimmed) ? "" : trimmed;
+  };
+
+  const name = field("name");
+  if (!name || isPlaceholderStudentName(name)) return null;
+
+  return {
+    student_id: field("student_id") || "STU-CONFIGURED",
+    name,
+    grade: field("grade") || GENERIC_STUDENT_FIELDS.grade,
+    section: field("section") || GENERIC_STUDENT_FIELDS.section,
+    school: field("school") || GENERIC_STUDENT_FIELDS.school,
+    academic_year: field("academic_year") || GENERIC_STUDENT_FIELDS.academic_year,
+    parent_name: "",
+  };
+}
+
 function getSavedStudentForUser(username) {
   const u = (username || "").trim().toLowerCase();
   if (!u) return null;
@@ -190,8 +226,19 @@ function applyStudentProfile(serverStudent, username) {
 
   if (isPlaceholderStudentName(student.name)) {
     const saved = getSavedStudentForUser(u);
+    const configured = getConfiguredStudent();
     if (saved && !isPlaceholderStudentName(saved.name)) {
       student.name = saved.name;
+    } else if (configured) {
+      student.name = configured.name;
+      // The server did not know the student, so its other fields are generic too.
+      // Only replace the ones it left at a default, never a real value it did send.
+      Object.keys(GENERIC_STUDENT_FIELDS).forEach((key) => {
+        const value = (student[key] || "").trim();
+        if ((!value || value === GENERIC_STUDENT_FIELDS[key]) && configured[key]) {
+          student[key] = configured[key];
+        }
+      });
     }
   }
 
@@ -206,18 +253,19 @@ function resolveStudentForUser(username) {
   if (!username || username === "demo@vibgyor.com") return DEMO_STUDENT;
   const u = username.trim().toLowerCase();
 
-  // 1. Check if user previously saved their child's name in localStorage
+  // 1. A name this parent typed in wins, so an edit is never undone by a deploy
   const saved = getSavedStudentForUser(u);
   if (saved && !isPlaceholderStudentName(saved.name)) return saved;
 
-  // 2. Default generic student profile for all parents
+  // 2. The profile baked in at deploy time
+  const configured = getConfiguredStudent();
+  if (configured) return configured;
+
+  // 3. Default generic student profile for all parents
   return {
     student_id: "STU-" + Math.abs(hashCode(u)),
     name: "Student",
-    grade: "Grade 1",
-    section: "F",
-    school: "VIBGYOR High",
-    academic_year: "2026 - 27",
+    ...GENERIC_STUDENT_FIELDS,
     parent_name: "Parent",
   };
 }
