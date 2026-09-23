@@ -30,36 +30,41 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # The Cloudflare beacon token is not a secret (it is visible in the page
-      # source of every site that uses it), but keeping it out of the repository
-      # means analytics is off by default for anyone who clones or forks this.
-      - name: Inject Cloudflare Web Analytics
+      # GoatCounter counts unique visitors per day from a salted hash of IP and
+      # user agent that rotates daily, so it needs no cookie and stores no
+      # identifier on the visitor's device. The site code is not sensitive; keeping
+      # it out of the repository is what makes analytics off by default for anyone
+      # who clones or forks this.
+      - name: Inject web analytics
         env:
-          CF_BEACON_TOKEN: ${{ secrets.CF_BEACON_TOKEN }}
+          GOATCOUNTER_CODE: ${{ secrets.GOATCOUNTER_CODE }}
         run: |
           python3 - <<'PY'
-          import json, os
+          import html as html_mod
+          import os
 
-          token = (os.environ.get("CF_BEACON_TOKEN") or "").strip()
+          code = (os.environ.get("GOATCOUNTER_CODE") or "").strip()
           path = "frontend/index.html"
-          marker = "<!--CF_WEB_ANALYTICS-->"
+          marker = "<!--WEB_ANALYTICS-->"
 
           with open(path) as fh:
-              html = fh.read()
+              page = fh.read()
 
-          if not token:
-              print("CF_BEACON_TOKEN is not set: publishing with no analytics script.")
-          elif marker not in html:
+          if not code:
+              print("GOATCOUNTER_CODE is not set: publishing with no analytics script.")
+          elif marker not in page:
               raise SystemExit(f"Expected marker {marker} in {path}")
           else:
-              beacon = json.dumps({"token": token})
+              # accept either a bare site code or a full counter endpoint
+              endpoint = code if "://" in code else f"https://{code}.goatcounter.com/count"
               tag = (
-                  '<script defer src="https://static.cloudflareinsights.com/beacon.min.js" '
-                  f"data-cf-beacon='{beacon}'></script>"
+                  '<script data-goatcounter="%s" async '
+                  'src="https://gc.zgo.at/count.js"></script>'
+                  % html_mod.escape(endpoint, quote=True)
               )
               with open(path, "w") as fh:
-                  fh.write(html.replace(marker, tag))
-              print("Cloudflare Web Analytics beacon injected.")
+                  fh.write(page.replace(marker, tag))
+              print("GoatCounter analytics injected.")
           PY
 
       - name: Upload Pages artifact

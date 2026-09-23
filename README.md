@@ -40,8 +40,8 @@ Click **"✨ Explore Demo / Sample Account"** to test immediately with real Grad
 4. **No Tracking Cookies; Optional Cookieless Visit Counting**:
    - No tracking pixels, no Google Analytics, no third-party cookies, no advertising or profiling.
    - Google Fonts (`Commissioner`) and Tailwind CSS are loaded from reputable CDNs.
-   - The published site can optionally count visits with **Cloudflare Web Analytics**, which is cookieless, sets no identifiers and collects no personal data: page views, referrer and country only. It exists so the owner can tell whether the public link has spread beyond the family.
-   - It is **off unless the `CF_BEACON_TOKEN` repository secret is set**. Clone or fork this repository and the published page loads no analytics at all. The service worker never caches or replays it.
+   - The published site can optionally count visits with **GoatCounter**, which is open source and cookieless. It derives a daily unique visitor count from a salted hash of IP and user agent that rotates every day, so nothing is stored on the visitor's device and a person cannot be followed from one day to the next. It exists so the owner can tell whether the public link has spread beyond the family.
+   - It is **off unless the `GOATCOUNTER_CODE` repository secret is set**. Clone or fork this repository and the published page loads no analytics at all. The service worker never caches or replays it.
 
 5. **Transparent & Fully Inspectable**:
    - The frontend code consists entirely of readable, open-source HTML, CSS, and vanilla JavaScript (`frontend/index.html`, `frontend/app.js`, `frontend/static_data.js`).
