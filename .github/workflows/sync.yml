@@ -1,0 +1,57 @@
+name: Sync class updates
+
+# Manual only for now. Once a run proves Orion accepts a sign-in from a GitHub
+# runner, add the daily schedule here:
+#   schedule:
+#     - cron: "30 8 * * 1-5"   # 14:00 IST, weekdays
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Republish the board (leave off for a dry run)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "sync"
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install headless browser
+        run: python -m playwright install --with-deps chromium
+
+      - name: Identify the committer
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # This repository is public, so this job's logs are public too. The sync
+      # step prints counts only and redacts anything scraped; keep it that way.
+      - name: Sync from Orion
+        env:
+          ORION_USERNAME: ${{ secrets.ORION_USERNAME }}
+          ORION_PASSWORD: ${{ secrets.ORION_PASSWORD }}
+          SITE_PASSCODE: ${{ secrets.SITE_PASSCODE }}
+          PUBLISH_AFTER_SYNC: ${{ inputs.publish }}
+        run: python -m backend.scheduled_sync

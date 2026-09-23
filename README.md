@@ -179,7 +179,7 @@ Open **[http://localhost:8000](http://localhost:8000)** in your browser.
 
 ## 🧪 Running Tests
 
-Run the complete test suite (62 tests covering PDF extraction, authentication, student profile extraction, published-bundle safety, and REST APIs):
+Run the complete test suite (72 tests covering PDF extraction, authentication, student profile extraction, published-bundle safety, scheduled-sync log hygiene, and REST APIs):
 
 ```bash
 ./venv/bin/python -m unittest discover -s tests -t .
@@ -227,6 +227,42 @@ Run the complete test suite (62 tests covering PDF extraction, authentication, s
   - A failed lookup never overwrites a real profile already stored.
 
 ---
+
+## 🤖 Unattended Sync (GitHub Actions)
+
+`.github/workflows/sync.yml` runs a sync without a laptop involved, so the board can
+refresh on a schedule rather than whenever someone remembers to press **Sync Now**.
+
+It is **manual only** until a run proves the school portal accepts a sign-in from a
+GitHub runner — datacentre IP ranges are often blocked or challenged. Once a run
+succeeds, uncomment the `schedule:` block at the top of the workflow.
+
+**Repository secrets it needs** (Settings → Secrets and variables → Actions):
+
+| Secret | Purpose |
+| --- | --- |
+| `ORION_USERNAME` | Portal username |
+| `ORION_PASSWORD` | Portal password |
+| `SITE_PASSCODE` | Encrypts the published bundle; only needed when publishing |
+
+Run it from the **Actions** tab. Leave **Republish the board** unticked for a dry
+run: it signs in and reports counts without touching what parents can see.
+
+### Why the job prints so little
+
+This repository is public, so its build logs are public. `backend/scheduled_sync.py`
+prints counts and status words only, and everything it prints passes through
+`redact()`, which strips the credentials and every value scraped from the portal —
+including the child's name — from the text first. `tests/test_scheduled_sync.py`
+holds that guarantee in place.
+
+### Known limit: history
+
+A runner starts with an empty database, so each run rebuilds from whatever the
+portal's notification feed still returns. Days that have aged out of that feed are
+not recovered, whereas the local database on a laptop keeps accumulating. A dry run
+reports how many days it managed to reach, which is the number to watch before
+switching the schedule on.
 
 ## ⚙️ Configuration (`.env`)
 
