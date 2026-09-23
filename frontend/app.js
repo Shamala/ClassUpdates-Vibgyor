@@ -679,6 +679,16 @@ async function handleLogout() {
   state.currentUser = null;
   state.student = null;
 
+  if (isClassBoard()) {
+    // On the board there is nothing to sign out of; forget the passcode so the
+    // next person on this device has to enter it again.
+    try {
+      localStorage.removeItem(PASSCODE_STORAGE_KEY);
+    } catch (e) {}
+    window.location.reload();
+    return;
+  }
+
   showLoginView();
   showToast("You have been signed out.", "info", 3000);
 }
@@ -853,9 +863,15 @@ function hidePasscodeView() {
 
 // Resolves once the class content is available, or never - the passcode screen
 // drives the rest of the boot when it is not.
+function isClassBoard() {
+  return isStaticMode() && !!(window.VIBGYOR_ENCRYPTED_DATA || {}).ciphertext;
+}
+
 async function unlockClassData() {
+  // Running against the backend means real Orion sign-in, not the class board,
+  // even though the encrypted bundle is served from the same directory.
+  if (!isClassBoard()) return true;
   const blob = window.VIBGYOR_ENCRYPTED_DATA;
-  if (!blob || !blob.ciphertext) return true; // running against the backend
   if (!window.crypto || !crypto.subtle) {
     showPasscodeView("This browser cannot unlock the class updates.");
     return false;
@@ -887,7 +903,35 @@ async function unlockClassData() {
 function viewSampleInstead() {
   viewingSample = true;
   hidePasscodeView();
-  checkAuth();
+  enterClassBoard();
+}
+
+// The published board has no accounts: the passcode is the only thing that guards
+// it, and the sign-in screen there was a local form that accepted anything. Once
+// unlocked, go straight to the updates.
+async function enterClassBoard() {
+  state.isAuthenticated = true;
+  state.authToken = "class-board";
+  state.currentUser = { username: "class", display_name: "Class" };
+  applyStudentProfile(null, "class");
+
+  // Sync reaches the school portal, which only the parent who publishes the board
+  // can do. Leaving the button there would promise a refresh it cannot deliver.
+  const syncBtn = document.getElementById("sync-btn");
+  if (syncBtn) syncBtn.classList.add("hidden");
+
+  // There is no account here, so "Sign Out" means "lock this device again".
+  const signOutBtn = document.getElementById("signout-btn");
+  if (signOutBtn) {
+    const label = signOutBtn.querySelector("span");
+    if (label) label.textContent = "Lock";
+    signOutBtn.title = "Lock the board on this device and ask for the passcode again";
+  }
+
+  showDashboardView();
+  renderStudentProfile();
+  renderSyncStamp();
+  await loadAvailableDates();
 }
 
 async function handlePasscodeSubmit(event) {
@@ -910,8 +954,7 @@ async function handlePasscodeSubmit(event) {
       localStorage.setItem(PASSCODE_STORAGE_KEY, passcode);
     } catch (e) {}
     hidePasscodeView();
-    renderSyncStamp();
-    await checkAuth();
+    await enterClassBoard();
   } catch (err) {
     showPasscodeView("That passcode does not match. Check with the class parent who shared it.");
   } finally {
@@ -958,6 +1001,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   initPWA();
   setupEventListeners();
   if (!(await unlockClassData())) return; // passcode screen takes over
+  if (isClassBoard()) {
+    await enterClassBoard();
+    return;
+  }
   renderSyncStamp();
   await checkAuth();
 });

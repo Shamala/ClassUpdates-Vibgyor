@@ -3,7 +3,7 @@
 // Provides 100% offline capability, instant loading & asset caching
 // =====================================================================
 
-const CACHE_NAME = "vibgyor-pwa-v12";
+const CACHE_NAME = "vibgyor-pwa-v13";
 
 const PRECACHE_ASSETS = [
   "./",
