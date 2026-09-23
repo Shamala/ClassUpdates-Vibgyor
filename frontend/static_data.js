@@ -142,7 +142,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:42"
+          "created_at": "2026-09-23 15:43:18"
         },
         {
           "id": 2,
@@ -160,7 +160,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:42"
+          "created_at": "2026-09-23 15:43:18"
         },
         {
           "id": 3,
@@ -178,7 +178,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:42"
+          "created_at": "2026-09-23 15:43:18"
         },
         {
           "id": 4,
@@ -196,7 +196,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:42"
+          "created_at": "2026-09-23 15:43:18"
         },
         {
           "id": 5,
@@ -214,7 +214,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": true,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:42"
+          "created_at": "2026-09-23 15:43:18"
         },
         {
           "id": 6,
@@ -232,7 +232,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": true,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:42"
+          "created_at": "2026-09-23 15:43:18"
         },
         {
           "id": 8,
@@ -250,7 +250,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:42"
+          "created_at": "2026-09-23 15:43:18"
         },
         {
           "id": 9,
@@ -268,7 +268,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:42"
+          "created_at": "2026-09-23 15:43:18"
         },
         {
           "id": 10,
@@ -286,7 +286,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:42"
+          "created_at": "2026-09-23 15:43:18"
         }
       ]
     },
@@ -324,7 +324,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:45"
+          "created_at": "2026-09-23 15:43:19"
         },
         {
           "id": 12,
@@ -342,7 +342,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:45"
+          "created_at": "2026-09-23 15:43:19"
         },
         {
           "id": 13,
@@ -360,7 +360,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:45"
+          "created_at": "2026-09-23 15:43:19"
         },
         {
           "id": 14,
@@ -378,7 +378,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:45"
+          "created_at": "2026-09-23 15:43:19"
         },
         {
           "id": 15,
@@ -396,7 +396,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:45"
+          "created_at": "2026-09-23 15:43:19"
         },
         {
           "id": 16,
@@ -414,7 +414,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:45"
+          "created_at": "2026-09-23 15:43:19"
         },
         {
           "id": 17,
@@ -432,7 +432,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:45"
+          "created_at": "2026-09-23 15:43:19"
         },
         {
           "id": 18,
@@ -450,7 +450,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:45"
+          "created_at": "2026-09-23 15:43:19"
         },
         {
           "id": 19,
@@ -468,7 +468,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": true,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:45"
+          "created_at": "2026-09-23 15:43:19"
         },
         {
           "id": 20,
@@ -486,7 +486,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": true,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:45"
+          "created_at": "2026-09-23 15:43:19"
         }
       ]
     },
@@ -524,7 +524,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:46"
+          "created_at": "2026-09-23 15:43:20"
         },
         {
           "id": 22,
@@ -542,7 +542,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:46"
+          "created_at": "2026-09-23 15:43:20"
         },
         {
           "id": 23,
@@ -560,7 +560,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:46"
+          "created_at": "2026-09-23 15:43:20"
         },
         {
           "id": 24,
@@ -578,7 +578,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:46"
+          "created_at": "2026-09-23 15:43:20"
         },
         {
           "id": 25,
@@ -596,7 +596,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:46"
+          "created_at": "2026-09-23 15:43:20"
         },
         {
           "id": 26,
@@ -614,7 +614,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:46"
+          "created_at": "2026-09-23 15:43:20"
         },
         {
           "id": 27,
@@ -632,7 +632,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": true,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:46"
+          "created_at": "2026-09-23 15:43:20"
         },
         {
           "id": 28,
@@ -650,7 +650,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:46"
+          "created_at": "2026-09-23 15:43:20"
         },
         {
           "id": 29,
@@ -668,7 +668,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:46"
+          "created_at": "2026-09-23 15:43:20"
         },
         {
           "id": 30,
@@ -686,7 +686,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:46"
+          "created_at": "2026-09-23 15:43:20"
         }
       ]
     },
@@ -724,7 +724,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:48"
+          "created_at": "2026-09-23 15:43:21"
         },
         {
           "id": 32,
@@ -742,7 +742,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:48"
+          "created_at": "2026-09-23 15:43:21"
         },
         {
           "id": 33,
@@ -760,7 +760,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:48"
+          "created_at": "2026-09-23 15:43:21"
         },
         {
           "id": 34,
@@ -778,7 +778,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:48"
+          "created_at": "2026-09-23 15:43:21"
         },
         {
           "id": 35,
@@ -796,7 +796,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:48"
+          "created_at": "2026-09-23 15:43:21"
         },
         {
           "id": 36,
@@ -814,7 +814,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:48"
+          "created_at": "2026-09-23 15:43:21"
         },
         {
           "id": 37,
@@ -832,7 +832,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": true,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:48"
+          "created_at": "2026-09-23 15:43:21"
         },
         {
           "id": 38,
@@ -850,7 +850,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:48"
+          "created_at": "2026-09-23 15:43:21"
         },
         {
           "id": 39,
@@ -868,7 +868,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:48"
+          "created_at": "2026-09-23 15:43:21"
         },
         {
           "id": 40,
@@ -886,7 +886,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:48"
+          "created_at": "2026-09-23 15:43:21"
         }
       ]
     },
@@ -924,7 +924,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:50"
+          "created_at": "2026-09-23 15:43:22"
         },
         {
           "id": 42,
@@ -942,7 +942,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:50"
+          "created_at": "2026-09-23 15:43:22"
         },
         {
           "id": 43,
@@ -960,7 +960,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:50"
+          "created_at": "2026-09-23 15:43:22"
         },
         {
           "id": 44,
@@ -978,7 +978,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": true,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:50"
+          "created_at": "2026-09-23 15:43:22"
         },
         {
           "id": 45,
@@ -996,7 +996,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:50"
+          "created_at": "2026-09-23 15:43:22"
         },
         {
           "id": 46,
@@ -1014,7 +1014,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:50"
+          "created_at": "2026-09-23 15:43:22"
         },
         {
           "id": 47,
@@ -1032,7 +1032,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:50"
+          "created_at": "2026-09-23 15:43:22"
         },
         {
           "id": 48,
@@ -1050,7 +1050,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:50"
+          "created_at": "2026-09-23 15:43:22"
         },
         {
           "id": 49,
@@ -1068,7 +1068,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:50"
+          "created_at": "2026-09-23 15:43:22"
         },
         {
           "id": 50,
@@ -1086,7 +1086,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:50"
+          "created_at": "2026-09-23 15:43:22"
         }
       ]
     },
@@ -1124,7 +1124,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:53"
+          "created_at": "2026-09-23 15:43:23"
         },
         {
           "id": 52,
@@ -1142,7 +1142,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:53"
+          "created_at": "2026-09-23 15:43:23"
         },
         {
           "id": 53,
@@ -1160,7 +1160,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:53"
+          "created_at": "2026-09-23 15:43:23"
         },
         {
           "id": 54,
@@ -1178,7 +1178,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:53"
+          "created_at": "2026-09-23 15:43:23"
         },
         {
           "id": 55,
@@ -1196,7 +1196,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:53"
+          "created_at": "2026-09-23 15:43:23"
         },
         {
           "id": 56,
@@ -1214,7 +1214,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:53"
+          "created_at": "2026-09-23 15:43:23"
         },
         {
           "id": 58,
@@ -1232,7 +1232,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": true,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:53"
+          "created_at": "2026-09-23 15:43:23"
         },
         {
           "id": 59,
@@ -1250,7 +1250,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:53"
+          "created_at": "2026-09-23 15:43:23"
         },
         {
           "id": 60,
@@ -1268,7 +1268,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:53"
+          "created_at": "2026-09-23 15:43:23"
         }
       ]
     },
@@ -1306,7 +1306,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": true,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:56"
+          "created_at": "2026-09-23 15:43:24"
         },
         {
           "id": 62,
@@ -1324,7 +1324,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:56"
+          "created_at": "2026-09-23 15:43:24"
         },
         {
           "id": 63,
@@ -1342,7 +1342,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:56"
+          "created_at": "2026-09-23 15:43:24"
         },
         {
           "id": 64,
@@ -1360,7 +1360,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:56"
+          "created_at": "2026-09-23 15:43:24"
         },
         {
           "id": 65,
@@ -1378,7 +1378,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": true,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:56"
+          "created_at": "2026-09-23 15:43:24"
         },
         {
           "id": 66,
@@ -1396,7 +1396,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:56"
+          "created_at": "2026-09-23 15:43:24"
         },
         {
           "id": 67,
@@ -1414,7 +1414,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:56"
+          "created_at": "2026-09-23 15:43:24"
         },
         {
           "id": 68,
@@ -1432,7 +1432,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:56"
+          "created_at": "2026-09-23 15:43:24"
         },
         {
           "id": 69,
@@ -1450,7 +1450,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:56"
+          "created_at": "2026-09-23 15:43:24"
         },
         {
           "id": 70,
@@ -1468,7 +1468,7 @@ window.VIBGYOR_STATIC_DATA = {
           "is_homework": false,
           "is_completed": false,
           "completed_at": null,
-          "created_at": "2026-09-23 15:37:56"
+          "created_at": "2026-09-23 15:43:24"
         }
       ]
     }
@@ -1511,7 +1511,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:46"
+            "created_at": "2026-09-23 15:43:20"
           },
           {
             "id": 22,
@@ -1529,7 +1529,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:46"
+            "created_at": "2026-09-23 15:43:20"
           },
           {
             "id": 23,
@@ -1547,7 +1547,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:46"
+            "created_at": "2026-09-23 15:43:20"
           },
           {
             "id": 24,
@@ -1565,7 +1565,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:46"
+            "created_at": "2026-09-23 15:43:20"
           },
           {
             "id": 25,
@@ -1583,7 +1583,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:46"
+            "created_at": "2026-09-23 15:43:20"
           },
           {
             "id": 26,
@@ -1601,7 +1601,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:46"
+            "created_at": "2026-09-23 15:43:20"
           },
           {
             "id": 27,
@@ -1619,7 +1619,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": true,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:46"
+            "created_at": "2026-09-23 15:43:20"
           },
           {
             "id": 28,
@@ -1637,7 +1637,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:46"
+            "created_at": "2026-09-23 15:43:20"
           },
           {
             "id": 29,
@@ -1655,7 +1655,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:46"
+            "created_at": "2026-09-23 15:43:20"
           },
           {
             "id": 30,
@@ -1673,7 +1673,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:46"
+            "created_at": "2026-09-23 15:43:20"
           }
         ]
       },
@@ -1711,7 +1711,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:45"
+            "created_at": "2026-09-23 15:43:19"
           },
           {
             "id": 12,
@@ -1729,7 +1729,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:45"
+            "created_at": "2026-09-23 15:43:19"
           },
           {
             "id": 13,
@@ -1747,7 +1747,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:45"
+            "created_at": "2026-09-23 15:43:19"
           },
           {
             "id": 14,
@@ -1765,7 +1765,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:45"
+            "created_at": "2026-09-23 15:43:19"
           },
           {
             "id": 15,
@@ -1783,7 +1783,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:45"
+            "created_at": "2026-09-23 15:43:19"
           },
           {
             "id": 16,
@@ -1801,7 +1801,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:45"
+            "created_at": "2026-09-23 15:43:19"
           },
           {
             "id": 17,
@@ -1819,7 +1819,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:45"
+            "created_at": "2026-09-23 15:43:19"
           },
           {
             "id": 18,
@@ -1837,7 +1837,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:45"
+            "created_at": "2026-09-23 15:43:19"
           },
           {
             "id": 19,
@@ -1855,7 +1855,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": true,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:45"
+            "created_at": "2026-09-23 15:43:19"
           },
           {
             "id": 20,
@@ -1873,7 +1873,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": true,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:45"
+            "created_at": "2026-09-23 15:43:19"
           }
         ]
       },
@@ -1911,7 +1911,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:42"
+            "created_at": "2026-09-23 15:43:18"
           },
           {
             "id": 2,
@@ -1929,7 +1929,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:42"
+            "created_at": "2026-09-23 15:43:18"
           },
           {
             "id": 3,
@@ -1947,7 +1947,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:42"
+            "created_at": "2026-09-23 15:43:18"
           },
           {
             "id": 4,
@@ -1965,7 +1965,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:42"
+            "created_at": "2026-09-23 15:43:18"
           },
           {
             "id": 5,
@@ -1983,7 +1983,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": true,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:42"
+            "created_at": "2026-09-23 15:43:18"
           },
           {
             "id": 6,
@@ -2001,7 +2001,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": true,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:42"
+            "created_at": "2026-09-23 15:43:18"
           },
           {
             "id": 8,
@@ -2019,7 +2019,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:42"
+            "created_at": "2026-09-23 15:43:18"
           },
           {
             "id": 9,
@@ -2037,7 +2037,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:42"
+            "created_at": "2026-09-23 15:43:18"
           },
           {
             "id": 10,
@@ -2055,7 +2055,7 @@ window.VIBGYOR_STATIC_DATA = {
             "is_homework": false,
             "is_completed": false,
             "completed_at": null,
-            "created_at": "2026-09-23 15:37:42"
+            "created_at": "2026-09-23 15:43:18"
           }
         ]
       },
@@ -2156,7 +2156,7 @@ window.VIBGYOR_STATIC_DATA = {
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
       "is_read": false,
-      "created_at": "2026-09-23 15:37:56"
+      "created_at": "2026-09-23 15:43:24"
     },
     {
       "id": 2,
@@ -2166,7 +2166,7 @@ window.VIBGYOR_STATIC_DATA = {
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
       "is_read": false,
-      "created_at": "2026-09-23 15:37:56"
+      "created_at": "2026-09-23 15:43:24"
     },
     {
       "id": 1,
@@ -2176,7 +2176,7 @@ window.VIBGYOR_STATIC_DATA = {
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
       "is_read": false,
-      "created_at": "2026-09-23 15:37:56"
+      "created_at": "2026-09-23 15:43:24"
     },
     {
       "id": 5,
@@ -2186,7 +2186,7 @@ window.VIBGYOR_STATIC_DATA = {
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
       "is_read": false,
-      "created_at": "2026-09-23 15:37:56"
+      "created_at": "2026-09-23 15:43:24"
     },
     {
       "id": 4,
@@ -2196,7 +2196,7 @@ window.VIBGYOR_STATIC_DATA = {
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
       "is_read": false,
-      "created_at": "2026-09-23 15:37:56"
+      "created_at": "2026-09-23 15:43:24"
     },
     {
       "id": 6,
@@ -2206,7 +2206,7 @@ window.VIBGYOR_STATIC_DATA = {
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
       "is_read": false,
-      "created_at": "2026-09-23 15:37:56"
+      "created_at": "2026-09-23 15:43:24"
     },
     {
       "id": 7,
@@ -2216,8 +2216,8 @@ window.VIBGYOR_STATIC_DATA = {
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
       "is_read": false,
-      "created_at": "2026-09-23 15:37:56"
+      "created_at": "2026-09-23 15:43:24"
     }
   ],
-  "synced_at": "2026-09-23T15:38:06+00:00"
+  "synced_at": "2026-09-23T15:43:33+00:00"
 };
