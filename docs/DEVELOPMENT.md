@@ -296,6 +296,22 @@ a day outright, which is why the cron sits on an odd minute rather than the hour
 or half hour. If a day is missed, the board simply shows its previous contents and
 the freshness stamp turns amber; running the workflow by hand catches it up.
 
+### Running it by hand
+
+The schedule can be skipped, so a manual run is the catch-up. It lives at
+**Actions → Sync class updates → Run workflow**:
+
+<https://github.com/Shamala/ClassUpdates-Vibgyor/actions/workflows/sync.yml>
+
+Tick **Republish the board** to publish; leave it unticked for a dry run that
+signs in and reports counts without touching what parents see.
+
+On a phone, add that URL to the home screen (Chrome: ⋮ → *Add to Home screen*;
+Safari: Share → *Add to Home Screen*) and it becomes two taps. The GitHub mobile
+app can run it from the same Actions tab. There is no plain link that starts a
+run: `workflow_dispatch` is an authenticated POST, which is what stops anyone
+with the URL from triggering it.
+
 ### Serving code and data together
 
 `app.js`, `class_data.enc.js` and `static_data.js` are **network-first** in the
