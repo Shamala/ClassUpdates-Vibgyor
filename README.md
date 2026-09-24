@@ -65,5 +65,57 @@ ago, so you are never reading stale homework without knowing it.
 
 ---
 
+## Running Locally
+
+### Quick Start
+Start the server with the launcher script:
+
+```bash
+./start.sh
+```
+
+Or directly using Python:
+
+```bash
+./venv/bin/python -m backend.main 8000
+```
+
+Then open **[http://localhost:8000](http://localhost:8000)** in your browser.
+
+> **Tip**: If port `8000` is already in use, run on another port or terminate the existing process:
+> ```bash
+> ./venv/bin/python -m backend.main 8080
+> # or kill existing: kill $(lsof -t -i :8000)
+> ```
+
+### First-Time Setup (New Machine)
+```bash
+# Set up virtual environment and dependencies
+python3 -m venv venv
+./venv/bin/python -m pip install -r requirements.txt
+
+# (Optional) Download Playwright browser for portal sync
+./venv/bin/python -m playwright install chromium
+
+# Launch
+./start.sh
+```
+
+### Rebuilding Styles (Tailwind CSS)
+The compiled stylesheet (`frontend/tailwind.css`) is already pre-built and included, so Node.js is **not required** just to run the app. If you modify any utility classes in the HTML/JS:
+
+```bash
+npm run build:css    # Rebuild once
+npm run watch:css    # Auto-rebuild on file save
+```
+
+### Running Tests
+```bash
+./venv/bin/pytest
+# or: ./venv/bin/python -m unittest discover -s tests -t .
+```
+
+---
+
 Built for one class; usable by any school that publishes a similar daily diary.
-Technical documentation is in **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**.
+Full technical documentation is in **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**.
