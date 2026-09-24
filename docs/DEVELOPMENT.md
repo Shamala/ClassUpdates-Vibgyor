@@ -103,6 +103,31 @@ this repository is public, so its build logs are too.
 
 ---
 
+## 🧭 Frontend direction
+
+`frontend/app.js` is 3,519 lines with 96 top-level functions, 97 `getElementById`
+calls and 22 hand-built `innerHTML` blocks. Rendering and DOM plumbing are
+interleaved, which is the readability cost — not the line count.
+
+It is being migrated to **Svelte 5** in phases, each one shipping on its own:
+
+0. Split `app.js` into modules (state, storage, api, speech, format). No
+   framework, no behaviour change.
+1. Add Vite, mount one leaf component beside the vanilla app.
+2. Daily Diary.
+3. Weekly, Circulars, flashcards.
+4. Shell: header, tabs, modals. Delete the vanilla renderers.
+5. Remove dead code, teach the service worker about hashed filenames, update docs.
+
+Two things to watch: hashed asset names break the service worker's precache
+list, and the GitHub Pages base path needs to be set in the Vite config.
+
+New to Svelte and coming from React? See
+[SVELTE-FOR-REACT-DEVS.md](SVELTE-FOR-REACT-DEVS.md). We are on Svelte 5, whose
+runes differ from most tutorials online.
+
+---
+
 ## 🎨 Styling
 
 Tailwind is **compiled ahead of time**, not loaded from `cdn.tailwindcss.com`.
