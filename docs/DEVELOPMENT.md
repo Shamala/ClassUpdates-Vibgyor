@@ -296,6 +296,20 @@ a day outright, which is why the cron sits on an odd minute rather than the hour
 or half hour. If a day is missed, the board simply shows its previous contents and
 the freshness stamp turns amber; running the workflow by hand catches it up.
 
+### Previewing the board locally
+
+`localhost` runs as the publisher's tool and shows the portal sign-in, because it
+has a backend that can reach the portal. To see what parents see instead, open:
+
+    http://localhost:8000/?board
+
+It sticks for that browser tab, so reloads keep the preview; `?board=0` ends it.
+Setting `window.__FORCE_STATIC_MODE` in the console does **not** work: a reload
+starts a fresh page and the flag is gone before the boot reads it.
+
+This changes nothing in production, where `isStaticMode()` is already true from
+the hostname.
+
 ### Running it by hand
 
 The schedule can be skipped, so a manual run is the catch-up. It lives at
