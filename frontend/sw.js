@@ -3,7 +3,7 @@
 // Provides 100% offline capability, instant loading & asset caching
 // =====================================================================
 
-const CACHE_NAME = "vibgyor-pwa-v15";
+const CACHE_NAME = "vibgyor-pwa-v16";
 
 const PRECACHE_ASSETS = [
   "./",
@@ -19,14 +19,26 @@ const PRECACHE_ASSETS = [
   "./icons/apple-touch-icon.png",
 ];
 
+// Served from the network whenever it can be reached, because these three move
+// together and a mismatched pair changes what the page does, not just how it looks.
+const FRESH_FIRST = ["/app.js", "/class_data.enc.js", "/static_data.js"];
+
 // --- Install Event: Pre-cache core shell ---
+// cache.addAll rejects as a unit: one asset that 404s fails the whole install,
+// the new worker never activates, and the old one goes on serving stale code
+// indefinitely. Caching each asset on its own keeps an update recoverable.
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => {
-        return cache.addAll(PRECACHE_ASSETS);
-      })
+      .then((cache) =>
+        Promise.allSettled(
+          PRECACHE_ASSETS.map((asset) => cache.add(asset)),
+        ).then((results) => {
+          const failed = results.filter((r) => r.status === "rejected").length;
+          if (failed) console.warn(`[sw] ${failed} asset(s) could not be precached`);
+        }),
+      )
       .then(() => self.skipWaiting()),
   );
 });
@@ -101,7 +113,28 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // For static assets (scripts, styles, images, fonts): Stale-While-Revalidate
+  // The app code and the class data are versioned together: the passcode gate
+  // lives in app.js and the bundle it unlocks lives in class_data.enc.js. Served
+  // stale-while-revalidate, a returning visitor gets last week's app.js with this
+  // week's data for at least one load, and an app.js from before the gate existed
+  // simply renders the sample instead of asking for the passcode. So these are
+  // network-first, and fall back to the cache only when the network cannot answer.
+  if (FRESH_FIRST.some((name) => url.pathname.endsWith(name))) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(request)),
+    );
+    return;
+  }
+
+  // Everything else (styles, icons, fonts): Stale-While-Revalidate
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       const fetchPromise = fetch(request)

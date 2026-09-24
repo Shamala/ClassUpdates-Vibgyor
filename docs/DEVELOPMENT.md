@@ -285,11 +285,30 @@ around `unittest.discover`, so it needs nothing extra installed:
 `.github/workflows/sync.yml` runs a sync without a laptop involved, so the board can
 refresh on a schedule rather than whenever someone remembers to press **Sync Now**.
 
-It runs **daily at 14:00 IST** (`30 8 * * *`) and can also be started by hand from
+It runs **daily at 14:45 IST** (`15 9 * * *`, which is 09:15 UTC) and can also be started by hand from
 the **Actions** tab. GitHub's scheduler is best-effort and often starts several
 minutes late, which does not matter for a once-a-day refresh. A repository with no
 activity for 60 days has its schedules disabled, so this stops if the project goes
 quiet.
+
+GitHub's scheduler is best-effort: it runs late under load and occasionally skips
+a day outright, which is why the cron sits on an odd minute rather than the hour
+or half hour. If a day is missed, the board simply shows its previous contents and
+the freshness stamp turns amber; running the workflow by hand catches it up.
+
+### Serving code and data together
+
+`app.js`, `class_data.enc.js` and `static_data.js` are **network-first** in the
+service worker, not stale-while-revalidate. They are versioned together: the
+passcode gate lives in `app.js` and the bundle it unlocks lives in
+`class_data.enc.js`. Served stale, a returning device runs last week's code
+against this week's data for at least one load — and an `app.js` from before the
+gate existed skips the passcode entirely and renders the sample. Styles and icons
+are still stale-while-revalidate, where a version behind only looks slightly off.
+
+Precaching also caches asset by asset rather than through `cache.addAll`, which
+rejects as a unit: one 404 there fails the install, the new worker never
+activates, and the old one serves stale code indefinitely.
 
 A sync that finds nothing new skips the site deployment: `scheduled_sync` reports
 whether it published through a step output, and the Pages steps are gated on it.

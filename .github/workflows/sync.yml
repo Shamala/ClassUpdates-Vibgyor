@@ -1,12 +1,15 @@
 name: Sync class updates
 
-# Runs itself daily and can also be triggered by hand. GitHub's scheduler is
-# best-effort and often starts several minutes late, which does not matter for a
-# once-a-day refresh. A repository with no activity for 60 days has its schedules
-# disabled, so this stops if the project goes quiet.
+# Runs itself daily and can also be triggered by hand.
+#
+# Cron is in UTC: 09:15 UTC is 14:45 IST. GitHub's scheduler is best-effort and
+# runs late under load - sometimes by tens of minutes, occasionally not at all -
+# and the load piles up on the hour and half hour, so an odd minute like :15 is
+# deliberately chosen. A repository with no activity for 60 days has its
+# schedules disabled, so this stops if the project goes quiet.
 on:
   schedule:
-    - cron: "30 8 * * *"   # 14:00 IST, daily
+    - cron: "15 9 * * *"   # 14:45 IST, daily
   workflow_dispatch:
     inputs:
       publish:
