@@ -1,0 +1,4 @@
+/* Source for frontend/tailwind.css (kept out of frontend/ so build inputs are not published). Build with: npm run build:css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

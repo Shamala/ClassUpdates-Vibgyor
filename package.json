@@ -1,0 +1,12 @@
+{
+  "name": "classupdates-vibgyor",
+  "private": true,
+  "description": "Build tooling for the parent dashboard's stylesheet. The app itself is vanilla JS and needs no bundler.",
+  "scripts": {
+    "build:css": "tailwindcss -i styles/tailwind.src.css -o frontend/tailwind.css --minify",
+    "watch:css": "tailwindcss -i styles/tailwind.src.css -o frontend/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

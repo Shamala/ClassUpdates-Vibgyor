@@ -30,6 +30,20 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      # The stylesheet is compiled from the classes actually used in the markup,
+      # so it has to be rebuilt whenever that markup changes. Building here means
+      # the published CSS can never lag behind the page it styles.
+      - name: Build stylesheet
+        run: |
+          npm ci
+          npm run build:css
+
       # The site code is not sensitive; keeping it out of the repository is what
       # makes analytics off by default for anyone who clones or forks this.
       - name: Inject web analytics

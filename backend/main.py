@@ -356,6 +356,10 @@ if HAS_FASTAPI:
     if os.path.exists(FRONTEND_DIR):
         app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
+    @app.get("/tailwind.css")
+    def serve_tailwind_css():
+        return FileResponse(os.path.join(FRONTEND_DIR, "tailwind.css"), media_type="text/css")
+
     @app.get("/style.css")
     def serve_style_css():
         return FileResponse(os.path.join(FRONTEND_DIR, "style.css"), media_type="text/css")

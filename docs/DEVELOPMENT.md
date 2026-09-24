@@ -103,6 +103,24 @@ this repository is public, so its build logs are too.
 
 ---
 
+## 🎨 Styling
+
+Tailwind is **compiled ahead of time**, not loaded from `cdn.tailwindcss.com`.
+The CDN build ships a compiler to every visitor, blocks styling on a network
+round trip and prints a warning that it is not meant for production. The
+compiled sheet is 37 KB and needs no JavaScript at all.
+
+Configuration lives in `tailwind.config.js` (it was a `<script>` block in
+`index.html` before). `content` lists the files scanned for class names; they are
+matched as plain text, so a class assembled at runtime from fragments would be
+missed. Every class in this dashboard is written out in full inside its template
+literal, which is what makes the scan reliable — keep it that way.
+
+`frontend/style.css` still holds the hand-written rules: the subject badge
+colours, the rainbow strip and the scrollbar handling.
+
+---
+
 ## 📁 Repository Structure
 
 ```text
@@ -125,8 +143,11 @@ ClassUpdates-Vibgyor/
 │   ├── student_profile.py # Extracts the student profile from the portal
 │   ├── scheduled_sync.py # Unattended sync entry point, with public-log redaction
 │   └── main.py           # REST API server & static asset host
+├── styles/
+│   └── tailwind.src.css  # Build input; kept out of frontend/ so it is not published
 ├── frontend/
 │   ├── index.html        # Modern Tailwind parent dashboard
+│   ├── tailwind.css      # Compiled Tailwind (generated - do not edit by hand)
 │   ├── app.js            # Client-side reactivity & API / localStorage integration
 │   ├── class_data.enc.js # Class content, encrypted with the class passcode
 │   ├── static_data.js    # Sanitised sample dataset (the "See a sample" view)
@@ -146,6 +167,8 @@ ClassUpdates-Vibgyor/
 │   ├── test_scheduled_sync.py  # Nothing scraped may reach a public build log
 │   └── test_student_profile.py # Profile extraction from portal pages and APIs
 ├── .env.example
+├── package.json          # Stylesheet build only; the app ships no JS bundler
+├── tailwind.config.js
 ├── requirements.txt
 ├── start.sh
 └── README.md            # Parent-facing overview
@@ -161,9 +184,17 @@ ClassUpdates-Vibgyor/
 python3 -m venv venv
 ./venv/bin/python -m pip install -r requirements.txt
 ./venv/bin/python -m playwright install chromium
+npm ci && npm run build:css
 ```
 
-Invoke the tools as `python -m <tool>` rather than `./venv/bin/pip`. A virtual
+`frontend/tailwind.css` is committed, so the site runs without Node; the last
+line is only needed if you change the markup. **Rebuild after editing classes in
+`index.html` or `app.js`** — Tailwind emits only the utilities it finds there, so
+a class added without a rebuild simply will not style. `npm run watch:css`
+rebuilds as you type. Both publishing workflows rebuild it too, so what is
+deployed can never lag behind the markup.
+
+Invoke the Python tools as `python -m <tool>` rather than `./venv/bin/pip`. A virtual
 environment records its own path inside every console script it generates, so
 renaming or moving the directory leaves those scripts pointing at a path that no
 longer exists; going through the interpreter sidesteps that entirely.

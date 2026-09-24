@@ -219,6 +219,7 @@ class TestVibgyorApi(unittest.TestCase):
     def test_serve_static_assets(self):
         # Verify relative static file endpoints
         for asset, expected_mime in [
+            ("/tailwind.css", "css"),
             ("/style.css", "css"),
             ("/app.js", "javascript"),
             ("/static_data.js", "javascript"),
@@ -229,6 +230,24 @@ class TestVibgyorApi(unittest.TestCase):
             status, headers, content = execute_http_request("GET", asset)
             self.assertEqual(status, 200, f"Failed to serve {asset}")
             self.assertIn(expected_mime, headers.get("content-type", "").lower())
+
+    def test_page_styles_itself_without_a_cdn(self):
+        """The compiled stylesheet must ship, and no CDN compiler may come back.
+
+        cdn.tailwindcss.com warns that it is not for production: it hands every
+        visitor a compiler and leaves the page unstyled until it has run.
+        """
+        status, _, page = execute_http_request("GET", "/")
+        self.assertEqual(status, 200)
+        self.assertIn('href="tailwind.css"', page)
+        self.assertNotIn("cdn.tailwindcss.com", page)
+
+        status, headers, css = execute_http_request("GET", "/tailwind.css")
+        self.assertEqual(status, 200)
+        self.assertIn("css", headers.get("content-type", "").lower())
+        # a utility the dashboard actually uses, and a dark-mode variant
+        self.assertIn(".flex", css)
+        self.assertIn("dark", css)
 
     def test_not_found_endpoint(self):
         status, _, data = execute_http_request("GET", "/api/nonexistent")

@@ -74,6 +74,22 @@ jobs:
       # workflow, so committing the bundle never reaches Pages on its own. This
       # job therefore deploys the site it just built rather than waiting for a
       # deploy that will not come.
+      - name: Set up Node
+        if: steps.sync.outputs.published == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      # The stylesheet is compiled from the classes actually used in the markup,
+      # so it has to be rebuilt whenever that markup changes. Building here means
+      # the published CSS can never lag behind the page it styles.
+      - name: Build stylesheet
+        if: steps.sync.outputs.published == 'true'
+        run: |
+          npm ci
+          npm run build:css
+
       - name: Setup Pages
         if: steps.sync.outputs.published == 'true'
         uses: actions/configure-pages@v6

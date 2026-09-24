@@ -46,3 +46,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Node tooling (only needed to rebuild the stylesheet)
+node_modules/

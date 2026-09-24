@@ -28,25 +28,10 @@
       href="https://fonts.googleapis.com/css2?family=Commissioner:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: [
-                "Commissioner",
-                "system-ui",
-                "-apple-system",
-                "sans-serif",
-              ],
-            },
-          },
-        },
-      };
-    </script>
+    <!-- Tailwind, compiled ahead of time by tailwind.config.js. The CDN build
+         shipped a compiler to every visitor, warned against production use and
+         needed a network round trip before anything could be styled. -->
+    <link rel="stylesheet" href="tailwind.css" />
     <!-- Anti-flicker Dark Mode Detection -->
     <script>
       (function () {
