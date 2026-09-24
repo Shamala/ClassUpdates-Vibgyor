@@ -216,6 +216,16 @@ function getSavedStudentForUser(username) {
 // Server profiles win on grade/section/school, but a name the parent set locally
 // wins over a server placeholder — otherwise every reload resets it to "Student".
 function applyStudentProfile(serverStudent, username) {
+  // The sample is nobody's child. It shares the "class" user with the real
+  // board, so resolving through storage would greet a parent who had already
+  // set their child's name with that name over made-up homework. It reads
+  // nothing and writes nothing.
+  if (isSampleSession()) {
+    const sample = (getStaticData() || {}).student;
+    state.student = sample ? { ...sample } : { ...DEMO_STUDENT };
+    return state.student;
+  }
+
   const u = (
     username ||
     (state.currentUser && state.currentUser.username) ||
