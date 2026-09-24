@@ -209,9 +209,11 @@ function applyStudentProfile(serverStudent, username) {
   }
 
   state.student = student;
-  try {
-    localStorage.setItem("vibgyor_parent_student", JSON.stringify(student));
-  } catch (e) {}
+  if (!isSampleSession()) {
+    try {
+      localStorage.setItem("vibgyor_parent_student", JSON.stringify(student));
+    } catch (e) {}
+  }
   return student;
 }
 
@@ -270,13 +272,18 @@ function submitStudentName(event) {
   if (name === state.student.name) return;
   state.student.name = name;
 
-  if (state.currentUser && state.currentUser.username) {
+  if (!isSampleSession()) {
+    if (state.currentUser && state.currentUser.username) {
+      localStorage.setItem(
+        "vibgyor_student_for_" + state.currentUser.username.toLowerCase(),
+        JSON.stringify(state.student),
+      );
+    }
     localStorage.setItem(
-      "vibgyor_student_for_" + state.currentUser.username.toLowerCase(),
+      "vibgyor_parent_student",
       JSON.stringify(state.student),
     );
   }
-  localStorage.setItem("vibgyor_parent_student", JSON.stringify(state.student));
   renderStudentProfile();
   showToast(`Updated student name to ${state.student.name} \u2b50`, "success", 3000);
 }
@@ -693,6 +700,10 @@ async function handleLogout() {
   state.student = null;
 
   if (isClassBoard()) {
+    // Leaving the sample ends the sample: without this the next unlock would
+    // still be treated as make-believe and refuse to remember a real name.
+    viewingSample = false;
+
     // On the board there is nothing to sign out of; forget the passcode so the
     // next person on this device has to enter it again.
     try {
@@ -810,6 +821,37 @@ const PASSCODE_STORAGE_KEY = "vibgyor_class_passcode";
 // refresh time must not be displayed over sample content.
 let viewingSample = false;
 
+// The sample exists to be poked at. Whatever a parent types while looking at it
+// is about made-up data, so none of it is written down: the sample and the real
+// board would otherwise share one device's storage and the demo child's name
+// would greet them after they entered the passcode.
+function isSampleSession() {
+  return viewingSample;
+}
+
+const DEMO_STUDENT_ID = "DEMO-G1F-001";
+
+// A device that used the sample before this was fixed still has the demo child
+// saved against the board's own key. Drop it rather than show it as theirs.
+function forgetSampleStudent() {
+  const keys = ["vibgyor_parent_student", "vibgyor_student_for_class"];
+  keys.forEach((key) => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (saved && saved.student_id === DEMO_STUDENT_ID) {
+        localStorage.removeItem(key);
+      }
+    } catch (e) {
+      // unreadable entry is no use to anyone
+      try {
+        localStorage.removeItem(key);
+      } catch (err) {}
+    }
+  });
+}
+
 function fromBase64(value) {
   return Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
 }
@@ -842,14 +884,29 @@ async function decryptClassData(passcode, blob) {
   return JSON.parse(new TextDecoder().decode(plain));
 }
 
+// Nothing in the header works before the board is unlocked: the date list has
+// nothing to list, Sync reaches a portal this page cannot see, and the profile
+// still shows whoever used this device last. Hidden until there is a board.
+const LOCKED_HEADER_IDS = [
+  "header-controls",
+  "mobile-profile-snippet",
+  "tabs-bar",
+];
+
+function setHeaderHidden(hidden) {
+  LOCKED_HEADER_IDS.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle("hidden", hidden);
+  });
+}
+
 function showPasscodeView(message) {
   const view = document.getElementById("passcode-view");
   const login = document.getElementById("login-view");
   const dash = document.getElementById("dashboard-view");
-  const header = document.getElementById("tabs-bar");
   if (login) login.classList.add("hidden");
   if (dash) dash.classList.add("hidden");
-  if (header) header.classList.add("hidden");
+  setHeaderHidden(true);
   if (view) view.classList.remove("hidden");
 
   const stamp = document.getElementById("passcode-synced-at");
@@ -872,6 +929,10 @@ function showPasscodeView(message) {
 function hidePasscodeView() {
   const view = document.getElementById("passcode-view");
   if (view) view.classList.add("hidden");
+  setHeaderHidden(false);
+  // mobile-profile-snippet is shown only on small screens, by its own sm:hidden
+  const snippet = document.getElementById("mobile-profile-snippet");
+  if (snippet && !state.isAuthenticated) snippet.classList.add("hidden");
 }
 
 // Resolves once the class content is available, or never - the passcode screen
@@ -923,6 +984,7 @@ function viewSampleInstead() {
 // it, and the sign-in screen there was a local form that accepted anything. Once
 // unlocked, go straight to the updates.
 async function enterClassBoard() {
+  if (!isSampleSession()) forgetSampleStudent();
   state.isAuthenticated = true;
   state.authToken = "class-board";
   state.currentUser = { username: "class", display_name: "Class" };
