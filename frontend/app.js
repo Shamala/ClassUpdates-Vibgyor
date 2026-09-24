@@ -829,27 +829,26 @@ function isSampleSession() {
   return viewingSample;
 }
 
-const DEMO_STUDENT_ID = "DEMO-G1F-001";
+// Until the sample stopped writing to storage, it saved the name a parent typed
+// against the board's own key: the two are both the "class" user. A name typed
+// at the sample and a name typed at the real board are identical once saved, so
+// there is no way to tell them apart afterwards and no way to delete only the
+// wrong one. Clearing the board's saved child once is the only honest remedy;
+// bump this and it happens again on every device, exactly once.
+const STUDENT_STORAGE_VERSION = "2";
+const STUDENT_STORAGE_VERSION_KEY = "vibgyor_student_storage_version";
+const BOARD_STUDENT_KEYS = ["vibgyor_parent_student", "vibgyor_student_for_class"];
 
-// A device that used the sample before this was fixed still has the demo child
-// saved against the board's own key. Drop it rather than show it as theirs.
-function forgetSampleStudent() {
-  const keys = ["vibgyor_parent_student", "vibgyor_student_for_class"];
-  keys.forEach((key) => {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      if (saved && saved.student_id === DEMO_STUDENT_ID) {
-        localStorage.removeItem(key);
-      }
-    } catch (e) {
-      // unreadable entry is no use to anyone
-      try {
-        localStorage.removeItem(key);
-      } catch (err) {}
+function migrateStudentStorage() {
+  try {
+    if (localStorage.getItem(STUDENT_STORAGE_VERSION_KEY) === STUDENT_STORAGE_VERSION) {
+      return;
     }
-  });
+    // Only the board's own keys: a name saved against a real sign-in lives under
+    // vibgyor_student_for_<email> and is nobody's mistake.
+    BOARD_STUDENT_KEYS.forEach((key) => localStorage.removeItem(key));
+    localStorage.setItem(STUDENT_STORAGE_VERSION_KEY, STUDENT_STORAGE_VERSION);
+  } catch (e) {}
 }
 
 function fromBase64(value) {
@@ -984,7 +983,6 @@ function viewSampleInstead() {
 // it, and the sign-in screen there was a local form that accepted anything. Once
 // unlocked, go straight to the updates.
 async function enterClassBoard() {
-  if (!isSampleSession()) forgetSampleStudent();
   state.isAuthenticated = true;
   state.authToken = "class-board";
   state.currentUser = { username: "class", display_name: "Class" };
@@ -1072,6 +1070,7 @@ function renderSyncStamp() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  migrateStudentStorage();
   initTheme();
   initPWA();
   setupEventListeners();
