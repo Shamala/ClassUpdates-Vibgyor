@@ -757,6 +757,40 @@ function togglePasswordVisibility() {
   pwdInput.type = pwdInput.type === "password" ? "text" : "password";
 }
 
+// A class passcode is typed from a WhatsApp message, often one-handed with a
+// child in tow, and a wrong character just says it is wrong. Being able to see
+// what you typed is the difference between a second attempt and giving up.
+function togglePasscodeVisibility() {
+  const input = document.getElementById("passcode-input");
+  const button = document.getElementById("toggle-passcode-btn");
+  const eyeOpen = document.getElementById("passcode-eye-open");
+  const eyeClosed = document.getElementById("passcode-eye-closed");
+  if (!input) return;
+
+  const revealing = input.type === "password";
+  input.type = revealing ? "text" : "password";
+
+  if (eyeOpen) eyeOpen.classList.toggle("hidden", revealing);
+  if (eyeClosed) eyeClosed.classList.toggle("hidden", !revealing);
+
+  if (button) {
+    const label = revealing ? "Hide passcode" : "Show passcode";
+    button.setAttribute("aria-label", label);
+    button.setAttribute("aria-pressed", String(revealing));
+    button.title = label;
+  }
+
+  // Tapping the icon moves focus off the field; put the caret back where it was
+  // so typing can carry on uninterrupted.
+  const caret = input.value.length;
+  input.focus();
+  try {
+    input.setSelectionRange(caret, caret);
+  } catch (e) {
+    // setSelectionRange is not allowed on every input type in every browser
+  }
+}
+
 // --- PWA Installation & Service Worker Registration ---
 let deferredInstallPrompt = null;
 
@@ -3517,3 +3551,4 @@ window.handleLoginSubmit = handleLoginSubmit;
 window.handleDemoLogin = handleDemoLogin;
 window.handleLogout = handleLogout;
 window.togglePasswordVisibility = togglePasswordVisibility;
+window.togglePasscodeVisibility = togglePasscodeVisibility;
