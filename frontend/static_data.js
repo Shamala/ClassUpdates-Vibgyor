@@ -92,19 +92,6 @@ window.VIBGYOR_STATIC_DATA = {
       "homework_count": 1,
       "completed_homework_count": 0,
       "has_pending_homework": true
-    },
-    {
-      "date": "2026-09-17",
-      "display_date": "17/09/2026",
-      "grade": "Grade - 1F",
-      "words_of_the_day": [
-        "apple",
-        "river"
-      ],
-      "words_raw": "apple,river",
-      "homework_count": 1,
-      "completed_homework_count": 0,
-      "has_pending_homework": true
     }
   ],
   "daily": {
@@ -1230,196 +1217,6 @@ window.VIBGYOR_STATIC_DATA = {
           "completed_at": null
         }
       ]
-    },
-    "2026-09-17": {
-      "id": 7,
-      "student_id": "CLASS",
-      "date": "2026-09-17",
-      "display_date": "17/09/2026",
-      "grade": "Grade - 1F",
-      "words_of_the_day": [
-        "apple",
-        "river"
-      ],
-      "words_raw": "apple,river",
-      "teacher_note": "Sample teacher note for the demo dashboard.",
-      "source_pdf": "sample.pdf",
-      "total_periods": 10,
-      "homework_count": 1,
-      "completed_homework_count": 0,
-      "all_homework_completed": false,
-      "periods": [
-        {
-          "id": 61,
-          "update_id": 7,
-          "date": "2026-09-17",
-          "period_number": 1,
-          "subject": "Assembly",
-          "topic": "Sample topic",
-          "sub_topic": "Sample sub-topic",
-          "cw": "NIL",
-          "reinforcement": "NIL",
-          "submission_date": "NIL",
-          "submission_date_iso": null,
-          "skill_assessed": "NIL",
-          "is_homework": false,
-          "is_completed": false,
-          "completed_at": null
-        },
-        {
-          "id": 62,
-          "update_id": 7,
-          "date": "2026-09-17",
-          "period_number": 2,
-          "subject": "Language Arts",
-          "topic": "Sample topic",
-          "sub_topic": "Sample sub-topic",
-          "cw": "NIL",
-          "reinforcement": "NIL",
-          "submission_date": "NIL",
-          "submission_date_iso": null,
-          "skill_assessed": "NIL",
-          "is_homework": false,
-          "is_completed": false,
-          "completed_at": null
-        },
-        {
-          "id": 63,
-          "update_id": 7,
-          "date": "2026-09-17",
-          "period_number": 3,
-          "subject": "Language Arts",
-          "topic": "Sample topic",
-          "sub_topic": "Sample sub-topic",
-          "cw": "NIL",
-          "reinforcement": "NIL",
-          "submission_date": "NIL",
-          "submission_date_iso": null,
-          "skill_assessed": "NIL",
-          "is_homework": false,
-          "is_completed": false,
-          "completed_at": null
-        },
-        {
-          "id": 64,
-          "update_id": 7,
-          "date": "2026-09-17",
-          "period_number": 4,
-          "subject": "Mathematics",
-          "topic": "Sample topic",
-          "sub_topic": "Sample sub-topic",
-          "cw": "Sample class work",
-          "reinforcement": "Sample homework",
-          "submission_date": "23/09/2026",
-          "submission_date_iso": "2026-09-23",
-          "skill_assessed": "Sample skill",
-          "is_homework": true,
-          "is_completed": false,
-          "completed_at": null
-        },
-        {
-          "id": 65,
-          "update_id": 7,
-          "date": "2026-09-17",
-          "period_number": 5,
-          "subject": "SPA",
-          "topic": "Sample topic",
-          "sub_topic": "Sample sub-topic",
-          "cw": "NIL",
-          "reinforcement": "NIL",
-          "submission_date": "NIL",
-          "submission_date_iso": null,
-          "skill_assessed": "NIL",
-          "is_homework": false,
-          "is_completed": false,
-          "completed_at": null
-        },
-        {
-          "id": 66,
-          "update_id": 7,
-          "date": "2026-09-17",
-          "period_number": 6,
-          "subject": "SPA",
-          "topic": "Sample topic",
-          "sub_topic": "Sample sub-topic",
-          "cw": "NIL",
-          "reinforcement": "NIL",
-          "submission_date": "NIL",
-          "submission_date_iso": null,
-          "skill_assessed": "NIL",
-          "is_homework": false,
-          "is_completed": false,
-          "completed_at": null
-        },
-        {
-          "id": 67,
-          "update_id": 7,
-          "date": "2026-09-17",
-          "period_number": 7,
-          "subject": "Art",
-          "topic": "Sample topic",
-          "sub_topic": "Sample sub-topic",
-          "cw": "NIL",
-          "reinforcement": "NIL",
-          "submission_date": "NIL",
-          "submission_date_iso": null,
-          "skill_assessed": "NIL",
-          "is_homework": false,
-          "is_completed": false,
-          "completed_at": null
-        },
-        {
-          "id": 68,
-          "update_id": 7,
-          "date": "2026-09-17",
-          "period_number": 8,
-          "subject": "Art",
-          "topic": "Sample topic",
-          "sub_topic": "Sample sub-topic",
-          "cw": "NIL",
-          "reinforcement": "NIL",
-          "submission_date": "NIL",
-          "submission_date_iso": null,
-          "skill_assessed": "NIL",
-          "is_homework": false,
-          "is_completed": false,
-          "completed_at": null
-        },
-        {
-          "id": 69,
-          "update_id": 7,
-          "date": "2026-09-17",
-          "period_number": 9,
-          "subject": "English Literature",
-          "topic": "Sample topic",
-          "sub_topic": "Sample sub-topic",
-          "cw": "NIL",
-          "reinforcement": "NIL",
-          "submission_date": "NIL",
-          "submission_date_iso": null,
-          "skill_assessed": "NIL",
-          "is_homework": false,
-          "is_completed": false,
-          "completed_at": null
-        },
-        {
-          "id": 70,
-          "update_id": 7,
-          "date": "2026-09-17",
-          "period_number": 10,
-          "subject": "Social Science",
-          "topic": "Sample topic",
-          "sub_topic": "Sample sub-topic",
-          "cw": "NIL",
-          "reinforcement": "NIL",
-          "submission_date": "NIL",
-          "submission_date_iso": null,
-          "skill_assessed": "NIL",
-          "is_homework": false,
-          "is_completed": false,
-          "completed_at": null
-        }
-      ]
     }
   },
   "weekly": {
@@ -2488,15 +2285,6 @@ window.VIBGYOR_STATIC_DATA = {
       "is_read": false
     },
     {
-      "id": 5,
-      "title": "Sample circular",
-      "category": "Events",
-      "publish_date": "2026-09-10",
-      "file_url": "",
-      "summary": "Sample circular summary for the demo dashboard.",
-      "is_read": false
-    },
-    {
       "id": 4,
       "title": "Sample circular",
       "category": "Events",
@@ -2506,7 +2294,7 @@ window.VIBGYOR_STATIC_DATA = {
       "is_read": false
     },
     {
-      "id": 6,
+      "id": 5,
       "title": "Sample circular",
       "category": "Sports",
       "publish_date": "2026-08-29",
@@ -2515,7 +2303,7 @@ window.VIBGYOR_STATIC_DATA = {
       "is_read": false
     },
     {
-      "id": 7,
+      "id": 6,
       "title": "Sample circular",
       "category": "Events",
       "publish_date": "2026-08-12",
@@ -2524,5 +2312,5 @@ window.VIBGYOR_STATIC_DATA = {
       "is_read": false
     }
   ],
-  "synced_at": "2026-09-25T14:40:12+00:00"
+  "synced_at": "2026-09-26T13:47:33+00:00"
 };
