@@ -8,6 +8,7 @@ import json
 import os
 import re
 import urllib.request
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 try:
@@ -36,6 +37,68 @@ from backend.student_profile import (
 # Usernames that intentionally bypass the portal. Kept deliberately small: each one
 # is an account anybody can sign in to without a password.
 DEMO_IDENTITIES = {"demo", "demo@vibgyor.com"}
+
+IST = timezone(timedelta(hours=5, minutes=30))
+MONTHS = {
+    name: number
+    for number, names in enumerate(
+        [("jan", "january"), ("feb", "february"), ("mar", "march"), ("apr", "april"),
+         ("may",), ("jun", "june"), ("jul", "july"), ("aug", "august"),
+         ("sep", "sept", "september"), ("oct", "october"), ("nov", "november"),
+         ("dec", "december")],
+        start=1,
+    )
+    for name in names
+}
+
+
+def _posted_date(item: Dict[str, Any]) -> Optional[str]:
+    """The day the school posted this on the portal, as YYYY-MM-DD in IST.
+
+    published_date is the portal's own calendar date (stored as midnight UTC), so
+    its date part is taken as is; created_at is a real UTC instant and is moved
+    to IST first, or a post before 05:30 IST would land on the previous day.
+    """
+    published = str(item.get("published_date") or "")
+    if re.match(r"^\d{4}-\d{2}-\d{2}", published):
+        return published[:10]
+    created = str(item.get("created_at") or "")
+    try:
+        instant = datetime.fromisoformat(created.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if instant.tzinfo is None:
+        instant = instant.replace(tzinfo=timezone.utc)
+    return instant.astimezone(IST).date().isoformat()
+
+
+def _filename_date(name: str, year: int) -> Optional[str]:
+    """Reads the day from names like 1_F_28_th_September_... or 1F_29th_September_..."""
+    for match in re.finditer(r"(?<!\d)(\d{1,2})_?(?:st|nd|rd|th)?_([A-Za-z]+)", name):
+        month = MONTHS.get(match.group(2).lower())
+        if not month:
+            continue
+        try:
+            return datetime(year, month, int(match.group(1))).date().isoformat()
+        except ValueError:
+            return None
+    return None
+
+
+def class_update_date(item: Dict[str, Any], file_name: str, parsed: Dict[str, Any]) -> Optional[str]:
+    """Which day a class update belongs to.
+
+    The date printed inside the PDF is typed by the teacher and is sometimes
+    wrong (the 28 September update said 26/09/2026), so the portal's posting
+    date wins, then the date in the file name, and the PDF's own date only when
+    neither is available.
+    """
+    posted = _posted_date(item)
+    if posted:
+        return posted
+    year = int((parsed.get("date") or "")[:4] or datetime.now(IST).year)
+    return _filename_date(file_name, year) or parsed.get("date")
+
 
 CHROME_PATHS = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -284,6 +347,11 @@ def run_orion_browser_sync(
                 if os.path.exists(dest_path) and os.path.getsize(dest_path) > 0:
                     try:
                         parsed = parse_vibgyor_pdf(dest_path)
+                        if parsed:
+                            day = class_update_date(item, clean_name, parsed)
+                            if day and day != parsed.get("date"):
+                                parsed["date"] = day
+                                parsed["display_date"] = datetime.fromisoformat(day).strftime("%d/%m/%Y")
                         if parsed and parsed.get("date"):
                             upsert_class_update(parsed, source_pdf=clean_name, db_path=db_path)
                     except Exception as p_err:
