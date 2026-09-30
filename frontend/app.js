@@ -1928,6 +1928,8 @@ function renderActiveHomeworkSection(periods) {
         ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-xs font-semibold px-2.5 py-0.5 rounded-full"
         : "bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-xs font-semibold px-2.5 py-0.5 rounded-full";
   }
+  // Sort completed items last so that pending homework appears first in the list
+  uniqueHomework.sort((a, b) => a.is_completed - b.is_completed);
 
   const cardsHtml = uniqueHomework
     .map(
