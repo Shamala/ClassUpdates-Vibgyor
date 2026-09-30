@@ -319,7 +319,11 @@ function submitStudentName(event) {
     );
   }
   renderStudentProfile();
-  showToast(`Updated student name to ${state.student.name} \u2b50`, "success", 3000);
+  showToast(
+    `Updated student name to ${state.student.name} \u2b50`,
+    "success",
+    3000,
+  );
 }
 
 // --- View Controls (Login vs Dashboard) ---
@@ -430,10 +434,7 @@ async function checkAuth() {
       if (data.authenticated) {
         state.isAuthenticated = true;
         state.currentUser = data.user;
-        applyStudentProfile(
-          data.student,
-          data.user ? data.user.username : "",
-        );
+        applyStudentProfile(data.student, data.user ? data.user.username : "");
         showDashboardView();
         renderStudentProfile();
         await loadAvailableDates();
@@ -837,7 +838,11 @@ function initPWA() {
       deferredInstallPrompt.prompt();
       const { outcome } = await deferredInstallPrompt.userChoice;
       if (outcome === "accepted") {
-        showToast("Installing ClassUpdates to your device! 🎉", "success", 4000);
+        showToast(
+          "Installing ClassUpdates to your device! 🎉",
+          "success",
+          4000,
+        );
       }
       deferredInstallPrompt = null;
       installBtn.classList.add("hidden");
@@ -870,7 +875,8 @@ function initPWA() {
   });
 
   // If on iOS and not standalone, show the install button with iOS instructions
-  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isIos =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if (isIos && !isStandalone) {
     installBtn.classList.remove("hidden");
     installBtn.classList.add("flex");
@@ -905,11 +911,17 @@ function isSampleSession() {
 // bump this and it happens again on every device, exactly once.
 const STUDENT_STORAGE_VERSION = "2";
 const STUDENT_STORAGE_VERSION_KEY = "vibgyor_student_storage_version";
-const BOARD_STUDENT_KEYS = ["vibgyor_parent_student", "vibgyor_student_for_class"];
+const BOARD_STUDENT_KEYS = [
+  "vibgyor_parent_student",
+  "vibgyor_student_for_class",
+];
 
 function migrateStudentStorage() {
   try {
-    if (localStorage.getItem(STUDENT_STORAGE_VERSION_KEY) === STUDENT_STORAGE_VERSION) {
+    if (
+      localStorage.getItem(STUDENT_STORAGE_VERSION_KEY) ===
+      STUDENT_STORAGE_VERSION
+    ) {
       return;
     }
     // Only the board's own keys: a name saved against a real sign-in lives under
@@ -1066,7 +1078,8 @@ async function enterClassBoard() {
   if (signOutBtn) {
     const label = signOutBtn.querySelector("span");
     if (label) label.textContent = "Lock";
-    signOutBtn.title = "Lock the board on this device and ask for the passcode again";
+    signOutBtn.title =
+      "Lock the board on this device and ask for the passcode again";
   }
 
   showDashboardView();
@@ -1097,7 +1110,9 @@ async function handlePasscodeSubmit(event) {
     hidePasscodeView();
     await enterClassBoard();
   } catch (err) {
-    showPasscodeView("That passcode does not match. Check with the class parent who shared it.");
+    showPasscodeView(
+      "That passcode does not match. Check with the class parent who shared it.",
+    );
   } finally {
     if (button) {
       button.disabled = false;
@@ -1670,8 +1685,7 @@ async function triggerManualSync(options = {}) {
     // credentials. After a reload they are gone from memory and we ask again.
     if (!sessionCredentials) {
       if (isAuto) return;
-      const username =
-        (state.currentUser && state.currentUser.username) || "";
+      const username = (state.currentUser && state.currentUser.username) || "";
       const password = username
         ? prompt(`Enter the Hubble Orion password for ${username} to sync:`)
         : null;
@@ -1733,8 +1747,7 @@ function renderStudentProfile() {
   const mobMeta = document.getElementById("mobile-student-meta");
 
   const isDemo = state.student.student_id === "DEMO-G1F-001";
-  const isPlaceholder =
-    !isDemo && isPlaceholderStudentName(state.student.name);
+  const isPlaceholder = !isDemo && isPlaceholderStudentName(state.student.name);
   const displayName = isPlaceholder ? "Add student name" : state.student.name;
 
   if (nameEl) {
@@ -1952,12 +1965,8 @@ function renderActiveHomeworkSection(periods) {
                 }
               </div>
               <h4 class="font-bold text-slate-900 dark:text-white mt-2 text-base ${p.is_completed ? "line-through text-slate-400 dark:text-slate-500" : ""}">
-                ${p.topic}
+                ${p.topic} : ${p.reinforcement}
               </h4>
-              <div class="mt-1 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/60 rounded-xl p-3 text-sm text-slate-700 dark:text-slate-200 font-medium">
-                <div class="text-xs font-semibold text-slate-400 dark:text-slate-400 uppercase mb-1">Homework Task (RWSH)</div>
-                ${p.reinforcement}
-              </div>
             </div>
           </div>
           <div>
@@ -2256,7 +2265,7 @@ function renderPeriodsTable(periods) {
               ? `<div class="mt-2 bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl p-3 text-xs space-y-2">
                   <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                    Homework Task (RWSH)
+                    Homework (RWSH)
                   </div>
                   ${g.homeworkList
                     .map(
@@ -2859,7 +2868,9 @@ async function speakForSpelling(word) {
   const synth = window.speechSynthesis;
   synth.cancel(); // no overlapping audio if the button is tapped twice
 
-  const cleaned = String(word).trim().replace(/[.\s]+$/, "");
+  const cleaned = String(word)
+    .trim()
+    .replace(/[.\s]+$/, "");
   if (!cleaned) return;
   const spoken = PRONUNCIATION_OVERRIDES[cleaned.toLowerCase()] || cleaned;
 
@@ -2892,7 +2903,8 @@ async function speakForSpelling(word) {
     };
 
     const fallBackToLocal = () => {
-      if (usedFallback || isFallback || !localVoice || localVoice === voice) return;
+      if (usedFallback || isFallback || !localVoice || localVoice === voice)
+        return;
       usedFallback = true;
       synth.cancel();
       speakWith(localVoice, true);
