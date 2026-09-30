@@ -68,15 +68,16 @@ ago, so you are never reading stale homework without knowing it.
 ## Running Locally
 
 ### Quick Start
-Start the server with the launcher script:
+Start the server with the launcher script, which builds the page first:
 
 ```bash
 ./start.sh
 ```
 
-Or directly using Python:
+Or build and run it yourself:
 
 ```bash
+npm run build
 ./venv/bin/python -m backend.main 8000
 ```
 
@@ -93,6 +94,7 @@ Then open **[http://localhost:8000](http://localhost:8000)** in your browser.
 # Set up virtual environment and dependencies
 python3 -m venv venv
 ./venv/bin/python -m pip install -r requirements.txt
+npm install    # Vite, Svelte and Tailwind, which build the page
 
 # (Optional) Download Playwright browser for portal sync
 ./venv/bin/python -m playwright install chromium
@@ -101,12 +103,13 @@ python3 -m venv venv
 ./start.sh
 ```
 
-### Rebuilding Styles (Tailwind CSS)
-The compiled stylesheet (`frontend/tailwind.css`) is already pre-built and included, so Node.js is **not required** just to run the app. If you modify any utility classes in the HTML/JS:
+### Building the Page (Vite, Svelte, Tailwind)
+The page is compiled by Vite into `dist/`, so Node.js is **required**: parts of it are Svelte components, which a browser cannot run until they are compiled. `./start.sh` does this for you.
 
 ```bash
-npm run build:css    # Rebuild once
-npm run watch:css    # Auto-rebuild on file save
+npm run build        # Stylesheet + page, into dist/
+npm run dev          # Live-reloading page at http://localhost:5173 (run the Python server too, for the API)
+npm run watch:css    # Auto-rebuild the stylesheet on file save
 ```
 
 ### Running Tests

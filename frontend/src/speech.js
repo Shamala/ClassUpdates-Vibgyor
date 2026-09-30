@@ -2,7 +2,7 @@
  * Pronunciation for the spelling flashcards (Web Speech API).
  */
 
-import { showToast } from "./toast.js";
+import { showToast } from "./toast.svelte.js";
 
 // --- Pronunciation (Web Speech API) ---
 //

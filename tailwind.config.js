@@ -8,7 +8,11 @@ module.exports = {
   // Scanned as plain text, so every utility must appear as a literal string.
   // The dashboard builds its markup in template literals with the class names
   // written out in full, which this picks up.
-  content: ["./frontend/index.html", "./frontend/app.js"],
+  content: [
+    "./frontend/index.html",
+    "./frontend/app.js",
+    "./frontend/src/**/*.{js,svelte}",
+  ],
   theme: {
     extend: {
       fontFamily: {
