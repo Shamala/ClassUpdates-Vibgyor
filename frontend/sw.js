@@ -3,7 +3,7 @@
 // Provides 100% offline capability, instant loading & asset caching
 // =====================================================================
 
-const CACHE_NAME = "vibgyor-pwa-v23";
+const CACHE_NAME = "vibgyor-pwa-v25";
 
 const PRECACHE_ASSETS = [
   "./",
@@ -11,6 +11,13 @@ const PRECACHE_ASSETS = [
   "./tailwind.css",
   "./style.css",
   "./app.js",
+  "./src/subjects.js",
+  "./src/format.js",
+  "./src/toast.js",
+  "./src/speech.js",
+  "./src/state.js",
+  "./src/api.js",
+  "./src/storage.js",
   "./static_data.js",
   "./class_data.enc.js",
   "./manifest.json",
@@ -21,7 +28,20 @@ const PRECACHE_ASSETS = [
 
 // Served from the network whenever it can be reached, because these three move
 // together and a mismatched pair changes what the page does, not just how it looks.
-const FRESH_FIRST = ["/app.js", "/class_data.enc.js", "/static_data.js"];
+const FRESH_FIRST = [
+  "/app.js",
+  "/class_data.enc.js",
+  "/static_data.js",
+  // app.js is split across these; a page served fresh alongside stale modules
+  // is the same mismatch, just harder to spot.
+  "/src/subjects.js",
+  "/src/format.js",
+  "/src/toast.js",
+  "/src/speech.js",
+  "/src/state.js",
+  "/src/api.js",
+  "/src/storage.js",
+];
 
 // --- Install Event: Pre-cache core shell ---
 // cache.addAll rejects as a unit: one asset that 404s fails the whole install,

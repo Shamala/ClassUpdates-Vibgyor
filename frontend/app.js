@@ -1,99 +1,36 @@
 /**
  * VIBGYOR Class Updates - Parent Dashboard Application
  */
-
-const API_BASE = "";
-const ORION_APP_URL = "https://hubbleorion.hubblehox.com/";
-
-// Application State
-const state = {
-  currentTab: "daily",
-  selectedDate: null,
-  availableDates: [],
-  student: null,
-  dailyData: null,
-  weeklyData: null,
-  circulars: [],
-  selectedCircularCategory: "all",
-  circularSearchTerm: "",
-  isSyncing: false,
-  isAuthenticated: false,
-  authToken: localStorage.getItem("orion_auth_token") || "",
-  currentUser: null,
-};
-
-const wordModalState = {
-  mode: "bank", // 'bank' or 'drill'
-  drillIndex: 0,
-  drillWords: [],
-  isWordHidden: false,
-  collapsedWeeks: {}, // mondayKey: boolean
-};
-
-function getAuthHeaders(extraHeaders = {}) {
-  const headers = { ...extraHeaders };
-  if (state.authToken) {
-    headers["Authorization"] = `Bearer ${state.authToken}`;
-  }
-  return headers;
-}
-
-// --- Client-Side Static Mode Helpers (for GitHub Pages & Offline Use) ---
-
-// Lets the published board be previewed against the local server, which
-// otherwise runs as the publisher's own tool and shows the portal sign-in.
-// Setting window.__FORCE_STATIC_MODE by hand cannot do this: a reload starts a
-// fresh page and the flag is gone before the boot reads it. Remembered for the
-// tab so reloads keep the preview; "?board=0" ends it.
-const BOARD_PREVIEW_KEY = "vibgyor_board_preview";
-
-function boardPreviewRequested() {
-  try {
-    const asked = new URLSearchParams(window.location.search).get("board");
-    if (asked !== null) {
-      const on = asked !== "0" && asked !== "false";
-      if (on) sessionStorage.setItem(BOARD_PREVIEW_KEY, "1");
-      else sessionStorage.removeItem(BOARD_PREVIEW_KEY);
-      return on;
-    }
-    return sessionStorage.getItem(BOARD_PREVIEW_KEY) === "1";
-  } catch (e) {
-    return false;
-  }
-}
-
-function isStaticMode() {
-  return (
-    window.location.hostname.endsWith("github.io") ||
-    window.location.protocol === "file:" ||
-    Boolean(window.__FORCE_STATIC_MODE) ||
-    boardPreviewRequested()
-  );
-}
-
-function getStaticData() {
-  return window.VIBGYOR_STATIC_DATA || null;
-}
-
-function getStoredCompletedHwIds() {
-  try {
-    const raw = localStorage.getItem("vibgyor_completed_hw_ids");
-    if (!raw) return new Set();
-    const arr = JSON.parse(raw);
-    return new Set(arr.map(Number));
-  } catch (e) {
-    return new Set();
-  }
-}
-
-function saveStoredCompletedHwIds(set) {
-  try {
-    localStorage.setItem(
-      "vibgyor_completed_hw_ids",
-      JSON.stringify(Array.from(set)),
-    );
-  } catch (e) {}
-}
+import {
+  getCanonicalSubject,
+  getSubjectHeaderClass,
+  getSubjectBadgeClass,
+  getCircularCategoryBadge,
+} from "./src/subjects.js";
+import { formatDatePretty, getDayName } from "./src/format.js";
+import { showToast, dismissToast } from "./src/toast.js";
+import { toInlineArg, speakForSpelling, speakWord } from "./src/speech.js";
+import {
+  API_BASE,
+  ORION_APP_URL,
+  state,
+  wordModalState,
+  DEMO_STUDENT,
+  GENERIC_STUDENT_FIELDS,
+} from "./src/state.js";
+import {
+  getAuthHeaders,
+  isStaticMode,
+  getStaticData,
+  decryptClassData,
+} from "./src/api.js";
+import {
+  getStoredCompletedHwIds,
+  saveStoredCompletedHwIds,
+  getSavedStudentForUser,
+  PASSCODE_STORAGE_KEY,
+  migrateStudentStorage,
+} from "./src/storage.js";
 
 // --- Theme Management (Dark / Light Mode) ---
 function initTheme() {
@@ -161,18 +98,6 @@ function updateThemeToggleIcon(isDark) {
 // localStorage, never persisted by the server, and is gone on reload.
 let sessionCredentials = null;
 
-const DEMO_STUDENT = {
-  id: 1,
-  student_id: "DEMO-G1F-001",
-  name: "Demo Student",
-  grade: "Grade 1",
-  section: "F",
-  school: "VIBGYOR High (Demo)",
-  academic_year: "2026 - 27",
-  roll_no: "01",
-  parent_name: "Demo Parent",
-};
-
 function hashCode(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -190,27 +115,6 @@ function isPlaceholderStudentName(name) {
   const n = String(name).trim().toLowerCase();
   if (!n || n === "student" || n === "n/a" || n === "-") return true;
   return n.includes("'s ward");
-}
-
-// What the app shows when nothing better is known about the student.
-const GENERIC_STUDENT_FIELDS = {
-  grade: "Grade 1",
-  section: "F",
-  school: "VIBGYOR High",
-  academic_year: "2026 - 27",
-};
-
-function getSavedStudentForUser(username) {
-  const u = (username || "").trim().toLowerCase();
-  if (!u) return null;
-  try {
-    const saved = localStorage.getItem("vibgyor_student_for_" + u);
-    if (!saved) return null;
-    const parsed = JSON.parse(saved);
-    return parsed && parsed.name ? parsed : null;
-  } catch (e) {
-    return null;
-  }
 }
 
 // Server profiles win on grade/section/school, but a name the parent set locally
@@ -884,12 +788,6 @@ function initPWA() {
 }
 
 // --- Initialization ---
-// --- Class passcode (published board only) ---
-//
-// The published class content is encrypted with the class passcode, so fetching
-// the data file directly yields ciphertext rather than the diary. The passcode
-// is never sent anywhere: it stays in this browser and only derives the key.
-const PASSCODE_STORAGE_KEY = "vibgyor_class_passcode";
 
 // True when showing the sample bundle to someone without the passcode. The real
 // refresh time must not be displayed over sample content.
@@ -901,66 +799,6 @@ let viewingSample = false;
 // would greet them after they entered the passcode.
 function isSampleSession() {
   return viewingSample;
-}
-
-// Until the sample stopped writing to storage, it saved the name a parent typed
-// against the board's own key: the two are both the "class" user. A name typed
-// at the sample and a name typed at the real board are identical once saved, so
-// there is no way to tell them apart afterwards and no way to delete only the
-// wrong one. Clearing the board's saved child once is the only honest remedy;
-// bump this and it happens again on every device, exactly once.
-const STUDENT_STORAGE_VERSION = "2";
-const STUDENT_STORAGE_VERSION_KEY = "vibgyor_student_storage_version";
-const BOARD_STUDENT_KEYS = [
-  "vibgyor_parent_student",
-  "vibgyor_student_for_class",
-];
-
-function migrateStudentStorage() {
-  try {
-    if (
-      localStorage.getItem(STUDENT_STORAGE_VERSION_KEY) ===
-      STUDENT_STORAGE_VERSION
-    ) {
-      return;
-    }
-    // Only the board's own keys: a name saved against a real sign-in lives under
-    // vibgyor_student_for_<email> and is nobody's mistake.
-    BOARD_STUDENT_KEYS.forEach((key) => localStorage.removeItem(key));
-    localStorage.setItem(STUDENT_STORAGE_VERSION_KEY, STUDENT_STORAGE_VERSION);
-  } catch (e) {}
-}
-
-function fromBase64(value) {
-  return Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
-}
-
-async function decryptClassData(passcode, blob) {
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(passcode),
-    "PBKDF2",
-    false,
-    ["deriveKey"],
-  );
-  const key = await crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt: fromBase64(blob.salt),
-      iterations: blob.iterations,
-      hash: "SHA-256",
-    },
-    baseKey,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["decrypt"],
-  );
-  const plain = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: fromBase64(blob.iv) },
-    key,
-    fromBase64(blob.ciphertext),
-  );
-  return JSON.parse(new TextDecoder().decode(plain));
 }
 
 // Nothing in the header works before the board is unlocked: the date list has
@@ -2764,180 +2602,6 @@ function prepareDrillWords(scope = "this_week") {
   wordModalState.isWordHidden = false;
 }
 
-// --- Pronunciation (Web Speech API) ---
-//
-// The drill words are standard storybook English, never proper nouns, so en-US is
-// always the right target. Regional voices (en-IN, en-GB, en-AU) differ on exactly
-// the vowels a child is learning to spell, so they are a last resort.
-const SPEECH_LANG = "en-US";
-
-// Novelty and character voices that some platforms still list, including the macOS
-// Eddy / Flo / Grandma / Reed / Rocko family. Several are en-US and one is even the
-// system default, so without this they outrank the voice you actually want.
-const UNUSABLE_VOICE_PATTERN =
-  /\b(albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|eddy|flo|fred|good news|grandma|grandpa|hysterical|jester|junior|kathy|organ|ralph|reed|rocko|sandy|shelley|superstar|trinoids|whisper|wobble|zarvox|eloquence)\b/i;
-
-// Markers vendors use for their neural / high-quality voices.
-const NATURAL_VOICE_PATTERN = /natural|neural|premium|enhanced|siri/i;
-
-// Known-clear general-purpose voices, so the winner is deterministic rather than
-// whichever acceptable voice the platform happened to list first.
-const PREFERRED_VOICE_PATTERN =
-  /\b(samantha|alex|ava|allison|susan|nicky|tom|aaron|evan|joelle|noelle|zoe|google us english|zira|david|aria|jenny|guy|andrew|emma)\b/i;
-
-// A single word gives the engine no context, so homographs ("read", "lead", "live",
-// "tear", "bow", "wind") get the engine's most frequent reading, which may not be
-// the one the story used. No rate or voice setting can fix that, because it is a
-// word-sense choice rather than an audio-quality one. Respell a word here to force
-// the intended reading, e.g. read: "reed".
-const PRONUNCIATION_OVERRIDES = {};
-
-// Storybook words can contain an apostrophe ("don't"), which breaks a single-quoted
-// inline handler. Emit the argument as a double-quoted JS string with the quotes
-// entity-encoded, so the HTML parser hands the handler back a correct literal.
-function toInlineArg(value) {
-  return JSON.stringify(String(value)).replace(/"/g, "&quot;");
-}
-
-let voicesLoadedPromise = null;
-
-function getVoicesAsync() {
-  const synth = window.speechSynthesis;
-  const ready = synth.getVoices();
-  if (ready.length) return Promise.resolve(ready);
-
-  if (!voicesLoadedPromise) {
-    voicesLoadedPromise = new Promise((resolve) => {
-      let settled = false;
-      const finish = () => {
-        if (settled) return;
-        settled = true;
-        resolve(synth.getVoices());
-      };
-      if (synth.addEventListener) {
-        synth.addEventListener("voiceschanged", finish, { once: true });
-      }
-      // Safari and some Android builds never fire voiceschanged
-      setTimeout(finish, 1000);
-    });
-  }
-  return voicesLoadedPromise;
-}
-
-function scoreVoice(voice, preferLocal) {
-  if (UNUSABLE_VOICE_PATTERN.test(voice.name)) return -Infinity;
-
-  const lang = (voice.lang || "").replace("_", "-");
-  let score;
-  if (lang === SPEECH_LANG) score = 100;
-  else if (lang.startsWith("en")) score = 20;
-  else return -Infinity; // never read English words with a non-English voice
-
-  if (NATURAL_VOICE_PATTERN.test(voice.name)) score += 40;
-  if (PREFERRED_VOICE_PATTERN.test(voice.name)) score += 25;
-
-  // localService === false means the browser ships the text to a server and streams
-  // the audio back. That is a better voice when it works, but it is silent when the
-  // parent is offline, which this PWA explicitly supports. An on-device voice
-  // therefore wins any tie, and is the only candidate at all when offline.
-  if (voice.localService) score += preferLocal ? 60 : 20;
-  else if (preferLocal) return -Infinity;
-
-  if (voice.default) score += 5;
-  return score;
-}
-
-function pickVoice(voices, preferLocal) {
-  let best = null;
-  let bestScore = -Infinity;
-  voices.forEach((voice) => {
-    const score = scoreVoice(voice, preferLocal);
-    if (score > bestScore) {
-      bestScore = score;
-      best = voice;
-    }
-  });
-  return best;
-}
-
-async function speakForSpelling(word) {
-  if (!word) return;
-  if (!("speechSynthesis" in window)) {
-    showToast("Pronunciation audio not supported on this browser", "info");
-    return;
-  }
-
-  const synth = window.speechSynthesis;
-  synth.cancel(); // no overlapping audio if the button is tapped twice
-
-  const cleaned = String(word)
-    .trim()
-    .replace(/[.\s]+$/, "");
-  if (!cleaned) return;
-  const spoken = PRONUNCIATION_OVERRIDES[cleaned.toLowerCase()] || cleaned;
-
-  const voices = await getVoicesAsync();
-  // navigator.onLine only reports whether an interface exists, so it is a hint, not
-  // a guarantee; the watchdog below is what actually catches a dead network voice.
-  const offline = navigator.onLine === false;
-  const localVoice = pickVoice(voices, true);
-  const firstChoice = pickVoice(voices, offline) || localVoice;
-
-  let usedFallback = false;
-
-  const speakWith = (voice, isFallback) => {
-    // A bare word makes some engines use list intonation; a terminal period gives
-    // the falling contour of a finished utterance, which sounds less clipped.
-    const utterance = new SpeechSynthesisUtterance(spoken + ".");
-    utterance.lang = SPEECH_LANG;
-    // 0.85 keeps each phoneme distinct for spelling practice without the dragged,
-    // slurred quality that rates below ~0.8 produce on most engines.
-    utterance.rate = 0.85;
-    // Shifting pitch moves the formants too, which is what makes a voice sound
-    // synthetic. Natural pitch is clearer for a child than a "friendlier" one.
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-    if (voice) utterance.voice = voice;
-
-    let started = false;
-    utterance.onstart = () => {
-      started = true;
-    };
-
-    const fallBackToLocal = () => {
-      if (usedFallback || isFallback || !localVoice || localVoice === voice)
-        return;
-      usedFallback = true;
-      synth.cancel();
-      speakWith(localVoice, true);
-    };
-
-    utterance.onerror = (event) => {
-      if (event && event.error === "canceled") return;
-      fallBackToLocal();
-    };
-
-    synth.speak(utterance);
-
-    // Chrome can leave the queue paused after a cancel()
-    if (synth.paused) synth.resume();
-
-    // A network voice that never starts fails silently: no audio, no error. If
-    // nothing has begun by now, retry on-device rather than leave the parent
-    // tapping a button that does nothing.
-    if (!voice || !voice.localService) {
-      setTimeout(() => {
-        if (!started) fallBackToLocal();
-      }, 2500);
-    }
-  };
-
-  speakWith(firstChoice, false);
-}
-
-// Backwards compatibility alias
-const speakWord = speakForSpelling;
-
 function toggleWordReveal() {
   wordModalState.isWordHidden = !wordModalState.isWordHidden;
   renderWordModalContent();
@@ -3380,147 +3044,6 @@ function renderWordModalContent() {
       </div>
     `;
   }
-}
-
-// --- Helpers ---
-function getCanonicalSubject(rawSubj) {
-  if (!rawSubj) return "General";
-  let s = rawSubj.trim();
-  // Strip trailing (S), (s), (Support), (Spoken)
-  s = s.replace(/\s*\([Ss](?:upport|poken)?\)\s*$/i, "").trim();
-  if (/^computer(s)?$/i.test(s)) return "Computers";
-  if (/^skill programm?e$/i.test(s)) return "Skill Program";
-  if (/^literature$/i.test(s)) return "English Literature";
-  return s;
-}
-
-function getSubjectHeaderClass(subject) {
-  const s = (subject || "").toLowerCase();
-  if (s.includes("math")) return "subject-header-math";
-  if (
-    s.includes("english") ||
-    s.includes("language") ||
-    s.includes("literature")
-  )
-    return "subject-header-english";
-  if (s.includes("science")) return "subject-header-science";
-  if (s.includes("robotics")) return "subject-header-robotics";
-  if (s.includes("kannada")) return "subject-header-kannada";
-  if (s.includes("hindi")) return "subject-header-hindi";
-  if (s.includes("spa") || s.includes("art") || s.includes("physical"))
-    return "subject-header-spa";
-  if (s.includes("computer")) return "subject-header-computers";
-  return "subject-header-default";
-}
-
-function getSubjectBadgeClass(subject) {
-  const s = (subject || "").toLowerCase();
-  if (s.includes("math")) return "subject-badge-math";
-  if (
-    s.includes("english") ||
-    s.includes("language") ||
-    s.includes("literature")
-  )
-    return "subject-badge-english";
-  if (s.includes("science")) return "subject-badge-science";
-  if (s.includes("robotics")) return "subject-badge-robotics";
-  if (s.includes("kannada")) return "subject-badge-kannada";
-  if (s.includes("hindi")) return "subject-badge-hindi";
-  if (s.includes("spa") || s.includes("art") || s.includes("physical"))
-    return "subject-badge-spa";
-  if (s.includes("computer")) return "subject-badge-computers";
-  return "subject-badge-default";
-}
-
-function getCircularCategoryBadge(cat) {
-  const c = (cat || "").toLowerCase();
-  if (c.includes("acad"))
-    return "bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/50";
-  if (c.includes("sport"))
-    return "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/50";
-  if (c.includes("event"))
-    return "bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border border-purple-200/50 dark:border-purple-800/50";
-  return "bg-slate-100 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200 border border-slate-200/50 dark:border-slate-600/50";
-}
-
-function formatDatePretty(isoDate) {
-  if (!isoDate) return "";
-  try {
-    const parts = isoDate.split("-");
-    const d = new Date(parts[0], parts[1] - 1, parts[2]);
-    return d.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
-  } catch (e) {
-    return isoDate;
-  }
-}
-
-function getDayName(isoDate) {
-  if (!isoDate) return "";
-  try {
-    const parts = isoDate.split("-");
-    const d = new Date(parts[0], parts[1] - 1, parts[2]);
-    return d.toLocaleDateString("en-US", { weekday: "long" });
-  } catch (e) {
-    return "";
-  }
-}
-
-let toastTimer = null;
-let toastHideTimer = null;
-
-function showToast(message, type = "info", duration = 5000) {
-  const toast = document.getElementById("toast");
-  if (!toast) return;
-
-  if (toastTimer) clearTimeout(toastTimer);
-  if (toastHideTimer) clearTimeout(toastHideTimer);
-
-  const bgClasses = {
-    success: "bg-emerald-600 text-white shadow-emerald-900/30",
-    warning: "bg-amber-600 text-white shadow-amber-900/30",
-    error: "bg-rose-600 text-white shadow-rose-900/30",
-    info: "bg-indigo-600 text-white shadow-indigo-900/30",
-  };
-
-  const icons = {
-    success: `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`,
-    warning: `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`,
-    error: `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`,
-    info: `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
-  };
-
-  toast.className = `fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 font-medium text-sm transition-all duration-300 ${
-    bgClasses[type] || bgClasses.info
-  }`;
-  toast.innerHTML = `
-    ${icons[type] || icons.info}
-    <span class="flex-1">${message}</span>
-    <button onclick="dismissToast()" class="ml-2 -mr-1 p-1 hover:bg-white/20 rounded-lg transition-colors cursor-pointer" title="Dismiss">
-      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-    </button>
-  `;
-
-  toast.classList.remove("hidden");
-  void toast.offsetWidth; // Force reflow
-  toast.classList.remove("opacity-0", "translate-y-4");
-
-  toastTimer = setTimeout(() => {
-    toast.classList.add("opacity-0", "translate-y-4");
-    toastHideTimer = setTimeout(() => toast.classList.add("hidden"), 300);
-  }, duration);
-}
-
-function dismissToast() {
-  const toast = document.getElementById("toast");
-  if (!toast) return;
-  if (toastTimer) clearTimeout(toastTimer);
-  if (toastHideTimer) clearTimeout(toastHideTimer);
-  toast.classList.add("opacity-0", "translate-y-4");
-  toastHideTimer = setTimeout(() => toast.classList.add("hidden"), 300);
 }
 
 // Global exposure for inline events

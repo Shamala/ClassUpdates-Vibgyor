@@ -356,6 +356,13 @@ if HAS_FASTAPI:
     if os.path.exists(FRONTEND_DIR):
         app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
+        # app.js is an ES module importing from ./src/. The stdlib server below
+        # serves anything under frontend/, so this path only matters when FastAPI
+        # is installed - without it the imports 404 and the page does nothing.
+        src_dir = os.path.join(FRONTEND_DIR, "src")
+        if os.path.isdir(src_dir):
+            app.mount("/src", StaticFiles(directory=src_dir), name="src")
+
     @app.get("/tailwind.css")
     def serve_tailwind_css():
         return FileResponse(os.path.join(FRONTEND_DIR, "tailwind.css"), media_type="text/css")
