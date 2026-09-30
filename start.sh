@@ -24,6 +24,15 @@ if [ -f ".env" ]; then
     fi
 fi
 
+# The page is compiled by Vite (Svelte components + bundled JS) into dist/.
+echo "Building the page..."
+if command -v npm >/dev/null 2>&1; then
+    [ -d node_modules ] || npm install
+    npm run build --silent
+else
+    echo "⚠️  npm not found: the page cannot be built, only the API will work."
+fi
+
 echo "Initializing database and seeding latest updates..."
 $PYTHON_BIN -m backend.database
 

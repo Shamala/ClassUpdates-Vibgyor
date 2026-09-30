@@ -47,5 +47,6 @@ Thumbs.db
 .idea/
 *.swp
 
-# Node tooling (only needed to rebuild the stylesheet)
+# Node tooling, and the site it builds (npm run build)
 node_modules/
+dist/

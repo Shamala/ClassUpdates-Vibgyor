@@ -116,11 +116,31 @@ It is being migrated to **Svelte 5** in phases, each one shipping on its own:
    storage, api, speech, format, subjects and toast. The `load*` functions stay
    in `app.js` for now because each one ends by calling a renderer; they move
    when Phases 2–3 replace those renderers.
-1. Add Vite, mount one leaf component beside the vanilla app.
+1. Add Vite, mount one leaf component beside the vanilla app. **Done:** the
+   toast strip is `src/Toast.svelte`, with its state in `src/toast.svelte.js`.
+   `src/main.js` is the entry point: it starts `app.js`, then mounts the Svelte
+   parts. See **Build** below.
 2. Daily Diary.
 3. Weekly, Circulars, flashcards.
 4. Shell: header, tabs, modals. Delete the vanilla renderers.
 5. Remove dead code, teach the service worker about hashed filenames, update docs.
+
+### Build
+
+`npm run build` compiles the page into `dist/`, which is what GitHub Pages
+publishes. The page in `frontend/` no longer runs as it is.
+
+- Vite bundles `src/main.js` and everything it imports into `dist/assets/app.js`.
+  The name is fixed rather than hashed so the service worker's precache list
+  stays valid; hashed names come in Phase 5.
+- Everything else is copied unchanged (see `VERBATIM` in `vite.config.mjs`):
+  the stylesheets, service worker, manifest, icons and both data files. Their
+  tags in `index.html` carry `vite-ignore` so Vite does not rename them.
+- The local Python server takes `index.html` and `assets/` from `dist/`, and
+  everything else from `frontend/`, so a sync's fresh data files are served
+  without rebuilding.
+- `npm run dev` serves the page with live reload on port 5173 and forwards
+  `/api` to the Python server on 8000.
 
 Two things to watch: hashed asset names break the service worker's precache
 list, and the GitHub Pages base path needs to be set in the Vite config.
@@ -155,7 +175,7 @@ colours, the rainbow strip and the scrollbar handling.
 ClassUpdates-Vibgyor/
 ├── .github/
 │   └── workflows/
-│       ├── deploy.yml    # Publishes frontend/ to GitHub Pages on every push to main
+│       ├── deploy.yml    # Builds and publishes dist/ to GitHub Pages on every push to main
 │       └── sync.yml      # Daily unattended Orion sync, publish and deploy
 ├── docs/
 │   └── DEVELOPMENT.md    # This file
@@ -176,7 +196,8 @@ ClassUpdates-Vibgyor/
 ├── frontend/
 │   ├── index.html        # Modern Tailwind parent dashboard
 │   ├── tailwind.css      # Compiled Tailwind (generated - do not edit by hand)
-│   ├── app.js            # Client-side reactivity & API / localStorage integration
+│   ├── app.js            # The vanilla dashboard, being migrated to Svelte
+│   ├── src/              # main.js (entry), Svelte components, and modules split out of app.js
 │   ├── class_data.enc.js # Class content, encrypted with the class passcode
 │   ├── static_data.js    # Sanitised sample dataset (the "See a sample" view)
 │   ├── style.css         # Custom tokens & rainbow accent strip
@@ -195,7 +216,8 @@ ClassUpdates-Vibgyor/
 │   ├── test_scheduled_sync.py  # Nothing scraped may reach a public build log
 │   └── test_student_profile.py # Profile extraction from portal pages and APIs
 ├── .env.example
-├── package.json          # Stylesheet build only; the app ships no JS bundler
+├── package.json          # npm run build / dev
+├── vite.config.mjs       # Builds frontend/ into dist/
 ├── tailwind.config.js
 ├── requirements.txt
 ├── start.sh
@@ -212,12 +234,13 @@ ClassUpdates-Vibgyor/
 python3 -m venv venv
 ./venv/bin/python -m pip install -r requirements.txt
 ./venv/bin/python -m playwright install chromium
-npm ci && npm run build:css
+npm ci
 ```
 
-`frontend/tailwind.css` is committed, so the site runs without Node; the last
-line is only needed if you change the markup. **Rebuild after editing classes in
-`index.html` or `app.js`** — Tailwind emits only the utilities it finds there, so
+Node is required: the page is compiled by Vite (see **Build** above), and
+`./start.sh` runs `npm run build` before starting the server.
+`frontend/tailwind.css` is committed, but **rebuild after editing classes in
+`index.html`, `app.js` or `src/`** — Tailwind emits only the utilities it finds there, so
 a class added without a rebuild simply will not style. `npm run watch:css`
 rebuilds as you type. Both publishing workflows rebuild it too, so what is
 deployed can never lag behind the markup.
@@ -238,9 +261,10 @@ Run the launcher script:
 ./start.sh
 ```
 
-Or run directly with Python:
+Or build and run it yourself:
 
 ```bash
+npm run build
 python3 -m backend.main 8000
 ```
 

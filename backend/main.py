@@ -35,6 +35,16 @@ from backend.publish import auto_publish_enabled, publish_class_board
 # Project paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+# `npm run build` compiles the page into dist/. Only its index.html and assets/
+# are taken from there: everything else, including the data files a sync
+# rewrites, is served from frontend/ so it is never a stale copy.
+DIST_DIR = os.path.join(BASE_DIR, "dist")
+
+
+def built_index_path() -> str:
+    """The compiled page if it has been built, else the source (which cannot run)."""
+    built = os.path.join(DIST_DIR, "index.html")
+    return built if os.path.exists(built) else os.path.join(FRONTEND_DIR, "index.html")
 
 
 def resolve_circular_path(filename: str) -> Optional[str]:
@@ -356,12 +366,10 @@ if HAS_FASTAPI:
     if os.path.exists(FRONTEND_DIR):
         app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
-        # app.js is an ES module importing from ./src/. The stdlib server below
-        # serves anything under frontend/, so this path only matters when FastAPI
-        # is installed - without it the imports 404 and the page does nothing.
-        src_dir = os.path.join(FRONTEND_DIR, "src")
-        if os.path.isdir(src_dir):
-            app.mount("/src", StaticFiles(directory=src_dir), name="src")
+        # The bundled script the compiled page loads.
+        assets_dir = os.path.join(DIST_DIR, "assets")
+        if os.path.isdir(assets_dir):
+            app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
     @app.get("/tailwind.css")
     def serve_tailwind_css():
@@ -400,7 +408,7 @@ if HAS_FASTAPI:
 
     @app.get("/")
     def serve_root():
-        index_path = os.path.join(FRONTEND_DIR, "index.html")
+        index_path = built_index_path()
         if os.path.exists(index_path):
             return FileResponse(index_path)
         return {"message": "VIBGYOR Class Updates Backend Active"}
@@ -534,8 +542,7 @@ class VibgyorHTTPRequestHandler(BaseHTTPRequestHandler):
 
         # Static file handling
         if path in ("/", "/index.html"):
-            index_path = os.path.join(FRONTEND_DIR, "index.html")
-            return self._send_file(index_path)
+            return self._send_file(built_index_path())
 
         # Remove /static/ prefix if present
         clean_path = path
@@ -544,7 +551,8 @@ class VibgyorHTTPRequestHandler(BaseHTTPRequestHandler):
         elif clean_path.startswith("/"):
             clean_path = clean_path[1:]
 
-        file_candidate = os.path.join(FRONTEND_DIR, clean_path)
+        base_dir = DIST_DIR if clean_path.startswith("assets/") else FRONTEND_DIR
+        file_candidate = os.path.join(base_dir, clean_path)
         if os.path.exists(file_candidate) and os.path.isfile(file_candidate):
             return self._send_file(file_candidate)
 

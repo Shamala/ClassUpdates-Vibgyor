@@ -8,7 +8,7 @@ import {
   getCircularCategoryBadge,
 } from "./src/subjects.js";
 import { formatDatePretty, getDayName } from "./src/format.js";
-import { showToast, dismissToast } from "./src/toast.js";
+import { showToast } from "./src/toast.svelte.js";
 import { toInlineArg, speakForSpelling, speakWord } from "./src/speech.js";
 import {
   API_BASE,
@@ -3067,7 +3067,6 @@ window.prevWordPractice = prevWordPractice;
 window.nextWordPractice = nextWordPractice;
 window.shuffleDrillWords = shuffleDrillWords;
 window.toggleTheme = toggleTheme;
-window.dismissToast = dismissToast;
 window.filterCirculars = (cat) => {
   state.selectedCircularCategory = cat;
   document.querySelectorAll("[data-circ-cat]").forEach((btn) => {

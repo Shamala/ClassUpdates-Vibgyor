@@ -84,15 +84,6 @@ jobs:
           node-version: "22"
           cache: "npm"
 
-      # The stylesheet is compiled from the classes actually used in the markup,
-      # so it has to be rebuilt whenever that markup changes. Building here means
-      # the published CSS can never lag behind the page it styles.
-      - name: Build stylesheet
-        if: steps.sync.outputs.published == 'true'
-        run: |
-          npm ci
-          npm run build:css
-
       - name: Setup Pages
         if: steps.sync.outputs.published == 'true'
         uses: actions/configure-pages@v6
@@ -103,11 +94,21 @@ jobs:
           GOATCOUNTER_CODE: ${{ secrets.GOATCOUNTER_CODE }}
         run: python3 scripts/inject_analytics.py
 
+      # Tailwind compiles the stylesheet from the classes used in the markup, and
+      # Vite compiles the Svelte components and bundles the JavaScript. The page
+      # in frontend/ does not run without this; dist/ is what gets published.
+      # Analytics goes in first because it edits the source index.html.
+      - name: Build site
+        if: steps.sync.outputs.published == 'true'
+        run: |
+          npm ci
+          npm run build
+
       - name: Upload Pages artifact
         if: steps.sync.outputs.published == 'true'
         uses: actions/upload-pages-artifact@v5
         with:
-          path: 'frontend'
+          path: 'dist'
 
       - name: Deploy to GitHub Pages
         if: steps.sync.outputs.published == 'true'
