@@ -3,7 +3,7 @@
 // Provides 100% offline capability, instant loading & asset caching
 // =====================================================================
 
-const CACHE_NAME = "vibgyor-pwa-v24";
+const CACHE_NAME = "vibgyor-pwa-v25";
 
 const PRECACHE_ASSETS = [
   "./",
@@ -15,6 +15,9 @@ const PRECACHE_ASSETS = [
   "./src/format.js",
   "./src/toast.js",
   "./src/speech.js",
+  "./src/state.js",
+  "./src/api.js",
+  "./src/storage.js",
   "./static_data.js",
   "./class_data.enc.js",
   "./manifest.json",
@@ -35,6 +38,9 @@ const FRESH_FIRST = [
   "/src/format.js",
   "/src/toast.js",
   "/src/speech.js",
+  "/src/state.js",
+  "/src/api.js",
+  "/src/storage.js",
 ];
 
 // --- Install Event: Pre-cache core shell ---

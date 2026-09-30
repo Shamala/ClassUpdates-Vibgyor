@@ -10,100 +10,27 @@ import {
 import { formatDatePretty, getDayName } from "./src/format.js";
 import { showToast, dismissToast } from "./src/toast.js";
 import { toInlineArg, speakForSpelling, speakWord } from "./src/speech.js";
-
-
-const API_BASE = "";
-const ORION_APP_URL = "https://hubbleorion.hubblehox.com/";
-
-// Application State
-const state = {
-  currentTab: "daily",
-  selectedDate: null,
-  availableDates: [],
-  student: null,
-  dailyData: null,
-  weeklyData: null,
-  circulars: [],
-  selectedCircularCategory: "all",
-  circularSearchTerm: "",
-  isSyncing: false,
-  isAuthenticated: false,
-  authToken: localStorage.getItem("orion_auth_token") || "",
-  currentUser: null,
-};
-
-const wordModalState = {
-  mode: "bank", // 'bank' or 'drill'
-  drillIndex: 0,
-  drillWords: [],
-  isWordHidden: false,
-  collapsedWeeks: {}, // mondayKey: boolean
-};
-
-function getAuthHeaders(extraHeaders = {}) {
-  const headers = { ...extraHeaders };
-  if (state.authToken) {
-    headers["Authorization"] = `Bearer ${state.authToken}`;
-  }
-  return headers;
-}
-
-// --- Client-Side Static Mode Helpers (for GitHub Pages & Offline Use) ---
-
-// Lets the published board be previewed against the local server, which
-// otherwise runs as the publisher's own tool and shows the portal sign-in.
-// Setting window.__FORCE_STATIC_MODE by hand cannot do this: a reload starts a
-// fresh page and the flag is gone before the boot reads it. Remembered for the
-// tab so reloads keep the preview; "?board=0" ends it.
-const BOARD_PREVIEW_KEY = "vibgyor_board_preview";
-
-function boardPreviewRequested() {
-  try {
-    const asked = new URLSearchParams(window.location.search).get("board");
-    if (asked !== null) {
-      const on = asked !== "0" && asked !== "false";
-      if (on) sessionStorage.setItem(BOARD_PREVIEW_KEY, "1");
-      else sessionStorage.removeItem(BOARD_PREVIEW_KEY);
-      return on;
-    }
-    return sessionStorage.getItem(BOARD_PREVIEW_KEY) === "1";
-  } catch (e) {
-    return false;
-  }
-}
-
-function isStaticMode() {
-  return (
-    window.location.hostname.endsWith("github.io") ||
-    window.location.protocol === "file:" ||
-    Boolean(window.__FORCE_STATIC_MODE) ||
-    boardPreviewRequested()
-  );
-}
-
-function getStaticData() {
-  return window.VIBGYOR_STATIC_DATA || null;
-}
-
-function getStoredCompletedHwIds() {
-  try {
-    const raw = localStorage.getItem("vibgyor_completed_hw_ids");
-    if (!raw) return new Set();
-    const arr = JSON.parse(raw);
-    return new Set(arr.map(Number));
-  } catch (e) {
-    return new Set();
-  }
-}
-
-function saveStoredCompletedHwIds(set) {
-  try {
-    localStorage.setItem(
-      "vibgyor_completed_hw_ids",
-      JSON.stringify(Array.from(set)),
-    );
-  } catch (e) {}
-}
+import {
+  API_BASE,
+  ORION_APP_URL,
+  state,
+  wordModalState,
+  DEMO_STUDENT,
+  GENERIC_STUDENT_FIELDS,
+} from "./src/state.js";
+import {
+  getAuthHeaders,
+  isStaticMode,
+  getStaticData,
+  decryptClassData,
+} from "./src/api.js";
+import {
+  getStoredCompletedHwIds,
+  saveStoredCompletedHwIds,
+  getSavedStudentForUser,
+  PASSCODE_STORAGE_KEY,
+  migrateStudentStorage,
+} from "./src/storage.js";
 
 // --- Theme Management (Dark / Light Mode) ---
 function initTheme() {
@@ -171,18 +98,6 @@ function updateThemeToggleIcon(isDark) {
 // localStorage, never persisted by the server, and is gone on reload.
 let sessionCredentials = null;
 
-const DEMO_STUDENT = {
-  id: 1,
-  student_id: "DEMO-G1F-001",
-  name: "Demo Student",
-  grade: "Grade 1",
-  section: "F",
-  school: "VIBGYOR High (Demo)",
-  academic_year: "2026 - 27",
-  roll_no: "01",
-  parent_name: "Demo Parent",
-};
-
 function hashCode(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -200,27 +115,6 @@ function isPlaceholderStudentName(name) {
   const n = String(name).trim().toLowerCase();
   if (!n || n === "student" || n === "n/a" || n === "-") return true;
   return n.includes("'s ward");
-}
-
-// What the app shows when nothing better is known about the student.
-const GENERIC_STUDENT_FIELDS = {
-  grade: "Grade 1",
-  section: "F",
-  school: "VIBGYOR High",
-  academic_year: "2026 - 27",
-};
-
-function getSavedStudentForUser(username) {
-  const u = (username || "").trim().toLowerCase();
-  if (!u) return null;
-  try {
-    const saved = localStorage.getItem("vibgyor_student_for_" + u);
-    if (!saved) return null;
-    const parsed = JSON.parse(saved);
-    return parsed && parsed.name ? parsed : null;
-  } catch (e) {
-    return null;
-  }
 }
 
 // Server profiles win on grade/section/school, but a name the parent set locally
@@ -894,12 +788,6 @@ function initPWA() {
 }
 
 // --- Initialization ---
-// --- Class passcode (published board only) ---
-//
-// The published class content is encrypted with the class passcode, so fetching
-// the data file directly yields ciphertext rather than the diary. The passcode
-// is never sent anywhere: it stays in this browser and only derives the key.
-const PASSCODE_STORAGE_KEY = "vibgyor_class_passcode";
 
 // True when showing the sample bundle to someone without the passcode. The real
 // refresh time must not be displayed over sample content.
@@ -911,66 +799,6 @@ let viewingSample = false;
 // would greet them after they entered the passcode.
 function isSampleSession() {
   return viewingSample;
-}
-
-// Until the sample stopped writing to storage, it saved the name a parent typed
-// against the board's own key: the two are both the "class" user. A name typed
-// at the sample and a name typed at the real board are identical once saved, so
-// there is no way to tell them apart afterwards and no way to delete only the
-// wrong one. Clearing the board's saved child once is the only honest remedy;
-// bump this and it happens again on every device, exactly once.
-const STUDENT_STORAGE_VERSION = "2";
-const STUDENT_STORAGE_VERSION_KEY = "vibgyor_student_storage_version";
-const BOARD_STUDENT_KEYS = [
-  "vibgyor_parent_student",
-  "vibgyor_student_for_class",
-];
-
-function migrateStudentStorage() {
-  try {
-    if (
-      localStorage.getItem(STUDENT_STORAGE_VERSION_KEY) ===
-      STUDENT_STORAGE_VERSION
-    ) {
-      return;
-    }
-    // Only the board's own keys: a name saved against a real sign-in lives under
-    // vibgyor_student_for_<email> and is nobody's mistake.
-    BOARD_STUDENT_KEYS.forEach((key) => localStorage.removeItem(key));
-    localStorage.setItem(STUDENT_STORAGE_VERSION_KEY, STUDENT_STORAGE_VERSION);
-  } catch (e) {}
-}
-
-function fromBase64(value) {
-  return Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
-}
-
-async function decryptClassData(passcode, blob) {
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(passcode),
-    "PBKDF2",
-    false,
-    ["deriveKey"],
-  );
-  const key = await crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt: fromBase64(blob.salt),
-      iterations: blob.iterations,
-      hash: "SHA-256",
-    },
-    baseKey,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["decrypt"],
-  );
-  const plain = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: fromBase64(blob.iv) },
-    key,
-    fromBase64(blob.ciphertext),
-  );
-  return JSON.parse(new TextDecoder().decode(plain));
 }
 
 // Nothing in the header works before the board is unlocked: the date list has
@@ -3217,9 +3045,6 @@ function renderWordModalContent() {
     `;
   }
 }
-
-
-
 
 // Global exposure for inline events
 window.switchTab = switchTab;

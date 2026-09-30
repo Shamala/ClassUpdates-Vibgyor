@@ -112,7 +112,10 @@ interleaved, which is the readability cost — not the line count.
 It is being migrated to **Svelte 5** in phases, each one shipping on its own:
 
 0. Split `app.js` into modules (state, storage, api, speech, format). No
-   framework, no behaviour change.
+   framework, no behaviour change. **Done:** `frontend/src/` holds state,
+   storage, api, speech, format, subjects and toast. The `load*` functions stay
+   in `app.js` for now because each one ends by calling a renderer; they move
+   when Phases 2–3 replace those renderers.
 1. Add Vite, mount one leaf component beside the vanilla app.
 2. Daily Diary.
 3. Weekly, Circulars, flashcards.
