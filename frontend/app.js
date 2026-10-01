@@ -17,7 +17,7 @@ import {
   wordModalState,
   DEMO_STUDENT,
   GENERIC_STUDENT_FIELDS,
-} from "./src/state.js";
+} from "./src/state.svelte.js";
 import {
   getAuthHeaders,
   isStaticMode,

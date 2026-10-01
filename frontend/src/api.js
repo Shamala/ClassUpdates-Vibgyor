@@ -1,7 +1,7 @@
 /**
  * Where the dashboard's data comes from: the backend, or the static bundle.
  */
-import { state } from "./state.js";
+import { state } from "./state.svelte.js";
 
 function getAuthHeaders(extraHeaders = {}) {
   const headers = { ...extraHeaders };

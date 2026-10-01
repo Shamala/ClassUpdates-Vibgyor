@@ -1,12 +1,22 @@
 /**
  * The dashboard's shared state and the constants read alongside it.
+ *
+ * `state` is reactive ($state, which is why this file is .svelte.js). The
+ * vanilla code in app.js assigns to it exactly as before, and any Svelte
+ * component that reads a property redraws when that property changes. That is
+ * the bridge that lets the page move to Svelte one section at a time.
+ *
+ * Objects assigned into it are wrapped in a proxy, not copied by reference:
+ * `state.student = DEMO_STUDENT` does not make later edits to state.student
+ * change DEMO_STUDENT. structuredClone() cannot copy a proxy; use
+ * $state.snapshot() or JSON if a plain copy is ever needed.
  */
 
 const API_BASE = "";
 const ORION_APP_URL = "https://hubbleorion.hubblehox.com/";
 
 // Application State
-const state = {
+const state = $state({
   currentTab: "daily",
   selectedDate: null,
   availableDates: [],
@@ -20,7 +30,7 @@ const state = {
   isAuthenticated: false,
   authToken: localStorage.getItem("orion_auth_token") || "",
   currentUser: null,
-};
+});
 
 const wordModalState = {
   mode: "bank", // 'bank' or 'drill'
