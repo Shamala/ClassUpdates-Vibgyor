@@ -6,5 +6,7 @@
 import { mount } from "svelte";
 import "../app.js";
 import Toast from "./Toast.svelte";
+import WordsHero from "./daily/WordsHero.svelte";
 
 mount(Toast, { target: document.getElementById("toast") });
+mount(WordsHero, { target: document.getElementById("hero-words-container") });

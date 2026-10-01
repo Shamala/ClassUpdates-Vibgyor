@@ -1676,9 +1676,6 @@ function renderDailyView() {
   const data = state.dailyData;
   if (!data) return;
 
-  // 1. Hero Widget: Word of the Day
-  renderWordOfTheDayHero(data.words_of_the_day);
-
   // 2. Active Homework Checklist
   renderActiveHomeworkSection(data.periods);
 
@@ -1687,35 +1684,6 @@ function renderDailyView() {
 
   // 4. Periods & Classwork Timetable
   renderPeriodsTable(data.periods);
-}
-
-function renderWordOfTheDayHero(words) {
-  const container = document.getElementById("hero-words-container");
-  if (!container) return;
-
-  if (!words || words.length === 0) {
-    container.innerHTML = `
-      <div class="text-white/80 italic text-sm">No special vocabulary words recorded for today.</div>
-    `;
-    return;
-  }
-
-  const chipsHtml = words
-    .map(
-      (w) => `
-      <div class="word-chip px-5 py-3 rounded-2xl flex flex-col items-center shadow-sm">
-        <span class="text-2xl sm:text-3xl font-extrabold tracking-wide uppercase text-white">${w}</span>
-        <span class="text-xs text-indigo-100 font-medium tracking-normal mt-1">Dictation Prep</span>
-      </div>
-    `,
-    )
-    .join("");
-
-  container.innerHTML = `
-    <div class="flex flex-wrap gap-4 items-center">
-      ${chipsHtml}
-    </div>
-  `;
 }
 
 function renderActiveHomeworkSection(periods) {
