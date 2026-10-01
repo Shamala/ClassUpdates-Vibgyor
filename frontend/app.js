@@ -1676,122 +1676,8 @@ function renderDailyView() {
   const data = state.dailyData;
   if (!data) return;
 
-  // 2. Active Homework Checklist
-  renderActiveHomeworkSection(data.periods);
-
   // 4. Periods & Classwork Timetable
   renderPeriodsTable(data.periods);
-}
-
-function renderActiveHomeworkSection(periods) {
-  const container = document.getElementById("homework-container");
-  const countBadge = document.getElementById("hw-count-badge");
-  if (!container) return;
-
-  const homeworkPeriods = (periods || []).filter((p) => p.is_homework);
-
-  if (homeworkPeriods.length === 0) {
-    if (countBadge) {
-      countBadge.textContent = "0/0 Done";
-      countBadge.className =
-        "bg-slate-100 dark:bg-slate-700/60 text-slate-500 text-xs font-semibold px-2.5 py-0.5 rounded-full";
-    }
-    container.innerHTML = `
-      <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 text-center shadow-sm">
-        <div class="inline-flex p-3 bg-emerald-50 dark:bg-emerald-950/60 rounded-full text-emerald-600 dark:text-emerald-400 mb-2">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-        </div>
-        <h4 class="font-bold text-slate-800 dark:text-white">No Homework Assigned Today!</h4>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">All classwork was completed in school. Enjoy reading time with your child!</p>
-      </div>
-    `;
-    return;
-  }
-
-  // Deduplicate identical homework on the same day if double period
-  const uniqueHomework = [];
-  const seenHw = new Set();
-  for (const p of homeworkPeriods) {
-    const subj = getCanonicalSubject(p.subject);
-    const key = `${subj.toLowerCase()}|${(p.reinforcement || "").toLowerCase()}`;
-    if (!seenHw.has(key)) {
-      seenHw.add(key);
-      uniqueHomework.push({ ...p, subject: subj });
-    }
-  }
-
-  if (countBadge) {
-    const completedCount = uniqueHomework.filter((p) => p.is_completed).length;
-    const totalCount = uniqueHomework.length;
-    countBadge.textContent = `${completedCount}/${totalCount} Done`;
-    countBadge.className =
-      totalCount > 0 && completedCount === totalCount
-        ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-xs font-semibold px-2.5 py-0.5 rounded-full"
-        : "bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-xs font-semibold px-2.5 py-0.5 rounded-full";
-  }
-  // Sort completed items last so that pending homework appears first in the list
-  uniqueHomework.sort((a, b) => a.is_completed - b.is_completed);
-
-  const cardsHtml = uniqueHomework
-    .map(
-      (p) => `
-      <div class="bg-white dark:bg-slate-800 border ${
-        p.is_completed
-          ? "border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/20 dark:bg-emerald-950/20"
-          : "border-slate-200 dark:border-slate-700"
-      } rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex items-start gap-3">
-            <input
-              type="checkbox"
-              id="hw-${p.id}"
-              class="hw-checkbox mt-1"
-              ${p.is_completed ? "checked" : ""}
-              onchange="toggleHomework(${p.id})"
-            />
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md ${getSubjectBadgeClass(
-                  p.subject,
-                )}">
-                  ${p.subject}
-                </span>
-                ${
-                  p.submission_date && p.submission_date.toUpperCase() !== "NIL"
-                    ? `<span class="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 text-xs font-semibold px-2 py-0.5 rounded-md flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        Due: ${p.submission_date}
-                      </span>`
-                    : ""
-                }
-              </div>
-              <h4 class="font-bold text-slate-900 dark:text-white mt-2 text-base ${p.is_completed ? "line-through text-slate-400 dark:text-slate-500" : ""}">
-                ${p.topic} : ${p.reinforcement}
-              </h4>
-            </div>
-          </div>
-          <div>
-            ${
-              p.is_completed
-                ? `<span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100/70 dark:bg-emerald-950/80 px-2.5 py-1 rounded-full">
-                    Completed ✓
-                  </span>`
-                : `<span class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-100/70 dark:bg-amber-950/80 px-2.5 py-1 rounded-full">
-                    Action Needed
-                  </span>`
-            }
-          </div>
-        </div>
-      </div>
-    `,
-    )
-    .join("");
-
-  container.innerHTML = `<div class="grid gap-4">${cardsHtml}</div>`;
 }
 
 function groupPeriodsBySubject(periods) {
@@ -2973,3 +2859,7 @@ window.handleDemoLogin = handleDemoLogin;
 window.handleLogout = handleLogout;
 window.togglePasswordVisibility = togglePasswordVisibility;
 window.togglePasscodeVisibility = togglePasscodeVisibility;
+
+// For the Svelte components, which call back into the vanilla code until the
+// functions they need have moved out of it.
+export { toggleHomework };

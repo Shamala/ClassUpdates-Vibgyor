@@ -8,6 +8,7 @@ import "../app.js";
 import Toast from "./Toast.svelte";
 import WordsHero from "./daily/WordsHero.svelte";
 import TeacherNote from "./daily/TeacherNote.svelte";
+import HomeworkList from "./daily/HomeworkList.svelte";
 
 mount(Toast, { target: document.getElementById("toast") });
 mount(WordsHero, { target: document.getElementById("hero-words-container") });
@@ -18,4 +19,5 @@ function mountAt(Component, slotId) {
   const slot = document.getElementById(slotId);
   mount(Component, { target: slot.parentNode, anchor: slot });
 }
+mountAt(HomeworkList, "homework-slot");
 mountAt(TeacherNote, "teacher-note-slot");
