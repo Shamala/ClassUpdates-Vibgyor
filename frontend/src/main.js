@@ -6,20 +6,15 @@
 import { mount } from "svelte";
 import "../app.js";
 import Toast from "./Toast.svelte";
-import WordsHero from "./daily/WordsHero.svelte";
-import TeacherNote from "./daily/TeacherNote.svelte";
-import HomeworkList from "./daily/HomeworkList.svelte";
-import PeriodsTable from "./daily/PeriodsTable.svelte";
+import DailyView from "./daily/DailyView.svelte";
 
-mount(Toast, { target: document.getElementById("toast") });
-mount(WordsHero, { target: document.getElementById("hero-words-container") });
-
-// Mounted before a placeholder rather than into a wrapper, so the section sits
-// directly in the Daily tab's spaced column as it did when it was static HTML.
+// Mounted before a placeholder rather than into a wrapper, so the component's
+// own root element sits where the static HTML used to, with nothing between it
+// and the layout around it.
 function mountAt(Component, slotId) {
   const slot = document.getElementById(slotId);
   mount(Component, { target: slot.parentNode, anchor: slot });
 }
-mountAt(HomeworkList, "homework-slot");
-mountAt(TeacherNote, "teacher-note-slot");
-mountAt(PeriodsTable, "periods-slot");
+
+mount(Toast, { target: document.getElementById("toast") });
+mountAt(DailyView, "view-daily-slot");

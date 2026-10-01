@@ -120,13 +120,18 @@ It is being migrated to **Svelte 5** in phases, each one shipping on its own:
    toast strip is `src/Toast.svelte`, with its state in `src/toast.svelte.js`.
    `src/main.js` is the entry point: it starts `app.js`, then mounts the Svelte
    parts. See **Build** below.
-2. Daily Diary. In six steps, one commit each, the page working after every
-   one. See **Phase 2 plan** below.
+2. Daily Diary. **Done:** the whole tab is `src/daily/DailyView.svelte` and
+   its four sections; see **Phase 2 plan** below.
 3. Weekly, Circulars, flashcards.
 4. Shell: header, tabs, modals. Delete the vanilla renderers.
 5. Remove dead code, teach the service worker about hashed filenames, update docs.
 
 ### Phase 2 plan: Daily Diary
+
+*Done, as planned.* The six steps are separate commits. Each was checked
+against a recording of the old page: identical visible text on all 13 sample
+dates, identical tick/untick behaviour, and pixel-identical light and dark
+screenshots.
 
 The Daily tab is four renderers in `app.js`, about 470 lines, each writing an
 `innerHTML` string into a fixed container: the words hero, the homework
@@ -234,6 +239,7 @@ ClassUpdates-Vibgyor/
 │   ├── tailwind.css      # Compiled Tailwind (generated - do not edit by hand)
 │   ├── app.js            # The vanilla dashboard, being migrated to Svelte
 │   ├── src/              # main.js (entry), Svelte components, and modules split out of app.js
+│   │   └── daily/        # The Daily Diary tab (Svelte) and its pure helpers
 │   ├── class_data.enc.js # Class content, encrypted with the class passcode
 │   ├── static_data.js    # Sanitised sample dataset (the "See a sample" view)
 │   ├── style.css         # Custom tokens & rainbow accent strip

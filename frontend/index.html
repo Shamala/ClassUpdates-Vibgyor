@@ -743,81 +743,8 @@
       </div>
 
       <!-- ==================== TAB 1: DAILY VIEW ==================== -->
-      <div id="view-daily" class="space-y-6">
-        <!-- Hero Section: Words of the Day Flashcard -->
-        <section
-          class="flashcard-gradient rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden"
-        >
-          <!-- Background subtle decorative shapes -->
-          <div
-            class="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none"
-          ></div>
-          <div
-            class="absolute -left-10 -top-10 w-48 h-48 rounded-full bg-indigo-400/20 blur-2xl pointer-events-none"
-          ></div>
-
-          <div
-            class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6"
-          >
-            <div>
-              <div
-                class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3"
-              >
-                <span
-                  class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"
-                ></span>
-                Surprise Dictation Prep
-              </div>
-              <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                Words of the Day
-              </h2>
-              <p class="text-indigo-100 text-xs sm:text-sm mt-1 max-w-xl">
-                VIBGYOR conducts continuous surprise dictations for Grade 1.
-                Help your child pronounce, spell, and form a sentence with these
-                words:
-              </p>
-            </div>
-
-            <!-- Action: View Word History -->
-            <button
-              id="word-history-btn"
-              class="self-start md:self-auto bg-white/10 hover:bg-white/25 border border-white/30 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2 transition-all cursor-pointer"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              Word History
-            </button>
-          </div>
-
-          <!-- Chips Container -->
-          <div id="hero-words-container" class="mt-6 relative z-10">
-            <!-- Drawn by src/daily/WordsHero.svelte -->
-          </div>
-        </section>
-
-        <!-- Section: Active Homework (RWSH), drawn here by
-             src/daily/HomeworkList.svelte -->
-        <template id="homework-slot"></template>
-
-        <!-- Section: Teacher's Note (Conditional), drawn here by
-             src/daily/TeacherNote.svelte -->
-        <template id="teacher-note-slot"></template>
-
-        <!-- Section: Periods 1 to 10 Timetable (CWSH), drawn here by
-             src/daily/PeriodsTable.svelte -->
-        <template id="periods-slot"></template>
-      </div>
+      <!-- Drawn here by src/daily/DailyView.svelte -->
+      <template id="view-daily-slot"></template>
 
       <!-- ==================== TAB 2: WEEKLY OVERVIEW ==================== -->
       <div id="view-weekly" class="hidden space-y-6">

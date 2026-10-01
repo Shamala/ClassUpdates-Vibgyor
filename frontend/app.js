@@ -3,8 +3,6 @@
  */
 import {
   getCanonicalSubject,
-  getSubjectHeaderClass,
-  getSubjectBadgeClass,
   getCircularCategoryBadge,
 } from "./src/subjects.js";
 import { formatDatePretty, getDayName } from "./src/format.js";
@@ -1044,12 +1042,8 @@ function setupEventListeners() {
   }
 
   // Word history modal toggle
-  const wordHistoryBtn = document.getElementById("word-history-btn");
   const wordModal = document.getElementById("word-modal");
   const closeWordModal = document.getElementById("close-word-modal");
-  if (wordHistoryBtn) {
-    wordHistoryBtn.addEventListener("click", openWordHistoryModal);
-  }
   if (closeWordModal) {
     closeWordModal.addEventListener("click", closeWordHistoryModal);
   }
@@ -1266,8 +1260,8 @@ function loadStaticDailyUpdate(date) {
     dailyCopy.has_pending_homework = hwPeriods.length > completedCount;
   }
 
+  // The Daily tab's Svelte components redraw from this on their own.
   state.dailyData = dailyCopy;
-  renderDailyView();
 }
 
 async function loadDailyUpdate(date) {
@@ -1288,7 +1282,6 @@ async function loadDailyUpdate(date) {
     );
     if (res.ok) {
       state.dailyData = await res.json();
-      renderDailyView();
       return;
     }
   } catch (err) {
@@ -1670,12 +1663,6 @@ function renderDateDropdown() {
   if (currentVal) {
     select.value = currentVal;
   }
-}
-
-function renderDailyView() {
-  const data = state.dailyData;
-  if (!data) return;
-
 }
 
 function renderWeeklyView() {
@@ -2614,4 +2601,4 @@ window.togglePasscodeVisibility = togglePasscodeVisibility;
 
 // For the Svelte components, which call back into the vanilla code until the
 // functions they need have moved out of it.
-export { toggleHomework };
+export { toggleHomework, openWordHistoryModal };
