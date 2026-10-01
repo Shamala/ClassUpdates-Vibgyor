@@ -9,6 +9,7 @@ import Toast from "./Toast.svelte";
 import WordsHero from "./daily/WordsHero.svelte";
 import TeacherNote from "./daily/TeacherNote.svelte";
 import HomeworkList from "./daily/HomeworkList.svelte";
+import PeriodsTable from "./daily/PeriodsTable.svelte";
 
 mount(Toast, { target: document.getElementById("toast") });
 mount(WordsHero, { target: document.getElementById("hero-words-container") });
@@ -21,3 +22,4 @@ function mountAt(Component, slotId) {
 }
 mountAt(HomeworkList, "homework-slot");
 mountAt(TeacherNote, "teacher-note-slot");
+mountAt(PeriodsTable, "periods-slot");
