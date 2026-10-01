@@ -120,10 +120,46 @@ It is being migrated to **Svelte 5** in phases, each one shipping on its own:
    toast strip is `src/Toast.svelte`, with its state in `src/toast.svelte.js`.
    `src/main.js` is the entry point: it starts `app.js`, then mounts the Svelte
    parts. See **Build** below.
-2. Daily Diary.
+2. Daily Diary. In six steps, one commit each, the page working after every
+   one. See **Phase 2 plan** below.
 3. Weekly, Circulars, flashcards.
 4. Shell: header, tabs, modals. Delete the vanilla renderers.
 5. Remove dead code, teach the service worker about hashed filenames, update docs.
+
+### Phase 2 plan: Daily Diary
+
+The Daily tab is four renderers in `app.js`, about 470 lines, each writing an
+`innerHTML` string into a fixed container: the words hero, the homework
+checklist, the teacher's note and the periods timetable. `renderDailyView()`
+calls all four whenever `state.dailyData` changes.
+
+**The bridge.** `state` becomes `$state` (moving to `src/state.svelte.js`). The
+vanilla code keeps assigning `state.dailyData = …` exactly as now, and any
+Svelte component reading it redraws on its own. That lets one section move at a
+time, with the old and new code side by side.
+
+| Step | What moves | Notes |
+|------|------------|-------|
+| 2a | `state` becomes reactive | No visible change. Proves vanilla writes reach Svelte. |
+| 2b | Words hero → `WordsHero.svelte` | Smallest section (29 lines). |
+| 2c | Teacher's note → `TeacherNote.svelte` | `cleanTeacherNote()` moves to `src/teacherNote.js` as a pure function. |
+| 2d | Homework checklist → `HomeworkList.svelte` | Keeps pending-first sorting and the done count. The checkbox calls the existing `toggleHomework()`. |
+| 2e | Timetable → `PeriodsTable.svelte` | The largest. `groupPeriodsBySubject()` moves to `src/periods.js`. |
+| 2f | `DailyView.svelte` wraps all four | The Daily markup leaves `index.html`. `renderDailyView()` and the four renderers are deleted. |
+
+**Not in Phase 2:**
+- the date dropdown, which sits in the header (Phase 4);
+- the Word History modal (Phase 3, with flashcards);
+- the loading and sync functions, which stay in `app.js`, only no longer
+  calling a renderer.
+
+**Behaviour change to expect:** the renderers put PDF text into `innerHTML`, so
+markup in a teacher's note would be run as HTML. Svelte escapes it and shows it
+as text. The current data contains none, so nothing should look different.
+
+**Verification per step:** the Python tests; a headless browser run of the
+sample board on a date with homework, ticking and unticking it; and a
+before/after screenshot of the Daily tab in light and dark mode.
 
 ### Build
 
