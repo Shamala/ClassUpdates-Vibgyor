@@ -1679,9 +1679,6 @@ function renderDailyView() {
   // 2. Active Homework Checklist
   renderActiveHomeworkSection(data.periods);
 
-  // 3. Teacher's Note
-  renderTeacherNoteSection(data.teacher_note);
-
   // 4. Periods & Classwork Timetable
   renderPeriodsTable(data.periods);
 }
@@ -1795,86 +1792,6 @@ function renderActiveHomeworkSection(periods) {
     .join("");
 
   container.innerHTML = `<div class="grid gap-4">${cardsHtml}</div>`;
-}
-
-function cleanTeacherNote(text) {
-  if (!text) return [];
-
-  const lines = text.split("\n").map((l) => l.trim());
-  const salutationRe =
-    /^(?:dear\s+parents?|dear\s+sir(?:\s*\/\s*madam)?|hello\s+parents?|notes?|additional\s+information)\s*[:,\.]?$/i;
-  const valedictionRe =
-    /^(?:warm\s+regards|with\s+warm\s+regards|best\s+regards|kind\s+regards|regards|thanks\s+and\s+regards|thank\s+you)\s*[\.,]?$/i;
-
-  const rawParagraphs = [];
-  let currentWords = [];
-
-  for (const line of lines) {
-    if (!line) {
-      if (currentWords.length > 0) {
-        rawParagraphs.push(currentWords.join(" "));
-        currentWords = [];
-      }
-      continue;
-    }
-    if (salutationRe.test(line)) {
-      if (currentWords.length > 0) {
-        rawParagraphs.push(currentWords.join(" "));
-        currentWords = [];
-      }
-      continue;
-    }
-    if (valedictionRe.test(line)) {
-      if (currentWords.length > 0) {
-        rawParagraphs.push(currentWords.join(" "));
-        currentWords = [];
-      }
-      continue;
-    }
-    currentWords.push(line);
-  }
-
-  if (currentWords.length > 0) {
-    rawParagraphs.push(currentWords.join(" "));
-  }
-
-  const cleaned = [];
-  for (const p of rawParagraphs) {
-    let s = p
-      .replace(/^(?:dear\s+parents?|dear\s+parent|notes?)\s*[:,\.]?\s*/i, "")
-      .replace(
-        /\s*(?:warm\s+regards|with\s+warm\s+regards|best\s+regards|kind\s+regards|regards|thanks\s+and\s+regards|thank\s+you)\s*[\.,]?\s*$/i,
-        "",
-      )
-      .trim();
-    if (s) cleaned.push(s);
-  }
-
-  return cleaned;
-}
-
-function renderTeacherNoteSection(note) {
-  const container = document.getElementById("teacher-note-container");
-  if (!container) return;
-
-  const cleanedParagraphs = cleanTeacherNote(note);
-  if (cleanedParagraphs.length === 0) {
-    container.classList.add("hidden");
-    return;
-  }
-
-  container.classList.remove("hidden");
-  const bodyEl = document.getElementById("teacher-note-body");
-  if (bodyEl) {
-    bodyEl.innerHTML = cleanedParagraphs
-      .map(
-        (p) =>
-          `<p class="leading-relaxed text-xs sm:text-sm text-amber-900/90 dark:text-amber-100/90 w-full">${p}</p>`,
-      )
-      .join(
-        '<div class="my-2.5 border-t border-amber-200/60 dark:border-amber-800/60"></div>',
-      );
-  }
 }
 
 function groupPeriodsBySubject(periods) {
