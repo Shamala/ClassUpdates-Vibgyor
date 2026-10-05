@@ -85,6 +85,29 @@ class TestRedaction(ScheduledSyncTestCase):
         self.assertEqual(scheduled_sync.redact("a babble of words"), "a babble of words")
 
 
+class TestUnreadablePdfs(ScheduledSyncTestCase):
+    """A day that could not be read must not hide behind "Sync succeeded"."""
+
+    def test_an_unreadable_pdf_raises_a_warning(self):
+        self.patch(
+            "run_orion_browser_sync",
+            lambda **kwargs: {"status": "success", "pdfs_synced": 2, "pdfs_unreadable": 1, "circulars_synced": 0},
+        )
+        self.patch("get_available_dates", lambda: [{"date": "2026-09-23"}])
+        code, output = self.run_job(publish=False)
+        self.assertEqual(code, 0)
+        self.assertIn("::warning::1 class update PDF(s) could not be read", output)
+
+    def test_a_clean_sync_raises_none(self):
+        self.patch(
+            "run_orion_browser_sync",
+            lambda **kwargs: {"status": "success", "pdfs_synced": 2, "pdfs_unreadable": 0, "circulars_synced": 0},
+        )
+        self.patch("get_available_dates", lambda: [{"date": "2026-09-23"}])
+        _, output = self.run_job(publish=False)
+        self.assertNotIn("::warning::", output)
+
+
 class TestStepOutput(ScheduledSyncTestCase):
     """The workflow skips a whole site deployment when nothing changed."""
 

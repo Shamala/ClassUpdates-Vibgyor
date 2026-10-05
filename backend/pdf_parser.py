@@ -187,6 +187,7 @@ def extract_text_from_pdf(pdf_path: str) -> str:
     1. pypdf
     2. pdftotext CLI (poppler)
     3. pdfplumber
+    4. OCR, for a PDF that holds a picture of the timetable instead of text
     """
     if not os.path.exists(pdf_path):
         raise FileNotFoundError(f"PDF file not found: {pdf_path}")
@@ -232,6 +233,15 @@ def extract_text_from_pdf(pdf_path: str) -> str:
                     return combined
         except Exception as err:
             print(f"[pdf_parser] pdfplumber extraction failed on {pdf_path}: {err}")
+
+    # Method 4: the page is a picture of the timetable, so read it cell by cell
+    try:
+        from backend.pdf_ocr import ocr_pdf_text
+        combined = ocr_pdf_text(pdf_path).strip()
+        if combined:
+            return combined
+    except Exception as err:
+        print(f"[pdf_parser] OCR failed on {pdf_path}: {err}")
 
     raise RuntimeError(f"Failed to extract text from {pdf_path} using all available engines.")
 

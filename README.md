@@ -99,6 +99,9 @@ npm install    # Vite, Svelte and Tailwind, which build the page
 # (Optional) Download Playwright browser for portal sync
 ./venv/bin/python -m playwright install chromium
 
+# (Optional) Tesseract, for days the class update is posted as a picture
+brew install tesseract
+
 # Launch
 ./start.sh
 ```

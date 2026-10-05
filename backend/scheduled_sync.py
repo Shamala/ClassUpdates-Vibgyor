@@ -88,6 +88,11 @@ def run(publish: Optional[bool] = None) -> int:
     )
     if dates:
         print(f"Covering {dates[-1]['date']} to {dates[0]['date']}.")
+    unreadable = result.get("pdfs_unreadable", 0)
+    if unreadable:
+        # Shown as a warning on the run's summary page, so a day that is missing
+        # from the board does not hide behind "Sync succeeded".
+        print(f"::warning::{unreadable} class update PDF(s) could not be read and are missing from the board.")
 
     if not publish:
         print("Dry run: the published board was left untouched.")

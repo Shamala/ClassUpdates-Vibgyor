@@ -234,6 +234,7 @@ def run_orion_browser_sync(
                 pass
 
     downloaded_files: List[str] = []
+    unreadable_files: List[str] = []
     profile_payloads: List[Any] = []
     circulars_count = 0
     student_info: Dict[str, str] = {}
@@ -355,6 +356,8 @@ def run_orion_browser_sync(
                         if parsed and parsed.get("date"):
                             upsert_class_update(parsed, source_pdf=clean_name, db_path=db_path)
                     except Exception as p_err:
+                        if clean_name not in unreadable_files:
+                            unreadable_files.append(clean_name)
                         print(f"[browser_sync] Error parsing {clean_name}: {p_err}")
 
         elif slug == "Circular":
@@ -422,6 +425,7 @@ def run_orion_browser_sync(
         "mode": "browser_live_sync",
         "student": student_info,
         "pdfs_synced": len(downloaded_files),
+        "pdfs_unreadable": len(unreadable_files),
         "circulars_synced": circulars_count,
         "message": f"Successfully synced live Orion data for {student_info.get('name', 'Student')}.",
     }

@@ -279,6 +279,10 @@ python3 -m venv venv
 npm ci
 ```
 
+Some days the school posts the class update as a picture of the timetable with
+no text in it. Reading those needs Tesseract (`brew install tesseract`); without
+it such a day is skipped and the sync warns that a PDF could not be read.
+
 Node is required: the page is compiled by Vite (see **Build** above), and
 `./start.sh` runs `npm run build` before starting the server.
 `frontend/tailwind.css` is committed, but **rebuild after editing classes in
