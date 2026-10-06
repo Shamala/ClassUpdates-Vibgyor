@@ -1,6 +1,6 @@
 <!--
   "Active Homework (RWSH)": the day's homework as cards with a checkbox each,
-  pending first, and a done/total badge in the heading.
+  in timetable order, and a done/total badge in the heading.
 -->
 <script>
   import { state } from "../state.svelte.js";

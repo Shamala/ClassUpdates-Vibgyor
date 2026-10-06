@@ -4,7 +4,8 @@
 import { getCanonicalSubject } from "../subjects.js";
 
 // Homework periods, once each - a double period repeats the same homework - with
-// the subject name normalised and anything already done moved to the end.
+// the subject name normalised, in the order the timetable gives them. Ticking
+// one off leaves it where it is, so the list does not jump under the parent's finger.
 export function activeHomework(periods) {
   const homeworkPeriods = (periods || []).filter((p) => p.is_homework);
 
@@ -19,8 +20,6 @@ export function activeHomework(periods) {
     }
   }
 
-  // Sort completed items last so that pending homework appears first in the list
-  uniqueHomework.sort((a, b) => a.is_completed - b.is_completed);
   return uniqueHomework;
 }
 
