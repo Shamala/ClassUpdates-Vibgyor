@@ -16,25 +16,38 @@ window.VIBGYOR_STATIC_DATA = {
   },
   "dates": [
     {
-      "date": "2026-10-26",
-      "display_date": "26/10/2026",
+      "date": "2026-10-27",
+      "display_date": "27/10/2026",
       "grade": "Grade - 1F",
       "words_of_the_day": [
         "apple",
         "river"
       ],
       "words_raw": "apple,river",
+      "homework_count": 4,
+      "completed_homework_count": 0,
+      "has_pending_homework": true
+    },
+    {
+      "date": "2026-10-26",
+      "display_date": "26/10/2026",
+      "grade": "Grade - 1F",
+      "words_of_the_day": [
+        "river",
+        "cloud"
+      ],
+      "words_raw": "river,cloud",
       "homework_count": 2,
       "completed_homework_count": 0,
       "has_pending_homework": true
     }
   ],
   "daily": {
-    "2026-10-26": {
+    "2026-10-27": {
       "id": 1,
       "student_id": "CLASS",
-      "date": "2026-10-26",
-      "display_date": "26/10/2026",
+      "date": "2026-10-27",
+      "display_date": "27/10/2026",
       "grade": "Grade - 1F",
       "words_of_the_day": [
         "apple",
@@ -44,14 +57,14 @@ window.VIBGYOR_STATIC_DATA = {
       "teacher_note": "Sample teacher note for the demo dashboard.",
       "source_pdf": "sample.pdf",
       "total_periods": 10,
-      "homework_count": 2,
+      "homework_count": 4,
       "completed_homework_count": 0,
       "all_homework_completed": false,
       "periods": [
         {
           "id": 1,
           "update_id": 1,
-          "date": "2026-10-26",
+          "date": "2026-10-27",
           "period_number": 1,
           "subject": "Language Arts",
           "topic": "Sample topic",
@@ -68,6 +81,196 @@ window.VIBGYOR_STATIC_DATA = {
         {
           "id": 2,
           "update_id": 1,
+          "date": "2026-10-27",
+          "period_number": 2,
+          "subject": "Hindi",
+          "topic": "Sample topic",
+          "sub_topic": "Sample sub-topic",
+          "cw": "Sample class work",
+          "reinforcement": "Sample homework",
+          "submission_date": "3-Nov-26",
+          "submission_date_iso": null,
+          "skill_assessed": "Sample skill",
+          "is_homework": true,
+          "is_completed": false,
+          "completed_at": null
+        },
+        {
+          "id": 3,
+          "update_id": 1,
+          "date": "2026-10-27",
+          "period_number": 3,
+          "subject": "Kannada",
+          "topic": "Sample topic",
+          "sub_topic": "Sample sub-topic",
+          "cw": "NIL",
+          "reinforcement": "NIL",
+          "submission_date": "NIL",
+          "submission_date_iso": null,
+          "skill_assessed": "NIL",
+          "is_homework": false,
+          "is_completed": false,
+          "completed_at": null
+        },
+        {
+          "id": 4,
+          "update_id": 1,
+          "date": "2026-10-27",
+          "period_number": 4,
+          "subject": "English Literature",
+          "topic": "Sample topic",
+          "sub_topic": "Sample sub-topic",
+          "cw": "Sample class work",
+          "reinforcement": "Sample homework",
+          "submission_date": "3.11.26",
+          "submission_date_iso": null,
+          "skill_assessed": "NIL",
+          "is_homework": true,
+          "is_completed": false,
+          "completed_at": null
+        },
+        {
+          "id": 5,
+          "update_id": 1,
+          "date": "2026-10-27",
+          "period_number": 5,
+          "subject": "Mathematics",
+          "topic": "Sample topic",
+          "sub_topic": "Sample sub-topic",
+          "cw": "Sample class work",
+          "reinforcement": "Sample homework",
+          "submission_date": "4/11/2026",
+          "submission_date_iso": "2026-11-04",
+          "skill_assessed": "Sample skill",
+          "is_homework": true,
+          "is_completed": false,
+          "completed_at": null
+        },
+        {
+          "id": 6,
+          "update_id": 1,
+          "date": "2026-10-27",
+          "period_number": 6,
+          "subject": "Skill Program",
+          "topic": "Sample topic",
+          "sub_topic": "Sample sub-topic",
+          "cw": "NIL",
+          "reinforcement": "NIL",
+          "submission_date": "NIL",
+          "submission_date_iso": null,
+          "skill_assessed": "NIL",
+          "is_homework": false,
+          "is_completed": false,
+          "completed_at": null
+        },
+        {
+          "id": 7,
+          "update_id": 1,
+          "date": "2026-10-27",
+          "period_number": 7,
+          "subject": "Skill Program",
+          "topic": "Sample topic",
+          "sub_topic": "Sample sub-topic",
+          "cw": "NIL",
+          "reinforcement": "NIL",
+          "submission_date": "NIL",
+          "submission_date_iso": null,
+          "skill_assessed": "NIL",
+          "is_homework": false,
+          "is_completed": false,
+          "completed_at": null
+        },
+        {
+          "id": 8,
+          "update_id": 1,
+          "date": "2026-10-27",
+          "period_number": 8,
+          "subject": "Computers",
+          "topic": "Sample topic",
+          "sub_topic": "Sample sub-topic",
+          "cw": "NIL",
+          "reinforcement": "NIL",
+          "submission_date": "NIL",
+          "submission_date_iso": null,
+          "skill_assessed": "NIL",
+          "is_homework": false,
+          "is_completed": false,
+          "completed_at": null
+        },
+        {
+          "id": 9,
+          "update_id": 1,
+          "date": "2026-10-27",
+          "period_number": 9,
+          "subject": "Social Science",
+          "topic": "Sample topic",
+          "sub_topic": "Sample sub-topic",
+          "cw": "NIL",
+          "reinforcement": "NIL",
+          "submission_date": "NIL",
+          "submission_date_iso": null,
+          "skill_assessed": "NIL",
+          "is_homework": false,
+          "is_completed": false,
+          "completed_at": null
+        },
+        {
+          "id": 10,
+          "update_id": 1,
+          "date": "2026-10-27",
+          "period_number": 10,
+          "subject": "Social Science",
+          "topic": "Sample topic",
+          "sub_topic": "Sample sub-topic",
+          "cw": "NIL",
+          "reinforcement": "NIL",
+          "submission_date": "NIL",
+          "submission_date_iso": null,
+          "skill_assessed": "NIL",
+          "is_homework": false,
+          "is_completed": false,
+          "completed_at": null
+        }
+      ]
+    },
+    "2026-10-26": {
+      "id": 2,
+      "student_id": "CLASS",
+      "date": "2026-10-26",
+      "display_date": "26/10/2026",
+      "grade": "Grade - 1F",
+      "words_of_the_day": [
+        "river",
+        "cloud"
+      ],
+      "words_raw": "river,cloud",
+      "teacher_note": "Sample teacher note for the demo dashboard.",
+      "source_pdf": "sample.pdf",
+      "total_periods": 10,
+      "homework_count": 2,
+      "completed_homework_count": 0,
+      "all_homework_completed": false,
+      "periods": [
+        {
+          "id": 11,
+          "update_id": 2,
+          "date": "2026-10-26",
+          "period_number": 1,
+          "subject": "Language Arts",
+          "topic": "Sample topic",
+          "sub_topic": "Sample sub-topic",
+          "cw": "Sample class work",
+          "reinforcement": "Sample homework",
+          "submission_date": "2/11/2026",
+          "submission_date_iso": "2026-11-02",
+          "skill_assessed": "NIL",
+          "is_homework": true,
+          "is_completed": false,
+          "completed_at": null
+        },
+        {
+          "id": 12,
+          "update_id": 2,
           "date": "2026-10-26",
           "period_number": 2,
           "subject": "Mathematics",
@@ -83,8 +286,8 @@ window.VIBGYOR_STATIC_DATA = {
           "completed_at": null
         },
         {
-          "id": 3,
-          "update_id": 1,
+          "id": 13,
+          "update_id": 2,
           "date": "2026-10-26",
           "period_number": 3,
           "subject": "SPA",
@@ -100,8 +303,8 @@ window.VIBGYOR_STATIC_DATA = {
           "completed_at": null
         },
         {
-          "id": 4,
-          "update_id": 1,
+          "id": 14,
+          "update_id": 2,
           "date": "2026-10-26",
           "period_number": 4,
           "subject": "SPA",
@@ -117,8 +320,8 @@ window.VIBGYOR_STATIC_DATA = {
           "completed_at": null
         },
         {
-          "id": 5,
-          "update_id": 1,
+          "id": 15,
+          "update_id": 2,
           "date": "2026-10-26",
           "period_number": 5,
           "subject": "Kannada",
@@ -134,8 +337,8 @@ window.VIBGYOR_STATIC_DATA = {
           "completed_at": null
         },
         {
-          "id": 6,
-          "update_id": 1,
+          "id": 16,
+          "update_id": 2,
           "date": "2026-10-26",
           "period_number": 6,
           "subject": "Mathematics",
@@ -151,8 +354,8 @@ window.VIBGYOR_STATIC_DATA = {
           "completed_at": null
         },
         {
-          "id": 7,
-          "update_id": 1,
+          "id": 17,
+          "update_id": 2,
           "date": "2026-10-26",
           "period_number": 7,
           "subject": "Robotics",
@@ -168,8 +371,8 @@ window.VIBGYOR_STATIC_DATA = {
           "completed_at": null
         },
         {
-          "id": 8,
-          "update_id": 1,
+          "id": 18,
+          "update_id": 2,
           "date": "2026-10-26",
           "period_number": 8,
           "subject": "English Literature",
@@ -185,8 +388,8 @@ window.VIBGYOR_STATIC_DATA = {
           "completed_at": null
         },
         {
-          "id": 9,
-          "update_id": 1,
+          "id": 19,
+          "update_id": 2,
           "date": "2026-10-26",
           "period_number": 9,
           "subject": "Social Science",
@@ -202,8 +405,8 @@ window.VIBGYOR_STATIC_DATA = {
           "completed_at": null
         },
         {
-          "id": 10,
-          "update_id": 1,
+          "id": 20,
+          "update_id": 2,
           "date": "2026-10-26",
           "period_number": 10,
           "subject": "Social Science",
@@ -226,7 +429,7 @@ window.VIBGYOR_STATIC_DATA = {
     "week_end": "2026-10-30",
     "days": [
       {
-        "id": 1,
+        "id": 2,
         "student_id": "CLASS",
         "date": "2026-10-26",
         "display_date": "26/10/2026",
@@ -244,8 +447,8 @@ window.VIBGYOR_STATIC_DATA = {
         "all_homework_completed": false,
         "periods": [
           {
-            "id": 1,
-            "update_id": 1,
+            "id": 11,
+            "update_id": 2,
             "date": "2026-10-26",
             "period_number": 1,
             "subject": "Language Arts",
@@ -261,8 +464,8 @@ window.VIBGYOR_STATIC_DATA = {
             "completed_at": null
           },
           {
-            "id": 2,
-            "update_id": 1,
+            "id": 12,
+            "update_id": 2,
             "date": "2026-10-26",
             "period_number": 2,
             "subject": "Mathematics",
@@ -278,8 +481,8 @@ window.VIBGYOR_STATIC_DATA = {
             "completed_at": null
           },
           {
-            "id": 3,
-            "update_id": 1,
+            "id": 13,
+            "update_id": 2,
             "date": "2026-10-26",
             "period_number": 3,
             "subject": "SPA",
@@ -295,8 +498,8 @@ window.VIBGYOR_STATIC_DATA = {
             "completed_at": null
           },
           {
-            "id": 4,
-            "update_id": 1,
+            "id": 14,
+            "update_id": 2,
             "date": "2026-10-26",
             "period_number": 4,
             "subject": "SPA",
@@ -312,8 +515,8 @@ window.VIBGYOR_STATIC_DATA = {
             "completed_at": null
           },
           {
-            "id": 5,
-            "update_id": 1,
+            "id": 15,
+            "update_id": 2,
             "date": "2026-10-26",
             "period_number": 5,
             "subject": "Kannada",
@@ -329,8 +532,8 @@ window.VIBGYOR_STATIC_DATA = {
             "completed_at": null
           },
           {
-            "id": 6,
-            "update_id": 1,
+            "id": 16,
+            "update_id": 2,
             "date": "2026-10-26",
             "period_number": 6,
             "subject": "Mathematics",
@@ -346,8 +549,8 @@ window.VIBGYOR_STATIC_DATA = {
             "completed_at": null
           },
           {
-            "id": 7,
-            "update_id": 1,
+            "id": 17,
+            "update_id": 2,
             "date": "2026-10-26",
             "period_number": 7,
             "subject": "Robotics",
@@ -363,8 +566,8 @@ window.VIBGYOR_STATIC_DATA = {
             "completed_at": null
           },
           {
-            "id": 8,
-            "update_id": 1,
+            "id": 18,
+            "update_id": 2,
             "date": "2026-10-26",
             "period_number": 8,
             "subject": "English Literature",
@@ -380,8 +583,8 @@ window.VIBGYOR_STATIC_DATA = {
             "completed_at": null
           },
           {
-            "id": 9,
-            "update_id": 1,
+            "id": 19,
+            "update_id": 2,
             "date": "2026-10-26",
             "period_number": 9,
             "subject": "Social Science",
@@ -397,8 +600,8 @@ window.VIBGYOR_STATIC_DATA = {
             "completed_at": null
           },
           {
-            "id": 10,
-            "update_id": 1,
+            "id": 20,
+            "update_id": 2,
             "date": "2026-10-26",
             "period_number": 10,
             "subject": "Social Science",
@@ -416,6 +619,8 @@ window.VIBGYOR_STATIC_DATA = {
         ]
       },
       {
+        "id": 1,
+        "student_id": "CLASS",
         "date": "2026-10-27",
         "display_date": "27/10/2026",
         "grade": "Grade - 1F",
@@ -423,14 +628,185 @@ window.VIBGYOR_STATIC_DATA = {
           "river",
           "cloud"
         ],
-        "teacher_note": "Sample teacher note for the demo dashboard.",
-        "total_periods": 0,
-        "homework_count": 0,
-        "completed_homework_count": 0,
-        "periods": [],
-        "is_empty": true,
         "words_raw": "river,cloud",
-        "source_pdf": "sample.pdf"
+        "teacher_note": "Sample teacher note for the demo dashboard.",
+        "source_pdf": "sample.pdf",
+        "total_periods": 10,
+        "homework_count": 4,
+        "completed_homework_count": 0,
+        "all_homework_completed": false,
+        "periods": [
+          {
+            "id": 1,
+            "update_id": 1,
+            "date": "2026-10-27",
+            "period_number": 1,
+            "subject": "Language Arts",
+            "topic": "Sample topic",
+            "sub_topic": "Sample sub-topic",
+            "cw": "Sample class work",
+            "reinforcement": "Sample homework",
+            "submission_date": "2/11/2026",
+            "submission_date_iso": "2026-11-02",
+            "skill_assessed": "NIL",
+            "is_homework": true,
+            "is_completed": false,
+            "completed_at": null
+          },
+          {
+            "id": 2,
+            "update_id": 1,
+            "date": "2026-10-27",
+            "period_number": 2,
+            "subject": "Hindi",
+            "topic": "Sample topic",
+            "sub_topic": "Sample sub-topic",
+            "cw": "Sample class work",
+            "reinforcement": "Sample homework",
+            "submission_date": "3-Nov-26",
+            "submission_date_iso": null,
+            "skill_assessed": "Sample skill",
+            "is_homework": true,
+            "is_completed": false,
+            "completed_at": null
+          },
+          {
+            "id": 3,
+            "update_id": 1,
+            "date": "2026-10-27",
+            "period_number": 3,
+            "subject": "Kannada",
+            "topic": "Sample topic",
+            "sub_topic": "Sample sub-topic",
+            "cw": "NIL",
+            "reinforcement": "NIL",
+            "submission_date": "NIL",
+            "submission_date_iso": null,
+            "skill_assessed": "NIL",
+            "is_homework": false,
+            "is_completed": false,
+            "completed_at": null
+          },
+          {
+            "id": 4,
+            "update_id": 1,
+            "date": "2026-10-27",
+            "period_number": 4,
+            "subject": "English Literature",
+            "topic": "Sample topic",
+            "sub_topic": "Sample sub-topic",
+            "cw": "Sample class work",
+            "reinforcement": "Sample homework",
+            "submission_date": "3.11.26",
+            "submission_date_iso": null,
+            "skill_assessed": "NIL",
+            "is_homework": true,
+            "is_completed": false,
+            "completed_at": null
+          },
+          {
+            "id": 5,
+            "update_id": 1,
+            "date": "2026-10-27",
+            "period_number": 5,
+            "subject": "Mathematics",
+            "topic": "Sample topic",
+            "sub_topic": "Sample sub-topic",
+            "cw": "Sample class work",
+            "reinforcement": "Sample homework",
+            "submission_date": "4/11/2026",
+            "submission_date_iso": "2026-11-04",
+            "skill_assessed": "Sample skill",
+            "is_homework": true,
+            "is_completed": false,
+            "completed_at": null
+          },
+          {
+            "id": 6,
+            "update_id": 1,
+            "date": "2026-10-27",
+            "period_number": 6,
+            "subject": "Skill Program",
+            "topic": "Sample topic",
+            "sub_topic": "Sample sub-topic",
+            "cw": "NIL",
+            "reinforcement": "NIL",
+            "submission_date": "NIL",
+            "submission_date_iso": null,
+            "skill_assessed": "NIL",
+            "is_homework": false,
+            "is_completed": false,
+            "completed_at": null
+          },
+          {
+            "id": 7,
+            "update_id": 1,
+            "date": "2026-10-27",
+            "period_number": 7,
+            "subject": "Skill Program",
+            "topic": "Sample topic",
+            "sub_topic": "Sample sub-topic",
+            "cw": "NIL",
+            "reinforcement": "NIL",
+            "submission_date": "NIL",
+            "submission_date_iso": null,
+            "skill_assessed": "NIL",
+            "is_homework": false,
+            "is_completed": false,
+            "completed_at": null
+          },
+          {
+            "id": 8,
+            "update_id": 1,
+            "date": "2026-10-27",
+            "period_number": 8,
+            "subject": "Computers",
+            "topic": "Sample topic",
+            "sub_topic": "Sample sub-topic",
+            "cw": "NIL",
+            "reinforcement": "NIL",
+            "submission_date": "NIL",
+            "submission_date_iso": null,
+            "skill_assessed": "NIL",
+            "is_homework": false,
+            "is_completed": false,
+            "completed_at": null
+          },
+          {
+            "id": 9,
+            "update_id": 1,
+            "date": "2026-10-27",
+            "period_number": 9,
+            "subject": "Social Science",
+            "topic": "Sample topic",
+            "sub_topic": "Sample sub-topic",
+            "cw": "NIL",
+            "reinforcement": "NIL",
+            "submission_date": "NIL",
+            "submission_date_iso": null,
+            "skill_assessed": "NIL",
+            "is_homework": false,
+            "is_completed": false,
+            "completed_at": null
+          },
+          {
+            "id": 10,
+            "update_id": 1,
+            "date": "2026-10-27",
+            "period_number": 10,
+            "subject": "Social Science",
+            "topic": "Sample topic",
+            "sub_topic": "Sample sub-topic",
+            "cw": "NIL",
+            "reinforcement": "NIL",
+            "submission_date": "NIL",
+            "submission_date_iso": null,
+            "skill_assessed": "NIL",
+            "is_homework": false,
+            "is_completed": false,
+            "completed_at": null
+          }
+        ]
       },
       {
         "date": "2026-10-28",
@@ -486,11 +862,13 @@ window.VIBGYOR_STATIC_DATA = {
     ],
     "weekly_dictation_words": [
       "apple",
-      "river"
+      "river",
+      "cloud",
+      "stone"
     ],
     "active_homework_items": [
       {
-        "period_id": 1,
+        "period_id": 11,
         "date": "2026-10-26",
         "period_number": 1,
         "subject": "Language Arts",
@@ -501,7 +879,7 @@ window.VIBGYOR_STATIC_DATA = {
         "is_completed": false
       },
       {
-        "period_id": 2,
+        "period_id": 12,
         "date": "2026-10-26",
         "period_number": 2,
         "subject": "Mathematics",
@@ -509,6 +887,50 @@ window.VIBGYOR_STATIC_DATA = {
         "reinforcement": "Sample homework",
         "submission_date": "28/10/26",
         "submission_date_iso": null,
+        "is_completed": false
+      },
+      {
+        "period_id": 1,
+        "date": "2026-10-27",
+        "period_number": 1,
+        "subject": "Language Arts",
+        "topic": "Sample topic",
+        "reinforcement": "Sample homework",
+        "submission_date": "2/11/2026",
+        "submission_date_iso": "2026-11-02",
+        "is_completed": false
+      },
+      {
+        "period_id": 2,
+        "date": "2026-10-27",
+        "period_number": 2,
+        "subject": "Hindi",
+        "topic": "Sample topic",
+        "reinforcement": "Sample homework",
+        "submission_date": "3-Nov-26",
+        "submission_date_iso": null,
+        "is_completed": false
+      },
+      {
+        "period_id": 4,
+        "date": "2026-10-27",
+        "period_number": 4,
+        "subject": "English Literature",
+        "topic": "Sample topic",
+        "reinforcement": "Sample homework",
+        "submission_date": "3.11.26",
+        "submission_date_iso": null,
+        "is_completed": false
+      },
+      {
+        "period_id": 5,
+        "date": "2026-10-27",
+        "period_number": 5,
+        "subject": "Mathematics",
+        "topic": "Sample topic",
+        "reinforcement": "Sample homework",
+        "submission_date": "4/11/2026",
+        "submission_date_iso": "2026-11-04",
         "is_completed": false
       }
     ]
@@ -596,5 +1018,5 @@ window.VIBGYOR_STATIC_DATA = {
       "is_read": false
     }
   ],
-  "synced_at": "2026-10-26T14:27:13+00:00"
+  "synced_at": "2026-10-27T14:17:27+00:00"
 };
