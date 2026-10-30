@@ -122,7 +122,8 @@ It is being migrated to **Svelte 5** in phases, each one shipping on its own:
    parts. See **Build** below.
 2. Daily Diary. **Done:** the whole tab is `src/daily/DailyView.svelte` and
    its four sections; see **Phase 2 plan** below.
-3. Weekly, Circulars, flashcards.
+3. Weekly, Circulars, flashcards. **Done:** `src/weekly/`, `src/circulars/`
+   and `src/words/`; see **Phase 3** below.
 4. Shell: header, tabs, modals. Delete the vanilla renderers.
 5. Remove dead code, teach the service worker about hashed filenames, update docs.
 
@@ -148,7 +149,7 @@ time, with the old and new code side by side.
 | 2a | `state` becomes reactive | No visible change. Proves vanilla writes reach Svelte. |
 | 2b | Words hero → `WordsHero.svelte` | Smallest section (29 lines). |
 | 2c | Teacher's note → `TeacherNote.svelte` | `cleanTeacherNote()` moves to `src/teacherNote.js` as a pure function. |
-| 2d | Homework checklist → `HomeworkList.svelte` | Keeps pending-first sorting and the done count. The checkbox calls the existing `toggleHomework()`. |
+| 2d | Homework checklist → `HomeworkList.svelte` | Keeps pending-first sorting and the done count. The checkbox calls the existing `toggleHomework()`. (The sorting was dropped later: ticked homework now keeps its place.) |
 | 2e | Timetable → `PeriodsTable.svelte` | The largest. `groupPeriodsBySubject()` moves to `src/periods.js`. |
 | 2f | `DailyView.svelte` wraps all four | The Daily markup leaves `index.html`. `renderDailyView()` and the four renderers are deleted. |
 
@@ -165,6 +166,38 @@ as text. The current data contains none, so nothing should look different.
 **Verification per step:** the Python tests; a headless browser run of the
 sample board on a date with homework, ticking and unticking it; and a
 before/after screenshot of the Daily tab in light and dark mode.
+
+### Phase 3: Weekly, Circulars, flashcards
+
+*Done.* Three steps, each a commit, checked the same way as Phase 2 against a
+recording of the old page: visible text, the class list of every element, and
+light and dark screenshots at desktop and phone width. The sample board has
+only one week of words, so a second recording used a made-up board with three
+weeks to cover the past-weeks archive.
+
+| Step | What moves | Notes |
+|------|------------|-------|
+| 3a | Weekly tab → `src/weekly/WeeklyView.svelte` | A day's homework uses the Daily tab's `activeHomework()`, which did the same thing. |
+| 3b | Circulars tab and notice pop-up → `src/circulars/` | The filter and search stay in `state`; the open notice lives in `notice.svelte.js`. |
+| 3c | Word History and flashcards → `src/words/` | Week grouping and flashcard sets are pure functions in `wordHistory.js`; `wordModal.svelte.js` replaces `wordModalState`. |
+
+The pop-ups are mounted at their old places at the end of `<body>`, and close
+themselves on Escape or a backdrop click, so `app.js` no longer listens for
+either. `app.js` keeps the loaders, which now only set `state.weeklyData` and
+`state.circulars`, plus `toggleHomework()` and `selectDateAndSwitch()`, which
+the Weekly tab calls back into.
+
+**Visible differences, both deliberate:**
+- The notice pop-up is shorter. Its body keeps line breaks
+  (`whitespace-pre-line`), and the old HTML string's indentation came through
+  as blank lines. A circular's own line breaks still show.
+- Text is escaped rather than run as HTML, as in Phase 2. As a side effect,
+  Copy now works for a word containing an apostrophe, which used to break the
+  inline `onclick`.
+
+**Left for Phase 4:** the header, tabs, date dropdown, sign-in and passcode
+screens, and the name pop-up, which are all still in `app.js` and `index.html`.
+`toInlineArg()` in `speech.js` has no callers left and goes in Phase 5.
 
 ### Build
 
