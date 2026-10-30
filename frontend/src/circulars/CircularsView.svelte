@@ -3,9 +3,7 @@
   Redraws from state.circulars, which loadCirculars() in app.js sets, and from
   the filter and search, which live in state so they survive a tab switch.
 
-  switchTab() in app.js shows and hides this by toggling `hidden` on
-  #view-circulars. The class attribute below is static, so Svelte never
-  rewrites it and the two do not fight.
+  Shown while state.currentTab is "circulars".
 -->
 <script>
   import { state, ORION_APP_URL } from "../state.svelte.js";
@@ -23,7 +21,7 @@
   );
 </script>
 
-<div id="view-circulars" class="hidden space-y-6">
+<div id="view-circulars" class="space-y-6" class:hidden={state.currentTab !== "circulars"}>
   <!-- Filter Bar -->
   <div
     class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs"

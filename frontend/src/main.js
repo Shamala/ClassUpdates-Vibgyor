@@ -6,6 +6,7 @@
 import { mount } from "svelte";
 import "../app.js";
 import Toast from "./Toast.svelte";
+import Header from "./shell/Header.svelte";
 import DailyView from "./daily/DailyView.svelte";
 import WeeklyView from "./weekly/WeeklyView.svelte";
 import CircularsView from "./circulars/CircularsView.svelte";
@@ -21,6 +22,7 @@ function mountAt(Component, slotId) {
 }
 
 mount(Toast, { target: document.getElementById("toast") });
+mountAt(Header, "header-slot");
 mountAt(DailyView, "view-daily-slot");
 mountAt(WeeklyView, "view-weekly-slot");
 mountAt(CircularsView, "view-circulars-slot");
