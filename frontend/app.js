@@ -1,16 +1,11 @@
 /**
  * VIBGYOR Class Updates - Parent Dashboard Application
  */
-import {
-  getCanonicalSubject,
-  getCircularCategoryBadge,
-} from "./src/subjects.js";
 import { formatDatePretty, getDayName } from "./src/format.js";
 import { showToast } from "./src/toast.svelte.js";
 import { toInlineArg, speakForSpelling, speakWord } from "./src/speech.js";
 import {
   API_BASE,
-  ORION_APP_URL,
   state,
   wordModalState,
   DEMO_STUDENT,
@@ -1055,29 +1050,10 @@ function setupEventListeners() {
     });
   }
 
-  // Notice modal close
-  const closeNoticeBtn = document.getElementById("close-notice-modal");
-  const btnCloseNotice = document.getElementById("btn-close-notice");
-  const noticeModal = document.getElementById("notice-modal");
-  if (closeNoticeBtn) {
-    closeNoticeBtn.addEventListener("click", closeNoticeModal);
-  }
-  if (btnCloseNotice) {
-    btnCloseNotice.addEventListener("click", closeNoticeModal);
-  }
-  if (noticeModal) {
-    noticeModal.addEventListener("click", (e) => {
-      if (e.target === noticeModal) {
-        closeNoticeModal();
-      }
-    });
-  }
-
   // Global Escape key listener for open modals
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       closeWordHistoryModal();
-      closeNoticeModal();
     }
   });
 }
@@ -1349,7 +1325,6 @@ function loadStaticCirculars() {
   const staticData = getStaticData();
   if (!staticData || !staticData.circulars) return;
   state.circulars = JSON.parse(JSON.stringify(staticData.circulars));
-  renderCircularsView();
 }
 
 async function loadCirculars() {
@@ -1364,7 +1339,6 @@ async function loadCirculars() {
     });
     if (res.ok) {
       state.circulars = await res.json();
-      renderCircularsView();
       return;
     }
   } catch (err) {
@@ -1668,147 +1642,6 @@ function selectDateAndSwitch(date) {
   const select = document.getElementById("date-select");
   if (select) select.value = date;
   switchTab("daily");
-}
-
-function renderCircularsView() {
-  const container = document.getElementById("circulars-container");
-  if (!container) return;
-
-  const categoryFilter = state.selectedCircularCategory;
-  const searchTerm = (state.circularSearchTerm || "").toLowerCase();
-
-  const filtered = state.circulars.filter((c) => {
-    const matchesCat =
-      categoryFilter === "all" ||
-      c.category.toLowerCase() === categoryFilter.toLowerCase();
-    const matchesSearch =
-      !searchTerm ||
-      c.title.toLowerCase().includes(searchTerm) ||
-      (c.summary && c.summary.toLowerCase().includes(searchTerm));
-    return matchesCat && matchesSearch;
-  });
-
-  if (filtered.length === 0) {
-    container.innerHTML = `
-      <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center text-slate-400 dark:text-slate-500 text-sm">
-        No circulars match your current filter.
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = filtered
-    .map((c) => {
-      return `
-      <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${getCircularCategoryBadge(c.category)}">
-              ${c.category}
-            </span>
-            <span class="text-xs text-slate-400 dark:text-slate-500">${formatDatePretty(c.publish_date)}</span>
-          </div>
-          <h4 class="font-bold text-slate-900 dark:text-white text-base mb-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer" onclick="openNoticeModal(${c.id})">
-            ${c.title}
-          </h4>
-          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4 line-clamp-2">${c.summary || "No summary provided."}</p>
-        </div>
-
-        <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700/80 gap-2">
-          <span class="text-[11px] text-slate-400 dark:text-slate-400 font-medium flex items-center gap-1">
-            <svg class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-            </svg>
-            Hubble Orion Portal
-          </span>
-
-          <div class="flex items-center gap-2">
-            <a
-              href="${ORION_APP_URL}"
-              target="_blank"
-              class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-semibold text-xs transition-colors"
-              title="Navigate to Hubble Orion App (${ORION_APP_URL})"
-            >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-              </svg>
-              Open in App
-            </a>
-            <button
-              onclick="openNoticeModal(${c.id})"
-              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 font-semibold text-xs transition-colors cursor-pointer"
-            >
-              Read Notice
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-    })
-    .join("");
-}
-
-function openNoticeModal(circularId) {
-  const circular = (state.circulars || []).find((c) => c.id === circularId);
-  if (!circular) return;
-
-  const modal = document.getElementById("notice-modal");
-  const titleEl = document.getElementById("notice-title");
-  const contentEl = document.getElementById("notice-content");
-  const dateEl = document.getElementById("notice-date");
-  const badgeEl = document.getElementById("notice-category-badge");
-  const pdfLink = document.getElementById("notice-pdf-link");
-
-  if (titleEl) titleEl.innerText = circular.title;
-  if (dateEl) dateEl.innerText = formatDatePretty(circular.publish_date);
-  if (badgeEl) {
-    badgeEl.innerText = circular.category;
-    badgeEl.className = `px-2.5 py-0.5 rounded-full text-xs font-bold ${getCircularCategoryBadge(circular.category)}`;
-  }
-
-  if (contentEl) {
-    contentEl.innerHTML = `
-      <div class="bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-2xl p-4 text-slate-800 dark:text-slate-200 text-sm leading-relaxed">
-        <div class="text-[10px] uppercase font-bold text-indigo-700 dark:text-indigo-400 tracking-wider mb-1">Executive Summary</div>
-        ${circular.summary || "No summary provided."}
-      </div>
-      <div class="mt-4 p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between text-xs">
-        <div class="flex items-center gap-2">
-          <span class="p-1.5 bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 rounded-lg">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-            </svg>
-          </span>
-          <div>
-            <div class="font-bold text-slate-800 dark:text-slate-200">Hubble Orion Portal</div>
-            <div class="text-slate-500 dark:text-slate-400 font-mono text-[11px]">${ORION_APP_URL}</div>
-          </div>
-        </div>
-        <a href="${ORION_APP_URL}" target="_blank" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs shadow-2xs flex items-center gap-1">
-          Open in App →
-        </a>
-      </div>
-    `;
-  }
-
-  if (pdfLink) {
-    pdfLink.href = ORION_APP_URL;
-    pdfLink.target = "_blank";
-    pdfLink.innerHTML = `
-      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-      </svg>
-      Open in App
-    `;
-    pdfLink.classList.remove("hidden");
-  }
-
-  if (modal) modal.classList.remove("hidden");
-}
-
-function closeNoticeModal() {
-  const modal = document.getElementById("notice-modal");
-  if (modal) modal.classList.add("hidden");
 }
 
 function closeWordHistoryModal() {
@@ -2411,22 +2244,6 @@ window.prevWordPractice = prevWordPractice;
 window.nextWordPractice = nextWordPractice;
 window.shuffleDrillWords = shuffleDrillWords;
 window.toggleTheme = toggleTheme;
-window.filterCirculars = (cat) => {
-  state.selectedCircularCategory = cat;
-  document.querySelectorAll("[data-circ-cat]").forEach((btn) => {
-    btn.className =
-      btn.dataset.circCat === cat
-        ? "px-3 py-1 text-xs font-bold bg-indigo-600 text-white rounded-full cursor-pointer"
-        : "px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors";
-  });
-  renderCircularsView();
-};
-window.searchCirculars = (term) => {
-  state.circularSearchTerm = term;
-  renderCircularsView();
-};
-window.openNoticeModal = openNoticeModal;
-window.closeNoticeModal = closeNoticeModal;
 window.handleLoginSubmit = handleLoginSubmit;
 window.handleDemoLogin = handleDemoLogin;
 window.handleLogout = handleLogout;

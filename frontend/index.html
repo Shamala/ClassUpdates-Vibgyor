@@ -751,67 +751,8 @@
       <template id="view-weekly-slot"></template>
 
       <!-- ==================== TAB 3: CIRCULARS VIEW ==================== -->
-      <div id="view-circulars" class="hidden space-y-6">
-        <!-- Filter Bar -->
-        <div
-          class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs"
-        >
-          <div class="flex flex-wrap items-center gap-2">
-            <button
-              data-circ-cat="all"
-              onclick="filterCirculars('all')"
-              class="px-3 py-1 text-xs font-bold bg-indigo-600 text-white rounded-full cursor-pointer"
-            >
-              All Notices
-            </button>
-            <button
-              data-circ-cat="academic"
-              onclick="filterCirculars('academic')"
-              class="px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors"
-            >
-              Academic
-            </button>
-            <button
-              data-circ-cat="events"
-              onclick="filterCirculars('events')"
-              class="px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors"
-            >
-              Events
-            </button>
-            <button
-              data-circ-cat="sports"
-              onclick="filterCirculars('sports')"
-              class="px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors"
-            >
-              Sports
-            </button>
-            <button
-              data-circ-cat="admin"
-              onclick="filterCirculars('admin')"
-              class="px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors"
-            >
-              Admin
-            </button>
-          </div>
-
-          <div class="w-full sm:w-64">
-            <input
-              type="text"
-              placeholder="Search circulars..."
-              oninput="searchCirculars(this.value)"
-              class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
-            />
-          </div>
-        </div>
-
-        <!-- Circulars Grid -->
-        <div
-          id="circulars-container"
-          class="grid grid-cols-1 md:grid-cols-2 gap-4"
-        >
-          <!-- Injected via app.js -->
-        </div>
-      </div>
+      <!-- Drawn here by src/circulars/CircularsView.svelte -->
+      <template id="view-circulars-slot"></template>
     </main>
 
     <!-- Word History Modal / Mobile Bottom Sheet -->
@@ -911,95 +852,8 @@
       </div>
     </div>
 
-    <!-- Circular Notice Modal -->
-    <div
-      id="notice-modal"
-      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
-    >
-      <div
-        class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col text-slate-800 dark:text-slate-100"
-      >
-        <div
-          class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/80 pb-3"
-        >
-          <div class="flex items-center gap-2">
-            <span
-              id="notice-category-badge"
-              class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300"
-            >
-              Notice
-            </span>
-            <span
-              id="notice-date"
-              class="text-xs text-slate-400 dark:text-slate-500"
-            ></span>
-          </div>
-          <button
-            id="close-notice-modal"
-            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg cursor-pointer"
-          >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <h3
-          id="notice-title"
-          class="font-extrabold text-slate-900 dark:text-white text-lg leading-snug"
-        ></h3>
-
-        <div
-          id="notice-content"
-          class="overflow-y-auto pr-1 text-sm text-slate-700 dark:text-slate-200 leading-relaxed space-y-2 whitespace-pre-line flex-1"
-        >
-          <!-- Injected via app.js -->
-        </div>
-
-        <div
-          id="notice-footer"
-          class="pt-3 border-t border-slate-100 dark:border-slate-700/80 flex items-center justify-between"
-        >
-          <button
-            id="btn-close-notice"
-            class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors"
-          >
-            Close
-          </button>
-          <a
-            id="notice-pdf-link"
-            href="#"
-            target="_blank"
-            class="hidden px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white inline-flex items-center gap-1.5 shadow-sm"
-          >
-            <svg
-              class="w-3.5 h-3.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            Download PDF
-          </a>
-        </div>
-      </div>
-    </div>
+    <!-- Circular Notice Modal: drawn here by src/circulars/NoticeModal.svelte -->
+    <template id="notice-modal-slot"></template>
 
     <!-- Toast Notification -->
     <div id="toast"></div>
