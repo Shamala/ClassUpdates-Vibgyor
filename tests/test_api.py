@@ -214,9 +214,9 @@ class TestVibgyorApi(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertIn("text/html", headers.get("content-type", ""))
         self.assertIn("VIBGYOR", content)
-        # The Daily tab is drawn by Svelte in the browser, so the page carries
-        # only the place it mounts, not its text.
-        self.assertIn('id="view-daily-slot"', content)
+        # The page is drawn by Svelte in the browser, so it carries only the
+        # place it mounts, not its text.
+        self.assertIn('id="app-slot"', content)
 
     def test_serve_static_assets(self):
         # Verify relative static file endpoints

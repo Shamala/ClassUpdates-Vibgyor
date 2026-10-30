@@ -97,18 +97,6 @@ function resolveStudentForUser(username) {
 }
 
 // --- View Controls (Login vs Dashboard) ---
-// The dashboard is still plain markup in
-// index.html; this mirrors the shell flags onto them until they move too.
-function syncScreens() {
-  const screens = {
-    "dashboard-view": shell.dashboardView,
-  };
-  for (const [id, shown] of Object.entries(screens)) {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle("hidden", !shown);
-  }
-}
-
 // The header's profile clears itself: it draws nothing while state.student is null,
 // which it always is by the time this runs.
 function showLoginView() {
@@ -118,7 +106,6 @@ function showLoginView() {
   shell.dateWrap = false;
   shell.tabsBar = false;
   shell.mobileProfile = false;
-  syncScreens();
 }
 
 function showDashboardView() {
@@ -129,7 +116,6 @@ function showDashboardView() {
   shell.dateWrap = true;
   shell.tabsBar = true;
   shell.mobileProfile = true;
-  syncScreens();
 }
 
 async function checkAuth() {
@@ -487,7 +473,6 @@ function showPasscodeView(message) {
   shell.dashboardView = false;
   setHeaderHidden(true);
   shell.passcodeView = true;
-  syncScreens();
 
   const blob = window.VIBGYOR_ENCRYPTED_DATA;
   if (blob && blob.synced_at) {
@@ -500,7 +485,6 @@ function showPasscodeView(message) {
 
 function hidePasscodeView() {
   shell.passcodeView = false;
-  syncScreens();
   setHeaderHidden(false);
   // mobile-profile-snippet is shown only on small screens, by its own sm:hidden
   if (!state.isAuthenticated) shell.mobileProfile = false;
@@ -600,7 +584,8 @@ function renderSyncStamp() {
   shell.stampDrawnAt = Date.now();
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+// Starts the app once the page is drawn: unlocks the board, or signs in.
+async function boot() {
   migrateStudentStorage();
   initTheme();
   initPWA();
@@ -625,7 +610,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   renderSyncStamp();
   await checkAuth();
-});
+}
 
 // --- Navigation Tabs ---
 // The tab bar and the three views redraw from state.currentTab.
@@ -783,12 +768,11 @@ function loadStaticDailyUpdate(date) {
 
 async function loadDailyUpdate(date) {
   if (!date) return;
-  const container = document.getElementById("daily-content-loader");
-  if (container) container.classList.remove("hidden");
+  shell.dailyLoading = true;
 
   if (isStaticMode()) {
     loadStaticDailyUpdate(date);
-    if (container) container.classList.add("hidden");
+    shell.dailyLoading = false;
     return;
   }
 
@@ -807,7 +791,7 @@ async function loadDailyUpdate(date) {
       err,
     );
   } finally {
-    if (container) container.classList.add("hidden");
+    shell.dailyLoading = false;
   }
   loadStaticDailyUpdate(date);
 }
@@ -1087,15 +1071,10 @@ function chooseDate(date) {
   }
 }
 
-// Global exposure for inline events
-window.switchTab = switchTab;
-window.toggleHomework = toggleHomework;
-window.selectDateAndSwitch = selectDateAndSwitch;
-window.handleLogout = handleLogout;
-
-// For the Svelte components, which call back into the vanilla code until the
-// functions they need have moved out of it.
+// For main.js and the Svelte components, which call back into these until they
+// move out of app.js in Phase 5.
 export {
+  boot,
   toggleHomework,
   selectDateAndSwitch,
   switchTab,
