@@ -3,14 +3,20 @@
 // Provides 100% offline capability, instant loading & asset caching
 // =====================================================================
 
-const CACHE_NAME = "vibgyor-pwa-v26";
+// The build stamps both of these (see stampServiceWorker in vite.config.mjs): a
+// cache name that changes whenever anything the page is built from changes, so
+// a new release always replaces the old cache, and the app's file names, which
+// carry a hash of their contents. Unbuilt, under `npm run dev`, they stay as
+// written here.
+const CACHE_NAME = "vibgyor-pwa-dev";
+const APP_ASSETS = [/* build: app assets */];
 
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
   "./tailwind.css",
   "./style.css",
-  "./assets/app.js",
+  ...APP_ASSETS,
   "./static_data.js",
   "./class_data.enc.js",
   "./manifest.json",
@@ -19,13 +25,10 @@ const PRECACHE_ASSETS = [
   "./icons/apple-touch-icon.png",
 ];
 
-// Served from the network whenever it can be reached, because these three move
-// together and a mismatched pair changes what the page does, not just how it looks.
-const FRESH_FIRST = [
-  "/assets/app.js",
-  "/class_data.enc.js",
-  "/static_data.js",
-];
+// Served from the network whenever it can be reached: the app unlocks the class
+// data, so a page from one release with the data of another changes what the
+// page does, not just how it looks.
+const FRESH_FIRST = ["/class_data.enc.js", "/static_data.js"];
 
 // --- Install Event: Pre-cache core shell ---
 // cache.addAll rejects as a unit: one asset that 404s fails the whole install,
@@ -117,11 +120,30 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // The app code and the class data are versioned together: the passcode gate
-  // lives in app.js and the bundle it unlocks lives in class_data.enc.js. Served
-  // stale-while-revalidate, a returning visitor gets last week's app.js with this
-  // week's data for at least one load, and an app.js from before the gate existed
-  // simply renders the sample instead of asking for the passcode. So these are
+  // The app's own files are named after a hash of their contents, so a name
+  // always means the same bytes: once cached, a file never needs fetching again.
+  // A new release is a new index.html (fetched network-first above) naming new
+  // files, so the page and its code always match.
+  if (url.pathname.includes("/assets/")) {
+    event.respondWith(
+      caches.match(request).then(
+        (cached) =>
+          cached ||
+          fetch(request).then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              const copy = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+            }
+            return networkResponse;
+          }),
+      ),
+    );
+    return;
+  }
+
+  // The class data changes without the app changing, whenever a sync publishes,
+  // and the app is what unlocks it. Served stale-while-revalidate, a returning
+  // visitor would see last week's data for at least one load. So these are
   // network-first, and fall back to the cache only when the network cannot answer.
   if (FRESH_FIRST.some((name) => url.pathname.endsWith(name))) {
     event.respondWith(
