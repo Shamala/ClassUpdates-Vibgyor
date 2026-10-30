@@ -10,7 +10,8 @@
   import { pwa, installApp } from "../pwa.svelte.js";
   import { formatDatePretty, formatSyncStamp } from "../format.js";
   import { isPlaceholderStudentName, isDemoStudent, initials } from "../student.js";
-  import { switchTab, chooseDate, triggerManualSync, handleLogout, editStudentName } from "../../app.js";
+  import { switchTab, chooseDate, triggerManualSync, handleLogout } from "../../app.js";
+  import { editStudentName } from "./studentName.svelte.js";
 
   const TABS = [
     {

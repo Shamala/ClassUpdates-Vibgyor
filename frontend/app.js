@@ -25,7 +25,7 @@ import {
 import { shell, setHeaderHidden } from "./src/shell.svelte.js";
 import { initTheme } from "./src/theme.svelte.js";
 import { initPWA } from "./src/pwa.svelte.js";
-import { isPlaceholderStudentName, DEMO_STUDENT_ID } from "./src/student.js";
+import { isPlaceholderStudentName } from "./src/student.js";
 
 // The password the parent typed, kept in memory for this page session only so that
 // Sync Now can authenticate against the portal. It is never written to
@@ -94,63 +94,6 @@ function resolveStudentForUser(username) {
     ...GENERIC_STUDENT_FIELDS,
     parent_name: "Parent",
   };
-}
-
-function editStudentName() {
-  if (
-    !state.isAuthenticated ||
-    (state.student && state.student.student_id === DEMO_STUDENT_ID)
-  ) {
-    return;
-  }
-  const modal = document.getElementById("name-modal");
-  const input = document.getElementById("name-modal-input");
-  const current = state.student ? state.student.name : "";
-  if (input) input.value = isPlaceholderStudentName(current) ? "" : current;
-  if (modal) modal.classList.remove("hidden");
-  if (input) {
-    input.focus();
-    input.select();
-  }
-}
-
-function closeNameModal() {
-  const modal = document.getElementById("name-modal");
-  if (modal) modal.classList.add("hidden");
-}
-
-function submitStudentName(event) {
-  if (event) event.preventDefault();
-  const input = document.getElementById("name-modal-input");
-  const entered = input ? input.value.trim() : "";
-  closeNameModal();
-  if (!entered || !state.student) return;
-
-  // Match the backend's capitalisation so a typed name and a synced one look alike
-  const name = entered
-    .split(/\s+/)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-  if (name === state.student.name) return;
-  state.student.name = name;
-
-  if (!isSampleSession()) {
-    if (state.currentUser && state.currentUser.username) {
-      localStorage.setItem(
-        "vibgyor_student_for_" + state.currentUser.username.toLowerCase(),
-        JSON.stringify(state.student),
-      );
-    }
-    localStorage.setItem(
-      "vibgyor_parent_student",
-      JSON.stringify(state.student),
-    );
-  }
-  showToast(
-    `Updated student name to ${state.student.name} \u2b50`,
-    "success",
-    3000,
-  );
 }
 
 // --- View Controls (Login vs Dashboard) ---
@@ -1243,8 +1186,6 @@ window.toggleHomework = toggleHomework;
 window.selectDateAndSwitch = selectDateAndSwitch;
 window.handlePasscodeSubmit = handlePasscodeSubmit;
 window.viewSampleInstead = viewSampleInstead;
-window.closeNameModal = closeNameModal;
-window.submitStudentName = submitStudentName;
 window.handleLoginSubmit = handleLoginSubmit;
 window.handleDemoLogin = handleDemoLogin;
 window.handleLogout = handleLogout;
@@ -1260,5 +1201,4 @@ export {
   chooseDate,
   triggerManualSync,
   handleLogout,
-  editStudentName,
 };
