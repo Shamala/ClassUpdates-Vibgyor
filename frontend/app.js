@@ -22,7 +22,7 @@ import {
   PASSCODE_STORAGE_KEY,
   migrateStudentStorage,
 } from "./src/storage.js";
-import { shell, setHeaderHidden } from "./src/shell.svelte.js";
+import { shell, passcode, setHeaderHidden } from "./src/shell.svelte.js";
 import { initTheme } from "./src/theme.svelte.js";
 import { initPWA } from "./src/pwa.svelte.js";
 import { isPlaceholderStudentName } from "./src/student.js";
@@ -97,13 +97,12 @@ function resolveStudentForUser(username) {
 }
 
 // --- View Controls (Login vs Dashboard) ---
-// The login, dashboard and passcode screens are still plain markup in
+// The login and dashboard screens are still plain markup in
 // index.html; this mirrors the shell flags onto them until they move too.
 function syncScreens() {
   const screens = {
     "login-view": shell.loginView,
     "dashboard-view": shell.dashboardView,
-    "passcode-view": shell.passcodeView,
   };
   for (const [id, shown] of Object.entries(screens)) {
     const el = document.getElementById(id);
@@ -514,40 +513,6 @@ function togglePasswordVisibility() {
   pwdInput.type = pwdInput.type === "password" ? "text" : "password";
 }
 
-// A class passcode is typed from a WhatsApp message, often one-handed with a
-// child in tow, and a wrong character just says it is wrong. Being able to see
-// what you typed is the difference between a second attempt and giving up.
-function togglePasscodeVisibility() {
-  const input = document.getElementById("passcode-input");
-  const button = document.getElementById("toggle-passcode-btn");
-  const eyeOpen = document.getElementById("passcode-eye-open");
-  const eyeClosed = document.getElementById("passcode-eye-closed");
-  if (!input) return;
-
-  const revealing = input.type === "password";
-  input.type = revealing ? "text" : "password";
-
-  if (eyeOpen) eyeOpen.classList.toggle("hidden", revealing);
-  if (eyeClosed) eyeClosed.classList.toggle("hidden", !revealing);
-
-  if (button) {
-    const label = revealing ? "Hide passcode" : "Show passcode";
-    button.setAttribute("aria-label", label);
-    button.setAttribute("aria-pressed", String(revealing));
-    button.title = label;
-  }
-
-  // Tapping the icon moves focus off the field; put the caret back where it was
-  // so typing can carry on uninterrupted.
-  const caret = input.value.length;
-  input.focus();
-  try {
-    input.setSelectionRange(caret, caret);
-  } catch (e) {
-    // setSelectionRange is not allowed on every input type in every browser
-  }
-}
-
 // --- Initialization ---
 
 // The sample exists to be poked at. Whatever a parent types while looking at it
@@ -565,21 +530,13 @@ function showPasscodeView(message) {
   shell.passcodeView = true;
   syncScreens();
 
-  const stamp = document.getElementById("passcode-synced-at");
   const blob = window.VIBGYOR_ENCRYPTED_DATA;
-  if (stamp && blob && blob.synced_at) {
-    stamp.textContent = `Class updates last refreshed ${formatSyncStamp(blob.synced_at)}`;
+  if (blob && blob.synced_at) {
+    passcode.syncedAt = `Class updates last refreshed ${formatSyncStamp(blob.synced_at)}`;
   }
-  const error = document.getElementById("passcode-error");
-  if (error) {
-    error.textContent = message || "";
-    error.classList.toggle("hidden", !message);
-  }
-  const input = document.getElementById("passcode-input");
-  if (input) {
-    input.value = "";
-    input.focus();
-  }
+  passcode.error = message || "";
+  passcode.value = "";
+  passcode.focusRequest++;
 }
 
 function hidePasscodeView() {
@@ -654,24 +611,18 @@ async function enterClassBoard() {
   await loadAvailableDates();
 }
 
-async function handlePasscodeSubmit(event) {
-  if (event) event.preventDefault();
-  const input = document.getElementById("passcode-input");
-  const button = document.getElementById("passcode-submit");
-  const passcode = input ? input.value.trim() : "";
-  if (!passcode) return;
+async function handlePasscodeSubmit() {
+  const entered = passcode.value.trim();
+  if (!entered) return;
 
-  if (button) {
-    button.disabled = true;
-    button.textContent = "Unlocking...";
-  }
+  passcode.submitting = true;
   try {
     window.VIBGYOR_STATIC_DATA = await decryptClassData(
-      passcode,
+      entered,
       window.VIBGYOR_ENCRYPTED_DATA,
     );
     try {
-      localStorage.setItem(PASSCODE_STORAGE_KEY, passcode);
+      localStorage.setItem(PASSCODE_STORAGE_KEY, entered);
     } catch (e) {}
     hidePasscodeView();
     await enterClassBoard();
@@ -680,10 +631,7 @@ async function handlePasscodeSubmit(event) {
       "That passcode does not match. Check with the class parent who shared it.",
     );
   } finally {
-    if (button) {
-      button.disabled = false;
-      button.textContent = "View class updates";
-    }
+    passcode.submitting = false;
   }
 }
 
@@ -1184,13 +1132,10 @@ function chooseDate(date) {
 window.switchTab = switchTab;
 window.toggleHomework = toggleHomework;
 window.selectDateAndSwitch = selectDateAndSwitch;
-window.handlePasscodeSubmit = handlePasscodeSubmit;
-window.viewSampleInstead = viewSampleInstead;
 window.handleLoginSubmit = handleLoginSubmit;
 window.handleDemoLogin = handleDemoLogin;
 window.handleLogout = handleLogout;
 window.togglePasswordVisibility = togglePasswordVisibility;
-window.togglePasscodeVisibility = togglePasscodeVisibility;
 
 // For the Svelte components, which call back into the vanilla code until the
 // functions they need have moved out of it.
@@ -1201,4 +1146,6 @@ export {
   chooseDate,
   triggerManualSync,
   handleLogout,
+  handlePasscodeSubmit,
+  viewSampleInstead,
 };

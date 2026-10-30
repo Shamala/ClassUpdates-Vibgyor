@@ -33,3 +33,13 @@ export function setHeaderHidden(hidden) {
   shell.mobileProfile = !hidden;
   shell.tabsBar = !hidden;
 }
+
+// The class passcode screen. showPasscodeView() in app.js fills it in; bumping
+// focusRequest puts the cursor back in the box.
+export const passcode = $state({
+  value: "",
+  error: "",
+  syncedAt: "",
+  submitting: false,
+  focusRequest: 0,
+});
