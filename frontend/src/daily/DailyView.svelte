@@ -2,11 +2,10 @@
   The Daily Diary tab. Everything here redraws from state.dailyData, which the
   loaders in app.js set when a date is chosen or homework is ticked.
 
-  switchTab() in app.js shows and hides this by toggling `hidden` on
-  #view-daily. The class attribute below is static, so Svelte never rewrites it
-  and the two do not fight.
+  Shown while state.currentTab is "daily".
 -->
 <script>
+  import { state } from "../state.svelte.js";
   import { openWordHistory } from "../words/wordModal.svelte.js";
   import WordsHero from "./WordsHero.svelte";
   import HomeworkList from "./HomeworkList.svelte";
@@ -14,7 +13,7 @@
   import PeriodsTable from "./PeriodsTable.svelte";
 </script>
 
-<div id="view-daily" class="space-y-6">
+<div id="view-daily" class="space-y-6" class:hidden={state.currentTab !== "daily"}>
   <!-- Hero: Words of the Day -->
   <section class="flashcard-gradient rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
     <!-- Background subtle decorative shapes -->

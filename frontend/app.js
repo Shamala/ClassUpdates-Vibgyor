@@ -1,7 +1,7 @@
 /**
  * VIBGYOR Class Updates - Parent Dashboard Application
  */
-import { formatDatePretty, getDayName } from "./src/format.js";
+import { formatSyncStamp } from "./src/format.js";
 import { showToast } from "./src/toast.svelte.js";
 import {
   API_BASE,
@@ -22,67 +22,10 @@ import {
   PASSCODE_STORAGE_KEY,
   migrateStudentStorage,
 } from "./src/storage.js";
-
-// --- Theme Management (Dark / Light Mode) ---
-function initTheme() {
-  const theme = localStorage.getItem("theme");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const isDark = theme === "dark" || (!theme && prefersDark);
-
-  if (isDark) {
-    document.documentElement.classList.add("dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-  }
-  updateThemeToggleIcon(isDark);
-
-  // Listen for system preference changes when no explicit override is stored
-  window
-    .matchMedia("(prefers-color-scheme: dark)")
-    .addEventListener("change", (e) => {
-      if (!localStorage.getItem("theme")) {
-        if (e.matches) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
-        updateThemeToggleIcon(e.matches);
-      }
-    });
-
-  const themeBtn = document.getElementById("theme-toggle-btn");
-  if (themeBtn) {
-    themeBtn.addEventListener("click", toggleTheme);
-  }
-}
-
-function toggleTheme() {
-  const isDark = document.documentElement.classList.toggle("dark");
-  localStorage.setItem("theme", isDark ? "dark" : "light");
-  updateThemeToggleIcon(isDark);
-  showToast(
-    isDark ? "Dark mode activated 🌙" : "Light mode activated ☀️",
-    "info",
-  );
-}
-
-function updateThemeToggleIcon(isDark) {
-  const sunIcon = document.getElementById("theme-sun-icon");
-  const moonIcon = document.getElementById("theme-moon-icon");
-  const themeBtn = document.getElementById("theme-toggle-btn");
-
-  if (sunIcon && moonIcon) {
-    if (isDark) {
-      sunIcon.classList.remove("hidden");
-      moonIcon.classList.add("hidden");
-      if (themeBtn) themeBtn.title = "Switch to Light Mode";
-    } else {
-      sunIcon.classList.add("hidden");
-      moonIcon.classList.remove("hidden");
-      if (themeBtn) themeBtn.title = "Switch to Dark Mode";
-    }
-  }
-}
+import { shell, passcode, login, setHeaderHidden } from "./src/shell.svelte.js";
+import { initTheme } from "./src/theme.svelte.js";
+import { initPWA } from "./src/pwa.svelte.js";
+import { isPlaceholderStudentName } from "./src/student.js";
 
 // The password the parent typed, kept in memory for this page session only so that
 // Sync Now can authenticate against the portal. It is never written to
@@ -96,16 +39,6 @@ function hashCode(str) {
     hash |= 0;
   }
   return hash;
-}
-
-// The backend/PDF sync only knows the real child's name when the Orion scrape
-// succeeds; otherwise it hands back one of these placeholders, which must never
-// be shown as if it were a name, nor overwrite a name the parent typed in.
-function isPlaceholderStudentName(name) {
-  if (!name) return true;
-  const n = String(name).trim().toLowerCase();
-  if (!n || n === "student" || n === "n/a" || n === "-") return true;
-  return n.includes("'s ward");
 }
 
 // Server profiles win on grade/section/school, but a name the parent set locally
@@ -163,106 +96,26 @@ function resolveStudentForUser(username) {
   };
 }
 
-function editStudentName() {
-  if (
-    !state.isAuthenticated ||
-    (state.student && state.student.student_id === "DEMO-G1F-001")
-  ) {
-    return;
-  }
-  const modal = document.getElementById("name-modal");
-  const input = document.getElementById("name-modal-input");
-  const current = state.student ? state.student.name : "";
-  if (input) input.value = isPlaceholderStudentName(current) ? "" : current;
-  if (modal) modal.classList.remove("hidden");
-  if (input) {
-    input.focus();
-    input.select();
-  }
-}
-
-function closeNameModal() {
-  const modal = document.getElementById("name-modal");
-  if (modal) modal.classList.add("hidden");
-}
-
-function submitStudentName(event) {
-  if (event) event.preventDefault();
-  const input = document.getElementById("name-modal-input");
-  const entered = input ? input.value.trim() : "";
-  closeNameModal();
-  if (!entered || !state.student) return;
-
-  // Match the backend's capitalisation so a typed name and a synced one look alike
-  const name = entered
-    .split(/\s+/)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-  if (name === state.student.name) return;
-  state.student.name = name;
-
-  if (!isSampleSession()) {
-    if (state.currentUser && state.currentUser.username) {
-      localStorage.setItem(
-        "vibgyor_student_for_" + state.currentUser.username.toLowerCase(),
-        JSON.stringify(state.student),
-      );
-    }
-    localStorage.setItem(
-      "vibgyor_parent_student",
-      JSON.stringify(state.student),
-    );
-  }
-  renderStudentProfile();
-  showToast(
-    `Updated student name to ${state.student.name} \u2b50`,
-    "success",
-    3000,
-  );
-}
-
 // --- View Controls (Login vs Dashboard) ---
+// The header's profile clears itself: it draws nothing while state.student is null,
+// which it always is by the time this runs.
 function showLoginView() {
-  const loginView = document.getElementById("login-view");
-  const dashboardView = document.getElementById("dashboard-view");
-  const authControls = document.getElementById("authenticated-controls");
-  const dateWrap = document.getElementById("date-select-wrap");
-  const tabsBar = document.getElementById("tabs-bar");
-  const mobSnippet = document.getElementById("mobile-profile-snippet");
-  const mobName = document.getElementById("mobile-student-name");
-  const mobMeta = document.getElementById("mobile-student-meta");
-  const deskName = document.getElementById("student-name");
-  const deskMeta = document.getElementById("student-meta");
-  const deskAvatar = document.getElementById("student-avatar");
-
-  if (loginView) loginView.classList.remove("hidden");
-  if (dashboardView) dashboardView.classList.add("hidden");
-  if (authControls) authControls.classList.add("hidden");
-  if (dateWrap) dateWrap.classList.add("hidden");
-  if (tabsBar) tabsBar.classList.add("hidden");
-  if (mobSnippet) mobSnippet.classList.add("hidden");
-  if (mobName) mobName.textContent = "";
-  if (mobMeta) mobMeta.textContent = "";
-  if (deskName) deskName.textContent = "";
-  if (deskMeta) deskMeta.textContent = "";
-  if (deskAvatar) deskAvatar.textContent = "--";
+  shell.loginView = true;
+  shell.dashboardView = false;
+  shell.authControls = false;
+  shell.dateWrap = false;
+  shell.tabsBar = false;
+  shell.mobileProfile = false;
 }
 
 function showDashboardView() {
-  const loginView = document.getElementById("login-view");
-  const dashboardView = document.getElementById("dashboard-view");
-  const authControls = document.getElementById("authenticated-controls");
-  const dateWrap = document.getElementById("date-select-wrap");
-  const tabsBar = document.getElementById("tabs-bar");
-  const mobSnippet = document.getElementById("mobile-profile-snippet");
-
-  if (loginView) loginView.classList.add("hidden");
-  if (dashboardView) dashboardView.classList.remove("hidden");
-  if (authControls) authControls.classList.remove("hidden");
+  shell.loginView = false;
+  shell.dashboardView = true;
+  shell.authControls = true;
   renderSyncStamp();
-  if (dateWrap) dateWrap.classList.remove("hidden");
-  if (tabsBar) tabsBar.classList.remove("hidden");
-  if (mobSnippet) mobSnippet.classList.remove("hidden");
+  shell.dateWrap = true;
+  shell.tabsBar = true;
+  shell.mobileProfile = true;
 }
 
 async function checkAuth() {
@@ -315,7 +168,6 @@ async function checkAuth() {
     }
 
     showDashboardView();
-    renderStudentProfile();
     await loadAvailableDates();
     return;
   }
@@ -331,8 +183,7 @@ async function checkAuth() {
         state.currentUser = data.user;
         applyStudentProfile(data.student, data.user ? data.user.username : "");
         showDashboardView();
-        renderStudentProfile();
-        await loadAvailableDates();
+            await loadAvailableDates();
         return;
       }
     }
@@ -377,7 +228,6 @@ async function checkAuth() {
           : resolveStudentForUser("");
     }
     showDashboardView();
-    renderStudentProfile();
     await loadAvailableDates();
     return;
   }
@@ -385,32 +235,22 @@ async function checkAuth() {
   showLoginView();
 }
 
-async function handleLoginSubmit(event) {
-  if (event) event.preventDefault();
-  const usernameInput = document.getElementById("login-username");
-  const passwordInput = document.getElementById("login-password");
-  const errorAlert = document.getElementById("login-error-alert");
-  const errorText = document.getElementById("login-error-text");
-  const submitBtn = document.getElementById("login-submit-btn");
-  const spinner = document.getElementById("login-spinner");
-  const btnText = document.getElementById("login-btn-text");
+function showLoginError(message) {
+  login.error = message;
+  login.errorShown = true;
+}
 
-  if (!usernameInput || !passwordInput) return;
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value;
+async function handleLoginSubmit() {
+  const username = login.username.trim();
+  const password = login.password;
 
   if (!username || !password) {
-    if (errorAlert) {
-      errorText.textContent = "Please enter both username and password.";
-      errorAlert.classList.remove("hidden");
-    }
+    showLoginError("Please enter both username and password.");
     return;
   }
 
-  if (errorAlert) errorAlert.classList.add("hidden");
-  if (submitBtn) submitBtn.disabled = true;
-  if (spinner) spinner.classList.remove("hidden");
-  if (btnText) btnText.textContent = "Connecting to Hubble Orion...";
+  login.errorShown = false;
+  login.submitting = true;
 
   // Static / GitHub Pages mode: authenticate locally with 100% privacy
   // Passwords are NEVER sent anywhere or stored.
@@ -437,11 +277,8 @@ async function handleLoginSubmit(event) {
         4000,
       );
       showDashboardView();
-      renderStudentProfile();
-      await loadAvailableDates();
-      if (submitBtn) submitBtn.disabled = false;
-      if (spinner) spinner.classList.add("hidden");
-      if (btnText) btnText.textContent = "Sign In & Sync";
+        await loadAvailableDates();
+      login.submitting = false;
     }, 400);
     return;
   }
@@ -467,45 +304,32 @@ async function handleLoginSubmit(event) {
 
       showToast(data.message || "Signed in successfully!", "success", 4000);
       showDashboardView();
-      renderStudentProfile();
-      await loadAvailableDates();
+        await loadAvailableDates();
       // not awaited: the dashboard is usable while the portal is being read
       autoSyncAfterSignIn();
     } else {
-      if (errorAlert) {
-        errorText.textContent =
-          data.detail ||
+      showLoginError(
+        data.detail ||
           data.error ||
-          "Login failed. Check your Hubble Orion credentials.";
-        errorAlert.classList.remove("hidden");
-      }
+          "Login failed. Check your Hubble Orion credentials.",
+      );
     }
   } catch (err) {
     // The server is unreachable. We have no way to check the password, so show
     // that plainly instead of signing the parent in with credentials nobody
     // verified, which is what this branch used to do.
     console.warn("Login request failed:", err);
-    if (errorAlert) {
-      errorText.textContent =
-        "Can't reach the ClassUpdates server right now, so your sign-in could not be verified. Check that it is running and try again.";
-      errorAlert.classList.remove("hidden");
-    }
+    showLoginError(
+      "Can't reach the ClassUpdates server right now, so your sign-in could not be verified. Check that it is running and try again.",
+    );
   } finally {
-    if (submitBtn) submitBtn.disabled = false;
-    if (spinner) spinner.classList.add("hidden");
-    if (btnText) btnText.textContent = "Sign In & Sync";
+    login.submitting = false;
   }
 }
 
 async function handleDemoLogin() {
-  const errorAlert = document.getElementById("login-error-alert");
-  const demoBtn = document.getElementById("demo-login-btn");
-
-  if (errorAlert) errorAlert.classList.add("hidden");
-  if (demoBtn) {
-    demoBtn.disabled = true;
-    demoBtn.classList.add("opacity-75");
-  }
+  login.errorShown = false;
+  login.demoBusy = true;
 
   // Clear any existing stored user/student data first
   localStorage.removeItem("vibgyor_parent_user");
@@ -536,12 +360,8 @@ async function handleDemoLogin() {
         4000,
       );
       showDashboardView();
-      renderStudentProfile();
-      await loadAvailableDates();
-      if (demoBtn) {
-        demoBtn.disabled = false;
-        demoBtn.classList.remove("opacity-75");
-      }
+        await loadAvailableDates();
+      login.demoBusy = false;
     }, 200);
     return;
   }
@@ -570,14 +390,9 @@ async function handleDemoLogin() {
 
       showToast("Signed in with Demo Account ⭐", "success", 4000);
       showDashboardView();
-      renderStudentProfile();
-      await loadAvailableDates();
+        await loadAvailableDates();
     } else {
-      if (errorAlert) {
-        errorText.textContent =
-          data.detail || data.error || "Demo login failed.";
-        errorAlert.classList.remove("hidden");
-      }
+      showLoginError(data.detail || data.error || "Demo login failed.");
     }
   } catch (err) {
     state.isAuthenticated = true;
@@ -599,13 +414,9 @@ async function handleDemoLogin() {
 
     showToast("Signed in with Demo Account ⭐ (Sample Data)", "success", 4000);
     showDashboardView();
-    renderStudentProfile();
     await loadAvailableDates();
   } finally {
-    if (demoBtn) {
-      demoBtn.disabled = false;
-      demoBtn.classList.remove("opacity-75");
-    }
+    login.demoBusy = false;
   }
 }
 
@@ -632,7 +443,7 @@ async function handleLogout() {
   if (isClassBoard()) {
     // Leaving the sample ends the sample: without this the next unlock would
     // still be treated as make-believe and refuse to remember a real name.
-    viewingSample = false;
+    shell.viewingSample = false;
 
     // On the board there is nothing to sign out of; forget the passcode so the
     // next person on this device has to enter it again.
@@ -647,200 +458,36 @@ async function handleLogout() {
   showToast("You have been signed out.", "info", 3000);
 }
 
-function togglePasswordVisibility() {
-  const pwdInput = document.getElementById("login-password");
-  if (!pwdInput) return;
-  pwdInput.type = pwdInput.type === "password" ? "text" : "password";
-}
-
-// A class passcode is typed from a WhatsApp message, often one-handed with a
-// child in tow, and a wrong character just says it is wrong. Being able to see
-// what you typed is the difference between a second attempt and giving up.
-function togglePasscodeVisibility() {
-  const input = document.getElementById("passcode-input");
-  const button = document.getElementById("toggle-passcode-btn");
-  const eyeOpen = document.getElementById("passcode-eye-open");
-  const eyeClosed = document.getElementById("passcode-eye-closed");
-  if (!input) return;
-
-  const revealing = input.type === "password";
-  input.type = revealing ? "text" : "password";
-
-  if (eyeOpen) eyeOpen.classList.toggle("hidden", revealing);
-  if (eyeClosed) eyeClosed.classList.toggle("hidden", !revealing);
-
-  if (button) {
-    const label = revealing ? "Hide passcode" : "Show passcode";
-    button.setAttribute("aria-label", label);
-    button.setAttribute("aria-pressed", String(revealing));
-    button.title = label;
-  }
-
-  // Tapping the icon moves focus off the field; put the caret back where it was
-  // so typing can carry on uninterrupted.
-  const caret = input.value.length;
-  input.focus();
-  try {
-    input.setSelectionRange(caret, caret);
-  } catch (e) {
-    // setSelectionRange is not allowed on every input type in every browser
-  }
-}
-
-// --- PWA Installation & Service Worker Registration ---
-let deferredInstallPrompt = null;
-
-function initPWA() {
-  // 1. Register Service Worker for offline support
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("./sw.js")
-        .then((reg) => {
-          console.log("[PWA] Service Worker registered with scope:", reg.scope);
-        })
-        .catch((err) => {
-          console.warn("[PWA] Service Worker registration failed:", err);
-        });
-    });
-  }
-
-  const installBtn = document.getElementById("pwa-install-btn");
-  if (!installBtn) return;
-
-  // Check if app is already running in standalone / installed mode
-  const isStandalone =
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true;
-
-  if (isStandalone) {
-    installBtn.classList.add("hidden");
-    installBtn.classList.remove("flex");
-    return;
-  }
-
-  // 2. Listen for native browser install prompt (Android, Chrome, Edge)
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-    installBtn.classList.remove("hidden");
-    installBtn.classList.add("flex");
-  });
-
-  // 3. Handle click on install button
-  installBtn.addEventListener("click", async () => {
-    if (deferredInstallPrompt) {
-      deferredInstallPrompt.prompt();
-      const { outcome } = await deferredInstallPrompt.userChoice;
-      if (outcome === "accepted") {
-        showToast(
-          "Installing ClassUpdates to your device! 🎉",
-          "success",
-          4000,
-        );
-      }
-      deferredInstallPrompt = null;
-      installBtn.classList.add("hidden");
-      installBtn.classList.remove("flex");
-    } else {
-      const isIos =
-        /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      if (isIos) {
-        showToast(
-          "To install on iPhone/iPad: Tap the Share button ⎋ at the bottom of Safari and select 'Add to Home Screen' ⊞",
-          "info",
-          7000,
-        );
-      } else {
-        showToast(
-          "To install: Open browser menu (⋮) and select 'Install app' or 'Add to Home Screen' 📲",
-          "info",
-          5000,
-        );
-      }
-    }
-  });
-
-  // 4. Listen for successful installation
-  window.addEventListener("appinstalled", () => {
-    installBtn.classList.add("hidden");
-    installBtn.classList.remove("flex");
-    deferredInstallPrompt = null;
-    showToast("ClassUpdates installed successfully! 📱", "success", 5000);
-  });
-
-  // If on iOS and not standalone, show the install button with iOS instructions
-  const isIos =
-    /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  if (isIos && !isStandalone) {
-    installBtn.classList.remove("hidden");
-    installBtn.classList.add("flex");
-  }
-}
-
 // --- Initialization ---
-
-// True when showing the sample bundle to someone without the passcode. The real
-// refresh time must not be displayed over sample content.
-let viewingSample = false;
 
 // The sample exists to be poked at. Whatever a parent types while looking at it
 // is about made-up data, so none of it is written down: the sample and the real
 // board would otherwise share one device's storage and the demo child's name
 // would greet them after they entered the passcode.
 function isSampleSession() {
-  return viewingSample;
-}
-
-// Nothing in the header works before the board is unlocked: the date list has
-// nothing to list, Sync reaches a portal this page cannot see, and the profile
-// still shows whoever used this device last. Hidden until there is a board.
-const LOCKED_HEADER_IDS = [
-  "header-controls",
-  "mobile-profile-snippet",
-  "tabs-bar",
-];
-
-function setHeaderHidden(hidden) {
-  LOCKED_HEADER_IDS.forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle("hidden", hidden);
-  });
+  return shell.viewingSample;
 }
 
 function showPasscodeView(message) {
-  const view = document.getElementById("passcode-view");
-  const login = document.getElementById("login-view");
-  const dash = document.getElementById("dashboard-view");
-  if (login) login.classList.add("hidden");
-  if (dash) dash.classList.add("hidden");
+  shell.loginView = false;
+  shell.dashboardView = false;
   setHeaderHidden(true);
-  if (view) view.classList.remove("hidden");
+  shell.passcodeView = true;
 
-  const stamp = document.getElementById("passcode-synced-at");
   const blob = window.VIBGYOR_ENCRYPTED_DATA;
-  if (stamp && blob && blob.synced_at) {
-    stamp.textContent = `Class updates last refreshed ${formatSyncStamp(blob.synced_at)}`;
+  if (blob && blob.synced_at) {
+    passcode.syncedAt = `Class updates last refreshed ${formatSyncStamp(blob.synced_at)}`;
   }
-  const error = document.getElementById("passcode-error");
-  if (error) {
-    error.textContent = message || "";
-    error.classList.toggle("hidden", !message);
-  }
-  const input = document.getElementById("passcode-input");
-  if (input) {
-    input.value = "";
-    input.focus();
-  }
+  passcode.error = message || "";
+  passcode.value = "";
+  passcode.focusRequest++;
 }
 
 function hidePasscodeView() {
-  const view = document.getElementById("passcode-view");
-  if (view) view.classList.add("hidden");
+  shell.passcodeView = false;
   setHeaderHidden(false);
   // mobile-profile-snippet is shown only on small screens, by its own sm:hidden
-  const snippet = document.getElementById("mobile-profile-snippet");
-  if (snippet && !state.isAuthenticated) snippet.classList.add("hidden");
+  if (!state.isAuthenticated) shell.mobileProfile = false;
 }
 
 // Resolves once the class content is available, or never - the passcode screen
@@ -883,7 +530,7 @@ async function unlockClassData() {
 // Lets a parent who has not been given the passcode yet see what the board looks
 // like, using the sample bundle that ships alongside the encrypted one.
 function viewSampleInstead() {
-  viewingSample = true;
+  shell.viewingSample = true;
   hidePasscodeView();
   enterClassBoard();
 }
@@ -898,43 +545,27 @@ async function enterClassBoard() {
   applyStudentProfile(null, "class");
 
   // Sync reaches the school portal, which only the parent who publishes the board
-  // can do. Leaving the button there would promise a refresh it cannot deliver.
-  const syncBtn = document.getElementById("sync-btn");
-  if (syncBtn) syncBtn.classList.add("hidden");
-
-  // There is no account here, so "Sign Out" means "lock this device again".
-  const signOutBtn = document.getElementById("signout-btn");
-  if (signOutBtn) {
-    const label = signOutBtn.querySelector("span");
-    if (label) label.textContent = "Lock";
-    signOutBtn.title =
-      "Lock the board on this device and ask for the passcode again";
-  }
+  // can do, so the header drops it; and with no account here, "Sign Out" becomes
+  // "Lock this device again".
+  shell.classBoard = true;
 
   showDashboardView();
-  renderStudentProfile();
   renderSyncStamp();
   await loadAvailableDates();
 }
 
-async function handlePasscodeSubmit(event) {
-  if (event) event.preventDefault();
-  const input = document.getElementById("passcode-input");
-  const button = document.getElementById("passcode-submit");
-  const passcode = input ? input.value.trim() : "";
-  if (!passcode) return;
+async function handlePasscodeSubmit() {
+  const entered = passcode.value.trim();
+  if (!entered) return;
 
-  if (button) {
-    button.disabled = true;
-    button.textContent = "Unlocking...";
-  }
+  passcode.submitting = true;
   try {
     window.VIBGYOR_STATIC_DATA = await decryptClassData(
-      passcode,
+      entered,
       window.VIBGYOR_ENCRYPTED_DATA,
     );
     try {
-      localStorage.setItem(PASSCODE_STORAGE_KEY, passcode);
+      localStorage.setItem(PASSCODE_STORAGE_KEY, entered);
     } catch (e) {}
     hidePasscodeView();
     await enterClassBoard();
@@ -943,49 +574,21 @@ async function handlePasscodeSubmit(event) {
       "That passcode does not match. Check with the class parent who shared it.",
     );
   } finally {
-    if (button) {
-      button.disabled = false;
-      button.textContent = "View class updates";
-    }
+    passcode.submitting = false;
   }
 }
 
-function formatSyncStamp(iso) {
-  const when = new Date(iso);
-  if (isNaN(when.getTime())) return iso;
-  const mins = Math.round((Date.now() - when.getTime()) / 60000);
-  if (mins < 2) return "just now";
-  if (mins < 60) return `${mins} minutes ago`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-  const days = Math.round(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
-}
-
+// The header's freshness stamp is measured from the moment it is drawn, as the
+// old one was; this redraws it.
 function renderSyncStamp() {
-  const el = document.getElementById("last-synced");
-  if (!el) return;
-  const blob = window.VIBGYOR_ENCRYPTED_DATA;
-  const iso = !viewingSample && blob && blob.synced_at;
-  if (!iso) {
-    el.classList.add("hidden");
-    return;
-  }
-  el.classList.remove("hidden");
-  el.textContent = `Updated ${formatSyncStamp(iso)}`;
-  const stale = (Date.now() - new Date(iso).getTime()) / 3600000 > 36;
-  el.title = stale
-    ? "These class updates have not been refreshed recently, so they may be out of date."
-    : "When these class updates were last refreshed from the school portal.";
-  el.classList.toggle("text-amber-600", stale);
-  el.classList.toggle("dark:text-amber-400", stale);
+  shell.stampDrawnAt = Date.now();
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+// Starts the app once the page is drawn: unlocks the board, or signs in.
+async function boot() {
   migrateStudentStorage();
   initTheme();
   initPWA();
-  setupEventListeners();
 
   // A published board with no class content to show means the bundle did not
   // load - a failed fetch, or a cache holding a page newer than its data. The
@@ -1007,57 +610,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   renderSyncStamp();
   await checkAuth();
-});
-
-function setupEventListeners() {
-  // Tabs
-  document.querySelectorAll("[data-tab]").forEach((btn) => {
-    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-  });
-
-  // Date select dropdown
-  const dateSelect = document.getElementById("date-select");
-  if (dateSelect) {
-    dateSelect.addEventListener("change", (e) => {
-      state.selectedDate = e.target.value;
-      if (state.currentTab === "daily") {
-        loadDailyUpdate(state.selectedDate);
-      } else if (state.currentTab === "weekly") {
-        loadWeeklyUpdate(state.selectedDate);
-      }
-    });
-  }
-
-  // Sync button
-  const syncBtn = document.getElementById("sync-btn");
-  if (syncBtn) {
-    syncBtn.addEventListener("click", () => triggerManualSync());
-  }
-
 }
 
 // --- Navigation Tabs ---
+// The tab bar and the three views redraw from state.currentTab.
 function switchTab(tabName) {
   state.currentTab = tabName;
-  document.querySelectorAll("[data-tab]").forEach((btn) => {
-    if (btn.dataset.tab === tabName) {
-      btn.className =
-        "tab-active pb-3 text-sm flex items-center gap-2 cursor-pointer";
-    } else {
-      btn.className =
-        "tab-inactive pb-3 text-sm flex items-center gap-2 cursor-pointer";
-    }
-  });
-
-  document
-    .getElementById("view-daily")
-    .classList.toggle("hidden", tabName !== "daily");
-  document
-    .getElementById("view-weekly")
-    .classList.toggle("hidden", tabName !== "weekly");
-  document
-    .getElementById("view-circulars")
-    .classList.toggle("hidden", tabName !== "circulars");
 
   if (tabName === "daily") {
     loadDailyUpdate(state.selectedDate);
@@ -1071,14 +629,12 @@ function switchTab(tabName) {
 // --- API Calls & Client-Side Data Loading ---
 async function loadStudentProfile() {
   if (state.student && state.student.student_id === "DEMO-G1F-001") {
-    renderStudentProfile();
     return;
   }
   if (isStaticMode()) {
     if (!state.student) {
       state.student = DEMO_STUDENT;
     }
-    renderStudentProfile();
     return;
   }
 
@@ -1088,8 +644,7 @@ async function loadStudentProfile() {
     });
     if (res.ok) {
       state.student = await res.json();
-      renderStudentProfile();
-      return;
+        return;
     }
   } catch (err) {
     console.warn(
@@ -1101,7 +656,6 @@ async function loadStudentProfile() {
   if (!state.student) {
     state.student = DEMO_STUDENT;
   }
-  renderStudentProfile();
 }
 
 function loadStaticAvailableDates() {
@@ -1127,7 +681,6 @@ function loadStaticAvailableDates() {
   });
 
   state.availableDates = dates;
-  renderDateDropdown();
 
   if (state.availableDates.length > 0) {
     if (
@@ -1136,8 +689,6 @@ function loadStaticAvailableDates() {
     ) {
       state.selectedDate = state.availableDates[0].date;
     }
-    const dateSelect = document.getElementById("date-select");
-    if (dateSelect) dateSelect.value = state.selectedDate;
   }
 }
 
@@ -1156,12 +707,9 @@ async function loadAvailableDates() {
     });
     if (res.ok) {
       state.availableDates = await res.json();
-      renderDateDropdown();
 
       if (state.availableDates.length > 0) {
         state.selectedDate = state.availableDates[0].date;
-        const dateSelect = document.getElementById("date-select");
-        if (dateSelect) dateSelect.value = state.selectedDate;
         await loadDailyUpdate(state.selectedDate);
       } else {
         showToast("No updates found. Try syncing.", "warning");
@@ -1220,12 +768,11 @@ function loadStaticDailyUpdate(date) {
 
 async function loadDailyUpdate(date) {
   if (!date) return;
-  const container = document.getElementById("daily-content-loader");
-  if (container) container.classList.remove("hidden");
+  shell.dailyLoading = true;
 
   if (isStaticMode()) {
     loadStaticDailyUpdate(date);
-    if (container) container.classList.add("hidden");
+    shell.dailyLoading = false;
     return;
   }
 
@@ -1244,7 +791,7 @@ async function loadDailyUpdate(date) {
       err,
     );
   } finally {
-    if (container) container.classList.add("hidden");
+    shell.dailyLoading = false;
   }
   loadStaticDailyUpdate(date);
 }
@@ -1336,7 +883,6 @@ async function refreshAvailableDatesDropdown() {
     });
     if (res.ok) {
       state.availableDates = await res.json();
-      renderDateDropdown();
       return;
     }
   } catch (err) {
@@ -1441,16 +987,11 @@ async function triggerManualSync(options = {}) {
   const isAuto = options.auto === true;
   if (state.isSyncing) return;
   state.isSyncing = true;
-  const syncBtn = document.getElementById("sync-btn");
-  const syncIcon = document.getElementById("sync-icon");
-  if (syncIcon) syncIcon.classList.add("animate-spin");
-  if (syncBtn) syncBtn.classList.add("opacity-75", "cursor-wait");
+  // the Sync button spins while state.isSyncing is set
 
   if (isStaticMode()) {
     setTimeout(async () => {
       state.isSyncing = false;
-      if (syncIcon) syncIcon.classList.remove("animate-spin");
-      if (syncBtn) syncBtn.classList.remove("opacity-75", "cursor-wait");
       showToast(
         "Diary synced! All Grade 1 updates are up to date 🚀 (Zero server storage)",
         "success",
@@ -1512,131 +1053,36 @@ async function triggerManualSync(options = {}) {
     }
   } finally {
     state.isSyncing = false;
-    if (syncIcon) syncIcon.classList.remove("animate-spin");
-    if (syncBtn) syncBtn.classList.remove("opacity-75", "cursor-wait");
-  }
-}
-
-// --- Render Functions ---
-
-function renderStudentProfile() {
-  if (!state.student) return;
-  const nameEl = document.getElementById("student-name");
-  const metaEl = document.getElementById("student-meta");
-  const avatarEl = document.getElementById("student-avatar");
-  const mobName = document.getElementById("mobile-student-name");
-  const mobMeta = document.getElementById("mobile-student-meta");
-
-  const isDemo = state.student.student_id === "DEMO-G1F-001";
-  const isPlaceholder = !isDemo && isPlaceholderStudentName(state.student.name);
-  const displayName = isPlaceholder ? "Add student name" : state.student.name;
-
-  if (nameEl) {
-    nameEl.textContent = displayName;
-    nameEl.classList.toggle("italic", isPlaceholder);
-    nameEl.classList.toggle("text-indigo-600", isPlaceholder);
-    nameEl.classList.toggle("dark:text-indigo-400", isPlaceholder);
-    if (!isDemo) {
-      nameEl.title = "Click to edit child's name";
-      nameEl.classList.add(
-        "cursor-pointer",
-        "hover:text-indigo-600",
-        "dark:hover:text-indigo-400",
-      );
-      nameEl.onclick = editStudentName;
-    } else {
-      nameEl.title = "";
-      nameEl.classList.remove(
-        "cursor-pointer",
-        "hover:text-indigo-600",
-        "dark:hover:text-indigo-400",
-      );
-      nameEl.onclick = null;
-    }
-  }
-  if (metaEl) {
-    metaEl.textContent = `${state.student.grade} ${state.student.section} • ${state.student.school}`;
-  }
-  if (mobName) {
-    mobName.textContent = displayName;
-    mobName.classList.toggle("italic", isPlaceholder);
-    if (!isDemo) {
-      mobName.title = "Click to edit child's name";
-      mobName.classList.add("cursor-pointer");
-      mobName.onclick = editStudentName;
-    } else {
-      mobName.title = "";
-      mobName.classList.remove("cursor-pointer");
-      mobName.onclick = null;
-    }
-  }
-  if (mobMeta) {
-    mobMeta.textContent = `${state.student.grade} ${state.student.section}`;
-  }
-
-  if (avatarEl) {
-    if (isPlaceholder) {
-      avatarEl.textContent = "+";
-      avatarEl.title = "Click the name to set your child's name";
-    } else {
-      const initials = (state.student.name || "")
-        .trim()
-        .split(/\s+/)
-        .map((w) => w[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase();
-      avatarEl.textContent = initials || (isDemo ? "DS" : "ST");
-      avatarEl.title = "";
-    }
-  }
-}
-
-function renderDateDropdown() {
-  const select = document.getElementById("date-select");
-  if (!select) return;
-
-  const currentVal = state.selectedDate || select.value;
-  select.innerHTML = "";
-
-  state.availableDates.forEach((d) => {
-    const opt = document.createElement("option");
-    opt.value = d.date;
-    const hwBadge = d.has_pending_homework ? " 📌 HW Due" : "";
-    opt.textContent = `${d.display_date} (${formatDatePretty(d.date)})${hwBadge}`;
-    if (d.date === currentVal) {
-      opt.selected = true;
-    }
-    select.appendChild(opt);
-  });
-
-  if (currentVal) {
-    select.value = currentVal;
   }
 }
 
 function selectDateAndSwitch(date) {
   state.selectedDate = date;
-  const select = document.getElementById("date-select");
-  if (select) select.value = date;
   switchTab("daily");
 }
 
-// Global exposure for inline events
-window.switchTab = switchTab;
-window.toggleHomework = toggleHomework;
-window.selectDateAndSwitch = selectDateAndSwitch;
-window.handlePasscodeSubmit = handlePasscodeSubmit;
-window.viewSampleInstead = viewSampleInstead;
-window.closeNameModal = closeNameModal;
-window.submitStudentName = submitStudentName;
-window.toggleTheme = toggleTheme;
-window.handleLoginSubmit = handleLoginSubmit;
-window.handleDemoLogin = handleDemoLogin;
-window.handleLogout = handleLogout;
-window.togglePasswordVisibility = togglePasswordVisibility;
-window.togglePasscodeVisibility = togglePasscodeVisibility;
+// The header's date picker.
+function chooseDate(date) {
+  state.selectedDate = date;
+  if (state.currentTab === "daily") {
+    loadDailyUpdate(state.selectedDate);
+  } else if (state.currentTab === "weekly") {
+    loadWeeklyUpdate(state.selectedDate);
+  }
+}
 
-// For the Svelte components, which call back into the vanilla code until the
-// functions they need have moved out of it.
-export { toggleHomework, selectDateAndSwitch };
+// For main.js and the Svelte components, which call back into these until they
+// move out of app.js in Phase 5.
+export {
+  boot,
+  toggleHomework,
+  selectDateAndSwitch,
+  switchTab,
+  chooseDate,
+  triggerManualSync,
+  handleLogout,
+  handlePasscodeSubmit,
+  viewSampleInstead,
+  handleLoginSubmit,
+  handleDemoLogin,
+};

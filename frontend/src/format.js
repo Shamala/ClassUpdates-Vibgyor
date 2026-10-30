@@ -28,4 +28,18 @@ function getDayName(isoDate) {
   }
 }
 
-export { formatDatePretty, getDayName };
+// "just now", "5 minutes ago", "3 days ago": how long before `now` an ISO
+// timestamp was.
+function formatSyncStamp(iso, now = Date.now()) {
+  const when = new Date(iso);
+  if (isNaN(when.getTime())) return iso;
+  const mins = Math.round((now - when.getTime()) / 60000);
+  if (mins < 2) return "just now";
+  if (mins < 60) return `${mins} minutes ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.round(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+export { formatDatePretty, getDayName, formatSyncStamp };

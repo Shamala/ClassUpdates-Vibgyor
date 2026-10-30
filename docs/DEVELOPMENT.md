@@ -124,7 +124,8 @@ It is being migrated to **Svelte 5** in phases, each one shipping on its own:
    its four sections; see **Phase 2 plan** below.
 3. Weekly, Circulars, flashcards. **Done:** `src/weekly/`, `src/circulars/`
    and `src/words/`; see **Phase 3** below.
-4. Shell: header, tabs, modals. Delete the vanilla renderers.
+4. Shell: header, tabs, modals. Delete the vanilla renderers. **Done:** the
+   whole page is `src/App.svelte`; see **Phase 4** below.
 5. Remove dead code, teach the service worker about hashed filenames, update docs.
 
 ### Phase 2 plan: Daily Diary
@@ -195,9 +196,51 @@ the Weekly tab calls back into.
   Copy now works for a word containing an apostrophe, which used to break the
   inline `onclick`.
 
-**Left for Phase 4:** the header, tabs, date dropdown, sign-in and passcode
-screens, and the name pop-up, which are all still in `app.js` and `index.html`.
-`toInlineArg()` in `speech.js` has no callers left and goes in Phase 5.
+Phase 4 then moved everything else.
+
+### Phase 4: the shell
+
+*Done.* Checked against a recording of the old page as before, this time of
+the screens around the content: the passcode screen (show/hide, a wrong
+passcode, unlocking, reload, Lock), the sample, a board whose data file fails
+to load, the local server's sign-in (an unreachable server, the demo account,
+Sync, Sign Out), the theme toggle, tabs, date picker, the name pop-up and the
+iPhone install button, in light and dark and at phone width. The board was
+unlocked with a test bundle made from the sample data, not the real passcode.
+The recording blocks Google Fonts: whether the font arrives in time otherwise
+changes the text's pixels from run to run.
+
+| Step | What moves | Notes |
+|------|------------|-------|
+| 4a | Header and tab bar → `src/shell/Header.svelte` | The views show from `state.currentTab`. |
+| 4b | Name pop-up → `src/shell/NameModal.svelte` | Opened from the header directly. |
+| 4c | Passcode screen → `src/shell/PasscodeView.svelte` | Show/hide is local to it. |
+| 4d | Sign-in screen → `src/shell/LoginView.svelte` | |
+| 4e | `src/App.svelte` draws the whole page | `index.html`'s body is one placeholder; the `window.*` handlers are gone. |
+
+**How the screens are switched.** The old page showed and hid eleven elements
+by toggling their `hidden` class from several functions, and some elements
+were toggled by more than one of them. Each of those elements is now a flag in
+`src/shell.svelte.js`, set by the same functions in the same order, so every
+combination the page could reach is unchanged. That is faithful rather than
+tidy; collapsing the flags into a single "which screen" value is Phase 5.
+
+**What app.js is now.** It never touches the document: it holds sign-in, the
+passcode unlock, the loaders, homework ticking and sync, and reports through
+`state` and `shell`. `main.js` mounts `App` and calls its `boot()`.
+
+**Differences:**
+- The header's name and avatar are worked out from `state.student` rather than
+  written when a function remembers to. While the passcode screen covers it,
+  the hidden header now holds nothing instead of "Demo Student".
+- With no dates at all, the date picker says "Loading dates..." rather than
+  being empty.
+- When the server refused a demo sign-in, the old code threw (it used an
+  undeclared variable) instead of showing the message. It now shows it.
+
+**Left for Phase 5:** split `app.js` into modules, collapse the screen flags,
+drop `toInlineArg()` from `speech.js` (no callers), hashed file names for the
+service worker, and the docs.
 
 ### Build
 

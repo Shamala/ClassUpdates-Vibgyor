@@ -3,9 +3,7 @@
   a card per school day. Everything redraws from state.weeklyData, which
   loadWeeklyUpdate() in app.js sets.
 
-  switchTab() in app.js shows and hides this by toggling `hidden` on
-  #view-weekly. The class attribute below is static, so Svelte never rewrites it
-  and the two do not fight.
+  Shown while state.currentTab is "weekly".
 -->
 <script>
   import { state } from "../state.svelte.js";
@@ -22,7 +20,7 @@
   );
 </script>
 
-<div id="view-weekly" class="hidden space-y-6">
+<div id="view-weekly" class="space-y-6" class:hidden={state.currentTab !== "weekly"}>
   <!-- Top banner for weekly dictation & homework -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Weekly Dictation Bank -->
