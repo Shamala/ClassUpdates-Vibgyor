@@ -22,7 +22,7 @@ import {
   PASSCODE_STORAGE_KEY,
   migrateStudentStorage,
 } from "./src/storage.js";
-import { shell, passcode, setHeaderHidden } from "./src/shell.svelte.js";
+import { shell, passcode, login, setHeaderHidden } from "./src/shell.svelte.js";
 import { initTheme } from "./src/theme.svelte.js";
 import { initPWA } from "./src/pwa.svelte.js";
 import { isPlaceholderStudentName } from "./src/student.js";
@@ -97,11 +97,10 @@ function resolveStudentForUser(username) {
 }
 
 // --- View Controls (Login vs Dashboard) ---
-// The login and dashboard screens are still plain markup in
+// The dashboard is still plain markup in
 // index.html; this mirrors the shell flags onto them until they move too.
 function syncScreens() {
   const screens = {
-    "login-view": shell.loginView,
     "dashboard-view": shell.dashboardView,
   };
   for (const [id, shown] of Object.entries(screens)) {
@@ -250,32 +249,22 @@ async function checkAuth() {
   showLoginView();
 }
 
-async function handleLoginSubmit(event) {
-  if (event) event.preventDefault();
-  const usernameInput = document.getElementById("login-username");
-  const passwordInput = document.getElementById("login-password");
-  const errorAlert = document.getElementById("login-error-alert");
-  const errorText = document.getElementById("login-error-text");
-  const submitBtn = document.getElementById("login-submit-btn");
-  const spinner = document.getElementById("login-spinner");
-  const btnText = document.getElementById("login-btn-text");
+function showLoginError(message) {
+  login.error = message;
+  login.errorShown = true;
+}
 
-  if (!usernameInput || !passwordInput) return;
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value;
+async function handleLoginSubmit() {
+  const username = login.username.trim();
+  const password = login.password;
 
   if (!username || !password) {
-    if (errorAlert) {
-      errorText.textContent = "Please enter both username and password.";
-      errorAlert.classList.remove("hidden");
-    }
+    showLoginError("Please enter both username and password.");
     return;
   }
 
-  if (errorAlert) errorAlert.classList.add("hidden");
-  if (submitBtn) submitBtn.disabled = true;
-  if (spinner) spinner.classList.remove("hidden");
-  if (btnText) btnText.textContent = "Connecting to Hubble Orion...";
+  login.errorShown = false;
+  login.submitting = true;
 
   // Static / GitHub Pages mode: authenticate locally with 100% privacy
   // Passwords are NEVER sent anywhere or stored.
@@ -303,9 +292,7 @@ async function handleLoginSubmit(event) {
       );
       showDashboardView();
         await loadAvailableDates();
-      if (submitBtn) submitBtn.disabled = false;
-      if (spinner) spinner.classList.add("hidden");
-      if (btnText) btnText.textContent = "Sign In & Sync";
+      login.submitting = false;
     }, 400);
     return;
   }
@@ -335,40 +322,28 @@ async function handleLoginSubmit(event) {
       // not awaited: the dashboard is usable while the portal is being read
       autoSyncAfterSignIn();
     } else {
-      if (errorAlert) {
-        errorText.textContent =
-          data.detail ||
+      showLoginError(
+        data.detail ||
           data.error ||
-          "Login failed. Check your Hubble Orion credentials.";
-        errorAlert.classList.remove("hidden");
-      }
+          "Login failed. Check your Hubble Orion credentials.",
+      );
     }
   } catch (err) {
     // The server is unreachable. We have no way to check the password, so show
     // that plainly instead of signing the parent in with credentials nobody
     // verified, which is what this branch used to do.
     console.warn("Login request failed:", err);
-    if (errorAlert) {
-      errorText.textContent =
-        "Can't reach the ClassUpdates server right now, so your sign-in could not be verified. Check that it is running and try again.";
-      errorAlert.classList.remove("hidden");
-    }
+    showLoginError(
+      "Can't reach the ClassUpdates server right now, so your sign-in could not be verified. Check that it is running and try again.",
+    );
   } finally {
-    if (submitBtn) submitBtn.disabled = false;
-    if (spinner) spinner.classList.add("hidden");
-    if (btnText) btnText.textContent = "Sign In & Sync";
+    login.submitting = false;
   }
 }
 
 async function handleDemoLogin() {
-  const errorAlert = document.getElementById("login-error-alert");
-  const demoBtn = document.getElementById("demo-login-btn");
-
-  if (errorAlert) errorAlert.classList.add("hidden");
-  if (demoBtn) {
-    demoBtn.disabled = true;
-    demoBtn.classList.add("opacity-75");
-  }
+  login.errorShown = false;
+  login.demoBusy = true;
 
   // Clear any existing stored user/student data first
   localStorage.removeItem("vibgyor_parent_user");
@@ -400,10 +375,7 @@ async function handleDemoLogin() {
       );
       showDashboardView();
         await loadAvailableDates();
-      if (demoBtn) {
-        demoBtn.disabled = false;
-        demoBtn.classList.remove("opacity-75");
-      }
+      login.demoBusy = false;
     }, 200);
     return;
   }
@@ -434,11 +406,7 @@ async function handleDemoLogin() {
       showDashboardView();
         await loadAvailableDates();
     } else {
-      if (errorAlert) {
-        errorText.textContent =
-          data.detail || data.error || "Demo login failed.";
-        errorAlert.classList.remove("hidden");
-      }
+      showLoginError(data.detail || data.error || "Demo login failed.");
     }
   } catch (err) {
     state.isAuthenticated = true;
@@ -462,10 +430,7 @@ async function handleDemoLogin() {
     showDashboardView();
     await loadAvailableDates();
   } finally {
-    if (demoBtn) {
-      demoBtn.disabled = false;
-      demoBtn.classList.remove("opacity-75");
-    }
+    login.demoBusy = false;
   }
 }
 
@@ -505,12 +470,6 @@ async function handleLogout() {
 
   showLoginView();
   showToast("You have been signed out.", "info", 3000);
-}
-
-function togglePasswordVisibility() {
-  const pwdInput = document.getElementById("login-password");
-  if (!pwdInput) return;
-  pwdInput.type = pwdInput.type === "password" ? "text" : "password";
 }
 
 // --- Initialization ---
@@ -1132,10 +1091,7 @@ function chooseDate(date) {
 window.switchTab = switchTab;
 window.toggleHomework = toggleHomework;
 window.selectDateAndSwitch = selectDateAndSwitch;
-window.handleLoginSubmit = handleLoginSubmit;
-window.handleDemoLogin = handleDemoLogin;
 window.handleLogout = handleLogout;
-window.togglePasswordVisibility = togglePasswordVisibility;
 
 // For the Svelte components, which call back into the vanilla code until the
 // functions they need have moved out of it.
@@ -1148,4 +1104,6 @@ export {
   handleLogout,
   handlePasscodeSubmit,
   viewSampleInstead,
+  handleLoginSubmit,
+  handleDemoLogin,
 };

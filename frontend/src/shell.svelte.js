@@ -43,3 +43,14 @@ export const passcode = $state({
   submitting: false,
   focusRequest: 0,
 });
+
+// The sign-in screen (local server only). handleLoginSubmit() and
+// handleDemoLogin() in app.js read the typed values and report back here.
+export const login = $state({
+  username: "",
+  password: "",
+  error: "Invalid username or password",
+  errorShown: false,
+  submitting: false,
+  demoBusy: false,
+});
