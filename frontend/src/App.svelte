@@ -25,7 +25,7 @@
 <LoginView />
 
 <!-- Main Content Container (Dashboard View) -->
-<main id="dashboard-view" class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full" class:hidden={!shell.dashboardView}>
+<main id="dashboard-view" class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full" class:hidden={shell.screen !== "dashboard"}>
   <!-- Loading Indicator -->
   <div id="daily-content-loader" class="text-center py-12" class:hidden={!shell.dailyLoading}>
     <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent"></div>

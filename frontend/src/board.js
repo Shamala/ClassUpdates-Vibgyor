@@ -10,7 +10,6 @@ import {
   shell,
   passcode,
   showPasscodeView,
-  hidePasscodeView,
   showDashboardView,
   renderSyncStamp,
 } from "./shell.svelte.js";
@@ -58,7 +57,6 @@ async function unlockClassData() {
 // like, using the sample bundle that ships alongside the encrypted one.
 function viewSampleInstead() {
   shell.viewingSample = true;
-  hidePasscodeView();
   enterClassBoard();
 }
 
@@ -94,7 +92,6 @@ async function handlePasscodeSubmit() {
     try {
       localStorage.setItem(PASSCODE_STORAGE_KEY, entered);
     } catch (e) {}
-    hidePasscodeView();
     await enterClassBoard();
   } catch (err) {
     showPasscodeView(
