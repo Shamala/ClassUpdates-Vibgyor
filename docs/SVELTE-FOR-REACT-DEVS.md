@@ -192,8 +192,8 @@ export function selectDate(date) {
 ```
 
 Any component that reads `board.selectedDate` updates when it changes. No
-provider, no hook, no selector. This is the natural home for the global `state`
-object in `app.js` today.
+provider, no hook, no selector. This is how the app's own `state` works: it lives
+in `src/state.svelte.js`, and which screen shows lives in `src/shell.svelte.js`.
 
 ---
 
