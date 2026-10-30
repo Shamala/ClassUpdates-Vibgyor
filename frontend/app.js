@@ -1319,7 +1319,6 @@ function loadStaticWeeklyUpdate() {
   }
 
   state.weeklyData = weeklyCopy;
-  renderWeeklyView();
 }
 
 async function loadWeeklyUpdate(date) {
@@ -1335,7 +1334,6 @@ async function loadWeeklyUpdate(date) {
     const res = await fetch(url, { headers: getAuthHeaders() });
     if (res.ok) {
       state.weeklyData = await res.json();
-      renderWeeklyView();
       return;
     }
   } catch (err) {
@@ -1663,170 +1661,6 @@ function renderDateDropdown() {
   if (currentVal) {
     select.value = currentVal;
   }
-}
-
-function renderWeeklyView() {
-  const container = document.getElementById("weekly-days-grid");
-  const wordsContainer = document.getElementById("weekly-words-bank");
-  const hwContainer = document.getElementById("weekly-hw-summary");
-  if (!container || !state.weeklyData) return;
-
-  const data = state.weeklyData;
-  const todayStr = new Date().toISOString().split("T")[0];
-
-  // Words bank
-  if (wordsContainer) {
-    if (data.weekly_dictation_words && data.weekly_dictation_words.length > 0) {
-      wordsContainer.innerHTML = data.weekly_dictation_words
-        .map(
-          (w) => `
-          <span class="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 px-3 py-1.5 rounded-xl font-bold text-sm tracking-wide shadow-sm">
-            ${w}
-          </span>
-        `,
-        )
-        .join("");
-    } else {
-      wordsContainer.innerHTML = `<span class="text-xs text-slate-400 dark:text-slate-500">No words found for this week.</span>`;
-    }
-  }
-
-  // Active Homework items
-  if (hwContainer) {
-    if (data.active_homework_items && data.active_homework_items.length > 0) {
-      hwContainer.innerHTML = data.active_homework_items
-        .map(
-          (item) => `
-          <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs">
-            <div class="flex items-center gap-2">
-              <input
-                type="checkbox"
-                class="hw-checkbox"
-                ${item.is_completed ? "checked" : ""}
-                onchange="toggleHomework(${item.period_id})"
-              />
-              <div>
-                <span class="font-bold text-slate-800 dark:text-slate-200">${getCanonicalSubject(item.subject)}</span>
-                <p class="text-slate-600 dark:text-slate-400">${item.reinforcement || "NIL"}</p>
-              </div>
-            </div>
-            <div class="text-right font-medium">
-              <span class="text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800/60">
-                ${item.submission_date && item.submission_date.toUpperCase() !== "NIL" ? item.submission_date : "No due date"}
-              </span>
-            </div>
-          </div>
-        `,
-        )
-        .join("");
-    } else {
-      hwContainer.innerHTML = `<div class="text-xs text-slate-400 dark:text-slate-500">No homework assigned this week.</div>`;
-    }
-  }
-
-  // 5-Day Columns - ONLY content with homework, NO P1 P2, UNORDERED LIST
-  container.innerHTML = (data.days || [])
-    .map((day) => {
-      const isSelected = day.date === state.selectedDate;
-      const isFuture = day.date > todayStr;
-      const hwPeriods = (day.periods || []).filter((p) => p.is_homework);
-      const uniqueHw = [];
-      const seenHw = new Set();
-      for (const p of hwPeriods) {
-        const subj = getCanonicalSubject(p.subject);
-        const key = `${subj.toLowerCase()}|${(p.reinforcement || "").toLowerCase()}`;
-        if (!seenHw.has(key)) {
-          seenHw.add(key);
-          uniqueHw.push({ ...p, subject: subj });
-        }
-      }
-
-      return `
-        <div class="bg-white dark:bg-slate-800 border ${
-          isSelected
-            ? "border-indigo-500 dark:border-indigo-400 shadow-md ring-2 ring-indigo-100 dark:ring-indigo-950/60"
-            : "border-slate-200 dark:border-slate-700"
-        } rounded-2xl p-4 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/80 pb-2 mb-3">
-              <div>
-                <h5 class="font-bold text-slate-900 dark:text-white text-sm">${getDayName(day.date)}</h5>
-                <span class="text-xs text-slate-400 dark:text-slate-400">${day.display_date}</span>
-              </div>
-              ${
-                uniqueHw.length > 0
-                  ? `<span class="bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-200 border border-amber-200/60 dark:border-amber-800/60 font-bold text-xs px-2 py-0.5 rounded-full">${uniqueHw.length} HW</span>`
-                  : `<span class="text-xs text-slate-400 dark:text-slate-500">No HW</span>`
-              }
-            </div>
-
-            ${
-              day.words_of_the_day && day.words_of_the_day.length > 0
-                ? `<div class="mb-3 bg-indigo-50/50 dark:bg-indigo-950/40 p-2 rounded-xl border border-indigo-100 dark:border-indigo-800/60">
-                    <div class="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wide">Dictation Words</div>
-                    <div class="font-bold text-indigo-900 dark:text-indigo-200 text-sm">${day.words_of_the_day.join(", ")}</div>
-                  </div>`
-                : ""
-            }
-
-            <!-- Homework Content Only - Unordered List -->
-            <div class="mt-2">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-2">Assigned Homework</div>
-              ${
-                uniqueHw.length === 0
-                  ? `<div class="text-xs text-slate-400 dark:text-slate-500 italic py-3 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">No homework assigned</div>`
-                  : `<ul class="space-y-2 text-xs">
-                      ${uniqueHw
-                        .map(
-                          (p) => `
-                        <li class="flex items-start gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-2.5">
-                          <span class="text-amber-500 font-bold leading-none mt-1">•</span>
-                          <div class="flex-1 min-w-0">
-                            <div class="font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between gap-1">
-                              <span class="truncate">${p.subject}</span>
-                              ${
-                                p.is_completed
-                                  ? `<span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold shrink-0">✓ Done</span>`
-                                  : `<span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold shrink-0">⏳ Due</span>`
-                              }
-                            </div>
-                            <div class="text-slate-600 dark:text-slate-400 text-[11px] leading-snug mt-0.5">${p.reinforcement || "NIL"}</div>
-                            ${
-                              p.submission_date &&
-                              p.submission_date.toUpperCase() !== "NIL"
-                                ? `<div class="text-[10px] text-amber-800 dark:text-amber-300 font-semibold mt-1">Due: ${p.submission_date}</div>`
-                                : ""
-                            }
-                          </div>
-                        </li>
-                      `,
-                        )
-                        .join("")}
-                    </ul>`
-              }
-            </div>
-          </div>
-
-          ${
-            isFuture
-              ? `<button
-                  disabled
-                  class="mt-4 w-full text-center text-xs font-semibold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700/40 py-1.5 rounded-lg cursor-not-allowed border border-slate-200/60 dark:border-slate-700/60"
-                  title="Timetable updates are not yet available for future dates"
-                >
-                  Not Available Yet
-                </button>`
-              : `<button
-                  onclick="selectDateAndSwitch('${day.date}')"
-                  class="mt-4 w-full text-center text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 py-1.5 rounded-lg transition-colors cursor-pointer"
-                >
-                  View Daily Diary →
-                </button>`
-          }
-        </div>
-      `;
-    })
-    .join("");
 }
 
 function selectDateAndSwitch(date) {
@@ -2601,4 +2435,4 @@ window.togglePasscodeVisibility = togglePasscodeVisibility;
 
 // For the Svelte components, which call back into the vanilla code until the
 // functions they need have moved out of it.
-export { toggleHomework, openWordHistoryModal };
+export { toggleHomework, openWordHistoryModal, selectDateAndSwitch };
