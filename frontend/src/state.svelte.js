@@ -2,9 +2,8 @@
  * The dashboard's shared state and the constants read alongside it.
  *
  * `state` is reactive ($state, which is why this file is .svelte.js). The
- * vanilla code in app.js assigns to it exactly as before, and any Svelte
- * component that reads a property redraws when that property changes. That is
- * the bridge that lets the page move to Svelte one section at a time.
+ * loaders in data.js and the sign-in code assign to it, and any Svelte
+ * component that reads a property redraws when that property changes.
  *
  * Objects assigned into it are wrapped in a proxy, not copied by reference:
  * `state.student = DEMO_STUDENT` does not make later edits to state.student

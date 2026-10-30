@@ -1,20 +1,20 @@
 /**
- * Which parts of the page shell are showing, set by the boot, sign-in and
- * passcode code in app.js and read by the components that draw them.
+ * Which screen the page is showing, set by the boot, sign-in and passcode code
+ * and read by the components that draw it.
  *
- * Each flag stands for one element's `hidden` class in the old page, and the
- * functions that used to toggle those classes now set these instead, in the
- * same order, so every combination the page could get into is unchanged.
+ * `screen` is one of three:
+ * - "dashboard": the class updates, with the whole header;
+ * - "login": the local server's sign-in, with only the header's theme and
+ *   install buttons;
+ * - "passcode": the class board's lock screen, with only the header's brand.
+ *   Nothing in the header works before the board is unlocked: the date list has
+ *   nothing to list, Sync reaches a portal this page cannot see, and the profile
+ *   still shows whoever used this device last.
  */
+import { formatSyncStamp } from "./format.js";
+
 export const shell = $state({
-  passcodeView: false,
-  loginView: false,
-  dashboardView: true,
-  headerControls: true,
-  mobileProfile: false,
-  tabsBar: true,
-  authControls: true,
-  dateWrap: true,
+  screen: "dashboard",
   // The published board: no Sync button, and Sign Out reads "Lock".
   classBoard: false,
   // The sample bundle shown to someone without the passcode.
@@ -25,16 +25,7 @@ export const shell = $state({
   stampDrawnAt: 0,
 });
 
-// Hides the header's controls before the board is unlocked: the date list has
-// nothing to list, Sync reaches a portal this page cannot see, and the profile
-// still shows whoever used this device last.
-export function setHeaderHidden(hidden) {
-  shell.headerControls = !hidden;
-  shell.mobileProfile = !hidden;
-  shell.tabsBar = !hidden;
-}
-
-// The class passcode screen. showPasscodeView() in app.js fills it in; bumping
+// The class passcode screen. showPasscodeView() fills it in; bumping
 // focusRequest puts the cursor back in the box.
 export const passcode = $state({
   value: "",
@@ -45,7 +36,7 @@ export const passcode = $state({
 });
 
 // The sign-in screen (local server only). handleLoginSubmit() and
-// handleDemoLogin() in app.js read the typed values and report back here.
+// handleDemoLogin() in signIn.js read the typed values and report back here.
 export const login = $state({
   username: "",
   password: "",
@@ -54,3 +45,32 @@ export const login = $state({
   submitting: false,
   demoBusy: false,
 });
+
+// The header's profile clears itself: it draws nothing while state.student is null,
+// which it always is by the time this runs.
+export function showLoginView() {
+  shell.screen = "login";
+}
+
+export function showDashboardView() {
+  shell.screen = "dashboard";
+  renderSyncStamp();
+}
+
+export function showPasscodeView(message) {
+  shell.screen = "passcode";
+
+  const blob = window.VIBGYOR_ENCRYPTED_DATA;
+  if (blob && blob.synced_at) {
+    passcode.syncedAt = `Class updates last refreshed ${formatSyncStamp(blob.synced_at)}`;
+  }
+  passcode.error = message || "";
+  passcode.value = "";
+  passcode.focusRequest++;
+}
+
+// The header's freshness stamp is measured from the moment it is drawn, as the
+// old one was; this redraws it.
+export function renderSyncStamp() {
+  shell.stampDrawnAt = Date.now();
+}

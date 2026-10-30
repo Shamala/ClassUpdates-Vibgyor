@@ -10,7 +10,6 @@ module.exports = {
   // written out in full, which this picks up.
   content: [
     "./frontend/index.html",
-    "./frontend/app.js",
     "./frontend/src/**/*.{js,svelte}",
   ],
   theme: {

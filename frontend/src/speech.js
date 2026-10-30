@@ -32,13 +32,6 @@ const PREFERRED_VOICE_PATTERN =
 // the intended reading, e.g. read: "reed".
 const PRONUNCIATION_OVERRIDES = {};
 
-// Storybook words can contain an apostrophe ("don't"), which breaks a single-quoted
-// inline handler. Emit the argument as a double-quoted JS string with the quotes
-// entity-encoded, so the HTML parser hands the handler back a correct literal.
-function toInlineArg(value) {
-  return JSON.stringify(String(value)).replace(/"/g, "&quot;");
-}
-
 let voicesLoadedPromise = null;
 
 function getVoicesAsync() {
@@ -172,12 +165,7 @@ async function speakForSpelling(word) {
   speakWith(firstChoice, false);
 }
 
-// Backwards compatibility alias
-const speakWord = speakForSpelling;
-
 export {
-  toInlineArg,
   speakForSpelling,
-  speakWord,
   PRONUNCIATION_OVERRIDES,
 };

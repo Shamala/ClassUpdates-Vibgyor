@@ -7,7 +7,7 @@
   import { getSubjectHeaderClass } from "../subjects.js";
   import { groupPeriodsBySubject, joinOrNil } from "./periods.js";
   import { hasDueDate } from "./homework.js";
-  import { toggleHomework } from "../../app.js";
+  import { toggleHomework } from "../data.js";
 
   let periods = $derived(state.dailyData?.periods);
   let groups = $derived(groupPeriodsBySubject(periods));

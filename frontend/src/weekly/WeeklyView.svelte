@@ -1,7 +1,7 @@
 <!--
   The Weekly Overview tab: the week's dictation words, its homework deadlines and
   a card per school day. Everything redraws from state.weeklyData, which
-  loadWeeklyUpdate() in app.js sets.
+  loadWeeklyUpdate() in data.js sets.
 
   Shown while state.currentTab is "weekly".
 -->
@@ -10,7 +10,8 @@
   import { getCanonicalSubject } from "../subjects.js";
   import { getDayName } from "../format.js";
   import { activeHomework, hasDueDate } from "../daily/homework.js";
-  import { toggleHomework, selectDateAndSwitch } from "../../app.js";
+  import { toggleHomework } from "../data.js";
+  import { selectDateAndSwitch } from "../navigation.js";
 
   let data = $derived(state.weeklyData);
   // UTC, as before: a day counts as "future" until it has begun in UTC.

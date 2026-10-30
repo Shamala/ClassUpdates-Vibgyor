@@ -6,7 +6,7 @@
   import { state } from "../state.svelte.js";
   import { getSubjectBadgeClass } from "../subjects.js";
   import { activeHomework, hasDueDate } from "./homework.js";
-  import { toggleHomework } from "../../app.js";
+  import { toggleHomework } from "../data.js";
 
   const BADGE = "text-xs font-semibold px-2.5 py-0.5 rounded-full";
 

@@ -6,6 +6,7 @@ avoiding OS sandbox network socket restrictions.
 
 import io
 import json
+import re
 import os
 import sys
 import unittest
@@ -223,7 +224,6 @@ class TestVibgyorApi(unittest.TestCase):
         for asset, expected_mime in [
             ("/tailwind.css", "css"),
             ("/style.css", "css"),
-            ("/app.js", "javascript"),
             ("/static_data.js", "javascript"),
             ("/manifest.json", "json"),
             ("/sw.js", "javascript"),
@@ -232,6 +232,23 @@ class TestVibgyorApi(unittest.TestCase):
             status, headers, content = execute_http_request("GET", asset)
             self.assertEqual(status, 200, f"Failed to serve {asset}")
             self.assertIn(expected_mime, headers.get("content-type", "").lower())
+
+    def test_service_worker_knows_the_built_file_names(self):
+        """The app's files are named after their contents; the worker must precache those names."""
+        from backend.main import DIST_DIR
+        if not os.path.exists(os.path.join(DIST_DIR, "sw.js")):
+            self.skipTest("the page has not been built (npm run build)")
+        status, _, worker = execute_http_request("GET", "/sw.js")
+        self.assertEqual(status, 200)
+        self.assertNotIn("vibgyor-pwa-dev", worker, "served the unbuilt worker")
+        named = re.findall(r'"\./(assets/[^"]+)"', worker)
+        self.assertTrue(named, "the worker precaches none of the app's files")
+        page = open(os.path.join(DIST_DIR, "index.html")).read()
+        for name in named:
+            self.assertTrue(os.path.exists(os.path.join(DIST_DIR, name)), name)
+        script = re.search(r'src="\./(assets/app-[^"]+\.js)"', page)
+        self.assertIsNotNone(script, "the built page loads no hashed app script")
+        self.assertIn(script.group(1), named)
 
     def test_page_styles_itself_without_a_cdn(self):
         """The compiled stylesheet must ship, and no CDN compiler may come back.

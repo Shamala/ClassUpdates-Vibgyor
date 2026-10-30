@@ -5,7 +5,7 @@
 <script>
   import { tick } from "svelte";
   import { shell, passcode } from "../shell.svelte.js";
-  import { handlePasscodeSubmit, viewSampleInstead } from "../../app.js";
+  import { handlePasscodeSubmit, viewSampleInstead } from "../board.js";
 
   let input = $state();
 
@@ -36,7 +36,7 @@
 </script>
 
 <!-- Class Passcode Gate (published board only) -->
-<div id="passcode-view" class="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" class:hidden={!shell.passcodeView}>
+<div id="passcode-view" class="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" class:hidden={shell.screen !== "passcode"}>
   <div class="max-w-sm w-full">
     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 sm:p-7">
       <div

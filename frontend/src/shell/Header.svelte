@@ -1,7 +1,7 @@
 <!--
   The sticky header: the brand, the child's name, the date picker, theme,
   Install App, Sync, the freshness stamp, Sign Out (Lock on the class board) and
-  the tab bar. Which parts show is decided in app.js through `shell`.
+  the tab bar. Which parts show is decided through `shell`.
 -->
 <script>
   import { state } from "../state.svelte.js";
@@ -10,7 +10,9 @@
   import { pwa, installApp } from "../pwa.svelte.js";
   import { formatDatePretty, formatSyncStamp } from "../format.js";
   import { isPlaceholderStudentName, isDemoStudent, initials } from "../student.js";
-  import { switchTab, chooseDate, triggerManualSync, handleLogout } from "../../app.js";
+  import { switchTab, chooseDate } from "../navigation.js";
+  import { triggerManualSync } from "../sync.js";
+  import { handleLogout } from "../signIn.js";
   import { editStudentName } from "./studentName.svelte.js";
 
   const TABS = [
@@ -39,6 +41,9 @@
   let canRename = $derived(!!student && !isDemo);
   let displayName = $derived(!student ? "" : isPlaceholder ? "Add student name" : student.name);
   let avatar = $derived(!student ? "--" : isPlaceholder ? "+" : initials(student.name) || (isDemo ? "DS" : "ST"));
+
+  // Everything but the brand, theme and install buttons belongs to the dashboard.
+  let onDashboard = $derived(shell.screen === "dashboard");
 
   let stamp = $derived.by(() => {
     if (!shell.stampDrawnAt) return null;
@@ -74,7 +79,7 @@
       </div>
 
       <!-- Mobile Profile Snippet -->
-      <div id="mobile-profile-snippet" class="sm:hidden text-right" class:hidden={!shell.mobileProfile}>
+      <div id="mobile-profile-snippet" class="sm:hidden text-right" class:hidden={!onDashboard}>
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
         <span
           id="mobile-student-name"
@@ -94,13 +99,13 @@
     <div
       id="header-controls"
       class="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full sm:w-auto min-w-0 justify-end"
-      class:hidden={!shell.headerControls}
+      class:hidden={shell.screen === "passcode"}
     >
       <!-- Date Selector -->
       <div
         id="date-select-wrap"
         class="relative basis-full order-first min-w-0 sm:order-none sm:basis-auto"
-        class:hidden={!shell.dateWrap}
+        class:hidden={!onDashboard}
       >
         <label for="date-select" class="sr-only">Select Date</label>
         <select
@@ -177,7 +182,7 @@
       <div
         id="authenticated-controls"
         class="flex flex-wrap items-center gap-2.5 sm:gap-3 flex-1 sm:flex-initial min-w-0 justify-end"
-        class:hidden={!shell.authControls}
+        class:hidden={!onDashboard}
       >
         <!-- Sync Button: the board cannot reach the portal, so it has none -->
         <button
@@ -273,7 +278,7 @@
   <div
     id="tabs-bar"
     class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-5 sm:gap-8 border-t border-slate-100 dark:border-slate-700/80 pt-3 overflow-x-auto no-scrollbar"
-    class:hidden={!shell.tabsBar}
+    class:hidden={!onDashboard}
   >
     {#each TABS as tab (tab.key)}
       <button

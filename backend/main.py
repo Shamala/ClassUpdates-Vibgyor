@@ -35,16 +35,21 @@ from backend.publish import auto_publish_enabled, publish_class_board
 # Project paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
-# `npm run build` compiles the page into dist/. Only its index.html and assets/
-# are taken from there: everything else, including the data files a sync
+# `npm run build` compiles the page into dist/. Only its index.html, assets/ and
+# sw.js are taken from there: everything else, including the data files a sync
 # rewrites, is served from frontend/ so it is never a stale copy.
 DIST_DIR = os.path.join(BASE_DIR, "dist")
 
 
+def built_path(name: str) -> str:
+    """The built copy of a file if the page has been built, else the source."""
+    built = os.path.join(DIST_DIR, name)
+    return built if os.path.exists(built) else os.path.join(FRONTEND_DIR, name)
+
+
 def built_index_path() -> str:
     """The compiled page if it has been built, else the source (which cannot run)."""
-    built = os.path.join(DIST_DIR, "index.html")
-    return built if os.path.exists(built) else os.path.join(FRONTEND_DIR, "index.html")
+    return built_path("index.html")
 
 
 def resolve_circular_path(filename: str) -> Optional[str]:
@@ -379,10 +384,6 @@ if HAS_FASTAPI:
     def serve_style_css():
         return FileResponse(os.path.join(FRONTEND_DIR, "style.css"), media_type="text/css")
 
-    @app.get("/app.js")
-    def serve_app_js():
-        return FileResponse(os.path.join(FRONTEND_DIR, "app.js"), media_type="application/javascript")
-
     @app.get("/static_data.js")
     def serve_static_data_js():
         return FileResponse(os.path.join(FRONTEND_DIR, "static_data.js"), media_type="application/javascript")
@@ -393,8 +394,9 @@ if HAS_FASTAPI:
 
     @app.get("/sw.js")
     def serve_service_worker():
+        # The build writes the app's hashed file names into it
         return FileResponse(
-            os.path.join(FRONTEND_DIR, "sw.js"),
+            built_path("sw.js"),
             media_type="application/javascript",
             headers={"Service-Worker-Allowed": "/"}
         )
@@ -551,8 +553,11 @@ class VibgyorHTTPRequestHandler(BaseHTTPRequestHandler):
         elif clean_path.startswith("/"):
             clean_path = clean_path[1:]
 
-        base_dir = DIST_DIR if clean_path.startswith("assets/") else FRONTEND_DIR
-        file_candidate = os.path.join(base_dir, clean_path)
+        if clean_path == "sw.js":
+            file_candidate = built_path("sw.js")
+        else:
+            base_dir = DIST_DIR if clean_path.startswith("assets/") else FRONTEND_DIR
+            file_candidate = os.path.join(base_dir, clean_path)
         if os.path.exists(file_candidate) and os.path.isfile(file_candidate):
             return self._send_file(file_candidate)
 

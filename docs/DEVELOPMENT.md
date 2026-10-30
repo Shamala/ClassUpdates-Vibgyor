@@ -63,7 +63,7 @@ this repository is public, so its build logs are too.
    - **Interactive Flashcards**: Practice spelling word-by-word with audio pronunciation, blind test hide/reveal, and shuffle.
    - **Pronunciation tuned for clarity**: targets `en-US` (the word lists are standard storybook English), picks the clearest available voice and skips the novelty voices some platforms list first, and speaks at `rate=0.85` / `pitch=1.0` so phonemes stay distinct without sounding synthetic.
    - **Works offline**: server-backed voices are silent without a connection, so an on-device voice wins any tie, is the only candidate when offline, and takes over automatically if a network voice fails or never starts.
-   - Homographs (`read`, `lead`, `live`, `tear`) cannot be resolved from a single word, since the engine has no sentence to disambiguate with. `PRONUNCIATION_OVERRIDES` in `frontend/app.js` lets you respell one to force the intended reading.
+   - Homographs (`read`, `lead`, `live`, `tear`) cannot be resolved from a single word, since the engine has no sentence to disambiguate with. `PRONUNCIATION_OVERRIDES` in `frontend/src/speech.js` lets you respell one to force the intended reading.
    - **Past Weeks Archive**: Collapsible weekly accordions to review previous vocabulary without cluttering the screen.
    - **1-Click Copy**: Instant clipboard copy for WhatsApp sharing or printing.
 
@@ -105,7 +105,7 @@ this repository is public, so its build logs are too.
 
 ## 🧭 Frontend direction
 
-`frontend/app.js` is 3,519 lines with 96 top-level functions, 97 `getElementById`
+`frontend/app.js` was 3,519 lines with 96 top-level functions, 97 `getElementById`
 calls and 22 hand-built `innerHTML` blocks. Rendering and DOM plumbing are
 interleaved, which is the readability cost — not the line count.
 
@@ -127,6 +127,7 @@ It is being migrated to **Svelte 5** in phases, each one shipping on its own:
 4. Shell: header, tabs, modals. Delete the vanilla renderers. **Done:** the
    whole page is `src/App.svelte`; see **Phase 4** below.
 5. Remove dead code, teach the service worker about hashed filenames, update docs.
+   **Done:** `app.js` is gone; see **Phase 5** below. The migration is complete.
 
 ### Phase 2 plan: Daily Diary
 
@@ -238,29 +239,63 @@ passcode unlock, the loaders, homework ticking and sync, and reports through
 - When the server refused a demo sign-in, the old code threw (it used an
   undeclared variable) instead of showing the message. It now shows it.
 
-**Left for Phase 5:** split `app.js` into modules, collapse the screen flags,
-drop `toInlineArg()` from `speech.js` (no callers), hashed file names for the
-service worker, and the docs.
+Phase 5 then tidied up after it.
+
+### Phase 5: cleanup
+
+*Done.* Checked against the Phase 3 and 4 recordings, which still match.
+
+| Step | What changed |
+|------|--------------|
+| 5a | `app.js` split into modules by job (below), and deleted |
+| 5b | The eleven screen flags became `shell.screen`: `"dashboard"`, `"login"` or `"passcode"` |
+| 5c | Unreachable code removed: `toInlineArg()`, `speakWord`, and the published-site branches of `checkAuth()` and Sync Now |
+| 5d | The app's files are named after their contents; the build tells `sw.js` the names |
+
+**Where things are now**, all in `frontend/src/`:
+
+| File | What it does |
+|------|--------------|
+| `main.js` | Mounts `App.svelte`, then calls `boot()` |
+| `boot.js` | Unlocks the board or signs in |
+| `board.js` | The class passcode and the sample |
+| `signIn.js` | The local server's sign-in and sign-out |
+| `data.js` | Loads class content into `state`; ticks homework |
+| `navigation.js` | Tabs and dates |
+| `sync.js` | Sync Now, and the password held in memory for it |
+| `student.js` | Which child's profile applies, and how it is shown |
+| `state.svelte.js` | The class content and what is selected |
+| `shell.svelte.js` | Which screen shows, and the passcode and sign-in screens' state |
+| `App.svelte`, `shell/`, `daily/`, `weekly/`, `circulars/`, `words/` | The page |
+
+**Checked separately for 5d:** a browser with the current release installed was
+given this one. The first load picked up the new page and its hashed script,
+the next dropped the old cache, and the board still opened offline. Building the
+same code twice gives the same names, so a sync that changes only the data does
+not make phones re-download the app.
 
 ### Build
 
 `npm run build` compiles the page into `dist/`, which is what GitHub Pages
 publishes. The page in `frontend/` no longer runs as it is.
 
-- Vite bundles `src/main.js` and everything it imports into `dist/assets/app.js`.
-  The name is fixed rather than hashed so the service worker's precache list
-  stays valid; hashed names come in Phase 5.
+- Vite bundles `src/main.js` and everything it imports into
+  `dist/assets/app-<hash>.js`, named after a hash of its contents.
+- The build writes those names into `dist/sw.js`, with a cache name derived from
+  everything the page is built from except the two data files (see
+  `stampServiceWorker` in `vite.config.mjs`). There is no version to bump by
+  hand: any change to the app, its styles, icons or the worker gives a new cache.
 - Everything else is copied unchanged (see `VERBATIM` in `vite.config.mjs`):
   the stylesheets, service worker, manifest, icons and both data files. Their
   tags in `index.html` carry `vite-ignore` so Vite does not rename them.
-- The local Python server takes `index.html` and `assets/` from `dist/`, and
+- The local Python server takes `index.html`, `sw.js` and `assets/` from `dist/`, and
   everything else from `frontend/`, so a sync's fresh data files are served
   without rebuilding.
 - `npm run dev` serves the page with live reload on port 5173 and forwards
   `/api` to the Python server on 8000.
 
-Two things to watch: hashed asset names break the service worker's precache
-list, and the GitHub Pages base path needs to be set in the Vite config.
+The page uses relative paths (`base: "./"`), so the same build works at the
+GitHub Pages sub-path and at the root of the local server.
 
 New to Svelte and coming from React? See
 [SVELTE-FOR-REACT-DEVS.md](SVELTE-FOR-REACT-DEVS.md). We are on Svelte 5, whose
@@ -313,13 +348,16 @@ ClassUpdates-Vibgyor/
 ├── frontend/
 │   ├── index.html        # Modern Tailwind parent dashboard
 │   ├── tailwind.css      # Compiled Tailwind (generated - do not edit by hand)
-│   ├── app.js            # The vanilla dashboard, being migrated to Svelte
-│   ├── src/              # main.js (entry), Svelte components, and modules split out of app.js
-│   │   └── daily/        # The Daily Diary tab (Svelte) and its pure helpers
+│   ├── src/              # The app: main.js (entry), App.svelte and its components, and modules
+│   │   ├── shell/        # Header, passcode and sign-in screens, name pop-up
+│   │   ├── daily/        # The Daily Diary tab and its pure helpers
+│   │   ├── weekly/       # The Weekly Overview tab
+│   │   ├── circulars/    # The Circulars tab and notice pop-up
+│   │   └── words/        # Word History and flashcards
 │   ├── class_data.enc.js # Class content, encrypted with the class passcode
 │   ├── static_data.js    # Sanitised sample dataset (the "See a sample" view)
 │   ├── style.css         # Custom tokens & rainbow accent strip
-│   ├── sw.js             # Service worker: offline shell & asset caching
+│   ├── sw.js             # Service worker: offline shell & asset caching (stamped by the build)
 │   ├── manifest.json     # PWA manifest (installable app)
 │   └── icons/            # App and home screen icons
 ├── sample_data/
@@ -362,7 +400,7 @@ it such a day is skipped and the sync warns that a PDF could not be read.
 Node is required: the page is compiled by Vite (see **Build** above), and
 `./start.sh` runs `npm run build` before starting the server.
 `frontend/tailwind.css` is committed, but **rebuild after editing classes in
-`index.html`, `app.js` or `src/`** — Tailwind emits only the utilities it finds there, so
+`index.html` or `src/`** — Tailwind emits only the utilities it finds there, so
 a class added without a rebuild simply will not style. `npm run watch:css`
 rebuilds as you type. Both publishing workflows rebuild it too, so what is
 deployed can never lag behind the markup.
@@ -433,7 +471,7 @@ around `unittest.discover`, so it needs nothing extra installed:
   - `POST /api/auth/login`
   - `GET /api/auth/me`
   - `POST /api/auth/logout`
-  - `GET /style.css`, `GET /app.js`, `GET /static_data.js`
+  - `GET /style.css`, `GET /static_data.js`, `GET /sw.js`
 - **Authentication**:
   - A password the portal rejects returns `401` and issues no session token.
   - Credentials that cannot be checked at all (portal unreachable) return `503`, and are likewise refused.
@@ -502,13 +540,15 @@ with the URL from triggering it.
 
 ### Serving code and data together
 
-`app.js`, `class_data.enc.js` and `static_data.js` are **network-first** in the
-service worker, not stale-while-revalidate. They are versioned together: the
-passcode gate lives in `app.js` and the bundle it unlocks lives in
-`class_data.enc.js`. Served stale, a returning device runs last week's code
-against this week's data for at least one load — and an `app.js` from before the
-gate existed skips the passcode entirely and renders the sample. Styles and icons
-are still stale-while-revalidate, where a version behind only looks slightly off.
+The page (`index.html`) and the data files `class_data.enc.js` and
+`static_data.js` are **network-first** in the service worker, not
+stale-while-revalidate. The app's code is named after its contents, so the page
+always names the code it was built with, and that code is served cache-first: a
+name never changes meaning. Served stale, a returning device would run last
+week's page against this week's data for at least one load — and a page from
+before the passcode gate existed skips it entirely and renders the sample.
+Styles and icons are still stale-while-revalidate, where a version behind only
+looks slightly off.
 
 Precaching also caches asset by asset rather than through `cache.addAll`, which
 rejects as a unit: one 404 there fails the install, the new worker never
