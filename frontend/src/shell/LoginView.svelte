@@ -4,7 +4,7 @@
 -->
 <script>
   import { shell, login } from "../shell.svelte.js";
-  import { handleLoginSubmit, handleDemoLogin } from "../../app.js";
+  import { handleLoginSubmit, handleDemoLogin } from "../signIn.js";
 
   let showPassword = $state(false);
 </script>

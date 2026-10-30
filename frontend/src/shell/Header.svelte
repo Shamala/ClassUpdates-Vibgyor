@@ -1,7 +1,7 @@
 <!--
   The sticky header: the brand, the child's name, the date picker, theme,
   Install App, Sync, the freshness stamp, Sign Out (Lock on the class board) and
-  the tab bar. Which parts show is decided in app.js through `shell`.
+  the tab bar. Which parts show is decided through `shell`.
 -->
 <script>
   import { state } from "../state.svelte.js";
@@ -10,7 +10,9 @@
   import { pwa, installApp } from "../pwa.svelte.js";
   import { formatDatePretty, formatSyncStamp } from "../format.js";
   import { isPlaceholderStudentName, isDemoStudent, initials } from "../student.js";
-  import { switchTab, chooseDate, triggerManualSync, handleLogout } from "../../app.js";
+  import { switchTab, chooseDate } from "../navigation.js";
+  import { triggerManualSync } from "../sync.js";
+  import { handleLogout } from "../signIn.js";
   import { editStudentName } from "./studentName.svelte.js";
 
   const TABS = [

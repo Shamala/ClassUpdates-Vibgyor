@@ -223,7 +223,6 @@ class TestVibgyorApi(unittest.TestCase):
         for asset, expected_mime in [
             ("/tailwind.css", "css"),
             ("/style.css", "css"),
-            ("/app.js", "javascript"),
             ("/static_data.js", "javascript"),
             ("/manifest.json", "json"),
             ("/sw.js", "javascript"),

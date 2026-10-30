@@ -1,6 +1,6 @@
 <!--
   The whole page. index.html keeps only the <head>, the two data files and the
-  script; app.js decides which screen shows by setting the flags in `shell`.
+  script; which screen shows is decided by the flags in `shell`.
 -->
 <script>
   import { shell } from "./shell.svelte.js";

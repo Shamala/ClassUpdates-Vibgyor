@@ -1,6 +1,6 @@
 <!--
   The Circulars tab: a category filter, a search box and a card per circular.
-  Redraws from state.circulars, which loadCirculars() in app.js sets, and from
+  Redraws from state.circulars, which loadCirculars() in data.js sets, and from
   the filter and search, which live in state so they survive a tab switch.
 
   Shown while state.currentTab is "circulars".

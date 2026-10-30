@@ -5,7 +5,7 @@
 <script>
   import { tick } from "svelte";
   import { shell, passcode } from "../shell.svelte.js";
-  import { handlePasscodeSubmit, viewSampleInstead } from "../../app.js";
+  import { handlePasscodeSubmit, viewSampleInstead } from "../board.js";
 
   let input = $state();
 

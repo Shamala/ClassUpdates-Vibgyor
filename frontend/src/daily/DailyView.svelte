@@ -1,6 +1,6 @@
 <!--
   The Daily Diary tab. Everything here redraws from state.dailyData, which the
-  loaders in app.js set when a date is chosen or homework is ticked.
+  loaders in data.js set when a date is chosen or homework is ticked.
 
   Shown while state.currentTab is "daily".
 -->

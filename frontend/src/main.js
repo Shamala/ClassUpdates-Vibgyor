@@ -2,7 +2,7 @@
  * Entry point: draws the page, then starts the app.
  */
 import { mount } from "svelte";
-import { boot } from "../app.js";
+import { boot } from "./boot.js";
 import App from "./App.svelte";
 
 // Mounted before a placeholder rather than into a wrapper, so the page's
