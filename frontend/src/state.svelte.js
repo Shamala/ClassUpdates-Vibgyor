@@ -32,14 +32,6 @@ const state = $state({
   currentUser: null,
 });
 
-const wordModalState = {
-  mode: "bank", // 'bank' or 'drill'
-  drillIndex: 0,
-  drillWords: [],
-  isWordHidden: false,
-  collapsedWeeks: {}, // mondayKey: boolean
-};
-
 const DEMO_STUDENT = {
   id: 1,
   student_id: "DEMO-G1F-001",
@@ -64,7 +56,6 @@ export {
   API_BASE,
   ORION_APP_URL,
   state,
-  wordModalState,
   DEMO_STUDENT,
   GENERIC_STUDENT_FIELDS,
 };

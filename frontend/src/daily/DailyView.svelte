@@ -7,7 +7,7 @@
   and the two do not fight.
 -->
 <script>
-  import { openWordHistoryModal } from "../../app.js";
+  import { openWordHistory } from "../words/wordModal.svelte.js";
   import WordsHero from "./WordsHero.svelte";
   import HomeworkList from "./HomeworkList.svelte";
   import TeacherNote from "./TeacherNote.svelte";
@@ -42,7 +42,7 @@
 
       <button
         id="word-history-btn"
-        onclick={openWordHistoryModal}
+        onclick={openWordHistory}
         class="self-start md:self-auto bg-white/10 hover:bg-white/25 border border-white/30 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2 transition-all cursor-pointer"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

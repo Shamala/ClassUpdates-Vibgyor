@@ -10,6 +10,7 @@ import DailyView from "./daily/DailyView.svelte";
 import WeeklyView from "./weekly/WeeklyView.svelte";
 import CircularsView from "./circulars/CircularsView.svelte";
 import NoticeModal from "./circulars/NoticeModal.svelte";
+import WordHistoryModal from "./words/WordHistoryModal.svelte";
 
 // Mounted before a placeholder rather than into a wrapper, so the component's
 // own root element sits where the static HTML used to, with nothing between it
@@ -23,4 +24,5 @@ mount(Toast, { target: document.getElementById("toast") });
 mountAt(DailyView, "view-daily-slot");
 mountAt(WeeklyView, "view-weekly-slot");
 mountAt(CircularsView, "view-circulars-slot");
+mountAt(WordHistoryModal, "word-modal-slot");
 mountAt(NoticeModal, "notice-modal-slot");
