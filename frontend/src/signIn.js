@@ -13,57 +13,12 @@ import { loadAvailableDates } from "./data.js";
 import { rememberCredentials, forgetCredentials, autoSyncAfterSignIn } from "./sync.js";
 import { isClassBoard } from "./board.js";
 
+// Only the local server signs in: boot() unlocks the published board instead.
 async function checkAuth() {
   const token = localStorage.getItem("orion_auth_token");
   if (!token) {
     state.isAuthenticated = false;
     showLoginView();
-    return;
-  }
-
-  if (isStaticMode()) {
-    state.isAuthenticated = true;
-    state.authToken = token;
-    try {
-      const storedUser = JSON.parse(
-        localStorage.getItem("vibgyor_parent_user") || "null",
-      );
-      state.currentUser = storedUser || {
-        username: "demo@vibgyor.com",
-        display_name: "Demo Parent",
-      };
-    } catch (e) {
-      state.currentUser = {
-        username: "demo@vibgyor.com",
-        display_name: "Demo Parent",
-      };
-    }
-
-    try {
-      const storedStudent = JSON.parse(
-        localStorage.getItem("vibgyor_parent_student") || "null",
-      );
-      if (token === "demo-local-session") {
-        state.student = DEMO_STUDENT;
-        localStorage.setItem(
-          "vibgyor_parent_student",
-          JSON.stringify(state.student),
-        );
-      } else {
-        applyStudentProfile(
-          storedStudent,
-          state.currentUser ? state.currentUser.username : "",
-        );
-      }
-    } catch (e) {
-      state.student =
-        token === "demo-local-session"
-          ? DEMO_STUDENT
-          : resolveStudentForUser("");
-    }
-
-    showDashboardView();
-    await loadAvailableDates();
     return;
   }
 

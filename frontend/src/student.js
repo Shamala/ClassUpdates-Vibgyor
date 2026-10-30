@@ -8,7 +8,7 @@ import { getStaticData } from "./api.js";
 import { getSavedStudentForUser } from "./storage.js";
 import { shell } from "./shell.svelte.js";
 
-export const DEMO_STUDENT_ID = "DEMO-G1F-001";
+const DEMO_STUDENT_ID = "DEMO-G1F-001";
 
 // The backend/PDF sync only knows the real child's name when the Orion scrape
 // succeeds; otherwise it hands back one of these placeholders, which must never

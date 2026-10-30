@@ -32,6 +32,8 @@ async function autoSyncAfterSignIn() {
   await triggerManualSync({ auto: true });
 }
 
+// The published board has no Sync button, so this only ever runs against the
+// local server.
 async function triggerManualSync(options = {}) {
   // An automatic run never interrupts the parent: it does not ask for a password
   // it does not already have, and it stays quiet when there is nothing to report.
@@ -39,19 +41,6 @@ async function triggerManualSync(options = {}) {
   if (state.isSyncing) return;
   state.isSyncing = true;
   // the Sync button spins while state.isSyncing is set
-
-  if (isStaticMode()) {
-    setTimeout(async () => {
-      state.isSyncing = false;
-      showToast(
-        "Diary synced! All Grade 1 updates are up to date 🚀 (Zero server storage)",
-        "success",
-        4000,
-      );
-      await loadAvailableDates();
-    }, 600);
-    return;
-  }
 
   try {
     // The server keeps no password, so the sync carries the parent's own
