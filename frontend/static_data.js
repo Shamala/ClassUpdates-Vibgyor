@@ -2066,16 +2066,7 @@ window.VIBGYOR_STATIC_DATA = {
   },
   "circulars": [
     {
-      "id": 1,
-      "title": "Sample circular",
-      "category": "Events",
-      "publish_date": "2026-10-13",
-      "file_url": "",
-      "summary": "Sample circular summary for the demo dashboard.",
-      "is_read": false
-    },
-    {
-      "id": 3,
+      "id": 2,
       "title": "Sample circular",
       "category": "Admin",
       "publish_date": "2026-10-01",
@@ -2084,7 +2075,7 @@ window.VIBGYOR_STATIC_DATA = {
       "is_read": false
     },
     {
-      "id": 2,
+      "id": 1,
       "title": "Sample circular",
       "category": "Academic",
       "publish_date": "2026-10-01",
@@ -2093,19 +2084,10 @@ window.VIBGYOR_STATIC_DATA = {
       "is_read": false
     },
     {
-      "id": 4,
+      "id": 3,
       "title": "Sample circular",
       "category": "Admin",
       "publish_date": "2026-09-29",
-      "file_url": "",
-      "summary": "Sample circular summary for the demo dashboard.",
-      "is_read": false
-    },
-    {
-      "id": 7,
-      "title": "Sample circular",
-      "category": "Sports",
-      "publish_date": "2026-09-14",
       "file_url": "",
       "summary": "Sample circular summary for the demo dashboard.",
       "is_read": false
@@ -2129,7 +2111,16 @@ window.VIBGYOR_STATIC_DATA = {
       "is_read": false
     },
     {
-      "id": 8,
+      "id": 4,
+      "title": "Sample circular",
+      "category": "Sports",
+      "publish_date": "2026-09-14",
+      "file_url": "",
+      "summary": "Sample circular summary for the demo dashboard.",
+      "is_read": false
+    },
+    {
+      "id": 7,
       "title": "Sample circular",
       "category": "Events",
       "publish_date": "2026-09-10",
@@ -2138,5 +2129,5 @@ window.VIBGYOR_STATIC_DATA = {
       "is_read": false
     }
   ],
-  "synced_at": "2026-10-30T14:18:58+00:00"
+  "synced_at": "2026-10-31T15:25:32+00:00"
 };
