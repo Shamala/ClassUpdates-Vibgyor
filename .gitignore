@@ -50,3 +50,6 @@ Thumbs.db
 # Node tooling, and the site it builds (npm run build)
 node_modules/
 dist/
+
+# Generated from @shamallya-ui/tokens by `npm run build:tokens`
+frontend/shamallya-tokens.css

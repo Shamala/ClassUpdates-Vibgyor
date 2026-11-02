@@ -45,7 +45,7 @@
         V
       </div>
       <h1 class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Class Updates</h1>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5">
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1.5">
         Enter the class passcode to view the daily diary, homework and circulars.
       </p>
 
@@ -75,7 +75,7 @@
             aria-pressed={String(revealed)}
             aria-label={revealed ? "Hide passcode" : "Show passcode"}
             title={revealed ? "Hide passcode" : "Show passcode"}
-            class="absolute inset-y-0 right-0 pr-3 pl-2 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer focus:outline-none focus:text-indigo-600 dark:focus:text-indigo-400"
+            class="absolute inset-y-0 right-0 pr-3 pl-2 flex items-center text-slate-600 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer focus:outline-none focus:text-indigo-600 dark:focus:text-indigo-400"
           >
             <svg
               id="passcode-eye-open"
@@ -125,7 +125,7 @@
         </button>
       </form>
 
-      <p id="passcode-synced-at" class="text-[11px] text-slate-400 dark:text-slate-500 mt-4">{passcode.syncedAt}</p>
+      <p id="passcode-synced-at" class="text-[11px] text-slate-600 dark:text-slate-400 mt-4">{passcode.syncedAt}</p>
       <button
         type="button"
         onclick={viewSampleInstead}

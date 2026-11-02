@@ -20,7 +20,7 @@
         V
       </div>
       <h2 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">VIBGYOR Parent Portal</h2>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+      <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
         Sign in with your Hubble Orion credentials to access your child's daily diary, homework, and circulars.
       </p>
     </div>
@@ -82,7 +82,7 @@
               type="button"
               id="toggle-pwd-btn"
               onclick={() => (showPassword = !showPassword)}
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-600 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
               title="Show/hide password"
             >
               <svg id="eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +125,7 @@
 
       <div class="relative flex py-1 items-center">
         <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-        <span class="flex-shrink mx-3 text-slate-400 text-xs uppercase font-semibold">Or</span>
+        <span class="flex-shrink mx-3 text-slate-600 text-xs uppercase font-semibold">Or</span>
         <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
       </div>
 

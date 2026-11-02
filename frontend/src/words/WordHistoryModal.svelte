@@ -24,7 +24,7 @@
   const MODE_ACTIVE =
     "px-2.5 py-1 rounded-lg transition-all cursor-pointer bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold";
   const MODE_INACTIVE =
-    "px-2.5 py-1 rounded-lg transition-all cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold";
+    "px-2.5 py-1 rounded-lg transition-all cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold";
 
   let history = $derived(groupWordWeeks(state.availableDates, state.selectedDate));
   let thisWeekDays = $derived(history.weeksMap[history.activeMonday] || []);
@@ -70,7 +70,7 @@
           </span>
           <div>
             <h4 class="font-extrabold text-slate-900 dark:text-white text-base leading-tight">Dictation Word Bank</h4>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Surprise dictation revision</p>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400">Surprise dictation revision</p>
           </div>
         </div>
 
@@ -96,7 +96,7 @@
           <button
             id="close-word-modal"
             onclick={closeWordHistory}
-            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg cursor-pointer"
+            class="text-slate-600 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg cursor-pointer"
             title="Close"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +109,7 @@
       <!-- Scrollable Modal Body -->
       <div id="modal-words-body" class="overflow-y-auto p-5 space-y-4 flex-1">
         {#if history.sortedWeekKeys.length === 0}
-          <div class="text-center py-8 text-slate-400 dark:text-slate-500">
+          <div class="text-center py-8 text-slate-600 dark:text-slate-400">
             <svg class="w-12 h-12 mx-auto mb-2 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -133,7 +133,7 @@
                     This Week's Focus
                   </span>
                 </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                <p class="text-xs text-slate-600 dark:text-slate-400 font-medium mt-0.5">
                   {getWeekRangeLabel(history.activeMonday)} • {thisWeekWords.length} words for Friday dictation
                 </p>
               </div>
@@ -193,14 +193,14 @@
                 </button>
               </div>
             {:else}
-              <p class="text-xs text-slate-500 dark:text-slate-400 py-3">No dictation words recorded yet for this week.</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 py-3">No dictation words recorded yet for this week.</p>
             {/if}
           </div>
 
           <!-- Past Weeks Archive -->
           {#if pastWeeks.length > 0}
             <div class="space-y-2 pt-1">
-              <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-1">
+              <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400 px-1">
                 Previous Weeks Archive
               </h5>
               <div class="space-y-2">
@@ -224,7 +224,7 @@
                         </span>
                       </div>
                       <svg
-                        class="w-4 h-4 text-slate-400 transition-transform duration-200 {isExpanded ? 'rotate-180' : ''}"
+                        class="w-4 h-4 text-slate-600 transition-transform duration-200 {isExpanded ? 'rotate-180' : ''}"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -246,7 +246,7 @@
                         </div>
 
                         <!-- Day breakdown for past week -->
-                        <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400 pt-1">
+                        <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400 pt-1">
                           {#each week.days as d (d.date)}
                             <div class="flex items-center gap-1">
                               <span class="font-semibold text-slate-700 dark:text-slate-300"
@@ -288,7 +288,7 @@
           {/if}
         {:else if total === 0}
           <div class="text-center py-10 space-y-3">
-            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">No words found in this practice set.</p>
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-400">No words found in this practice set.</p>
             <button
               onclick={() => setWordMode("bank")}
               class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer"
@@ -300,7 +300,7 @@
           <!-- Flashcard Practice -->
           <div class="flex flex-col items-center justify-center py-2 space-y-4">
             <!-- Top meta bar -->
-            <div class="w-full flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
+            <div class="w-full flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 px-1">
               <span class="font-bold">
                 Word <span class="text-indigo-600 dark:text-indigo-400 text-sm font-extrabold">{index + 1}</span> of {total}
               </span>
@@ -334,17 +334,17 @@
               class="w-full max-w-sm bg-gradient-to-br from-indigo-50/70 via-white to-slate-50 dark:from-slate-800 dark:via-slate-800/90 dark:to-indigo-950/40 border-2 border-indigo-200/90 dark:border-indigo-800/80 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center shadow-md relative min-h-[190px] transition-all"
             >
               {#if wordModal.isWordHidden}
-                <div class="text-slate-400 dark:text-slate-500 font-mono font-black text-3xl tracking-[0.3em] select-none my-auto">
+                <div class="text-slate-600 dark:text-slate-400 font-mono font-black text-3xl tracking-[0.3em] select-none my-auto">
                   ••••••••
                 </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-3">
+                <p class="text-xs text-slate-600 dark:text-slate-400 font-medium mt-3">
                   Listen carefully and spell the word on paper!
                 </p>
               {:else}
                 <div class="text-4xl sm:text-5xl font-black text-indigo-950 dark:text-white tracking-tight font-sans my-auto">
                   {card.word}
                 </div>
-                <p class="text-xs text-slate-400 dark:text-slate-500 mt-2 font-medium">
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 font-medium">
                   Taught on {card.display_date} ({getDayName(card.date)})
                 </p>
               {/if}

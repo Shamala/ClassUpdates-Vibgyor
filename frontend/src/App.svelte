@@ -29,7 +29,7 @@
   <!-- Loading Indicator -->
   <div id="daily-content-loader" class="text-center py-12" class:hidden={!shell.dailyLoading}>
     <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent"></div>
-    <p class="text-xs text-slate-500 font-semibold mt-2">Loading timetable updates...</p>
+    <p class="text-xs text-slate-600 font-semibold mt-2">Loading timetable updates...</p>
   </div>
 
   <DailyView />

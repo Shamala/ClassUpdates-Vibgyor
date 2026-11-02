@@ -22,7 +22,7 @@
       };
     }
     if (items.length === 0) {
-      return { text: "0/0 Done", cls: `bg-slate-100 dark:bg-slate-700/60 text-slate-500 ${BADGE}` };
+      return { text: "0/0 Done", cls: `bg-slate-100 dark:bg-slate-700/60 text-slate-600 ${BADGE}` };
     }
     return {
       text: `${done}/${items.length} Done`,
@@ -42,7 +42,7 @@
       </h3>
       <span id="hw-count-badge" class={badge.cls}>{badge.text}</span>
     </div>
-    <span class="text-xs text-slate-400 dark:text-slate-500">Click checkbox when completed</span>
+    <span class="text-xs text-slate-600 dark:text-slate-400">Click checkbox when completed</span>
   </div>
 
   <div id="homework-container">
@@ -58,7 +58,7 @@
           </svg>
         </div>
         <h4 class="font-bold text-slate-800 dark:text-white">No Homework Assigned Today!</h4>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
           All classwork was completed in school. Enjoy reading time with your child!
         </p>
       </div>
@@ -106,7 +106,7 @@
                   </div>
                   <h4
                     class="font-bold text-slate-900 dark:text-white mt-2 text-base {p.is_completed
-                      ? 'line-through text-slate-400 dark:text-slate-500'
+                      ? 'line-through text-slate-600 dark:text-slate-400'
                       : ''}"
                   >
                     {p.topic} : {p.reinforcement}
@@ -122,7 +122,7 @@
                   </span>
                 {:else}
                   <span
-                    class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-100/70 dark:bg-amber-950/80 px-2.5 py-1 rounded-full"
+                    class="inline-flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-100/70 dark:bg-amber-950/80 px-2.5 py-1 rounded-full"
                   >
                     Action Needed
                   </span>

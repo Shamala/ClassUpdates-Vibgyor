@@ -6,7 +6,7 @@
     <title>VIBGYOR Class Updates | Parent Dashboard</title>
     <!-- PWA Manifest & Mobile App Tags -->
     <link rel="manifest" href="manifest.json" vite-ignore />
-    <meta name="theme-color" content="#4f46e5" />
+    <meta name="theme-color" content="#1D4ED8" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
@@ -22,13 +22,9 @@
       href="icons/icon-192.png"
       vite-ignore
     />
-    <!-- Google Fonts: Commissioner -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Commissioner:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <!-- ShaMallya design tokens (copied from @shamallya-ui/tokens by `npm run build:tokens`) and the
+         self-hosted Inter font, which style.css declares. -->
+    <link rel="stylesheet" href="shamallya-tokens.css" vite-ignore />
     <!-- Tailwind, compiled ahead of time by tailwind.config.js. The CDN build
          shipped a compiler to every visitor, warned against production use and
          needed a network round trip before anything could be styled. -->
@@ -46,6 +42,9 @@
           } else {
             document.documentElement.classList.remove("dark");
           }
+          // The ShaMallya tokens read data-theme, so keep it in step with the class.
+          document.documentElement.dataset.theme =
+            theme === "dark" || (!theme && supportDarkMode) ? "dark" : "light";
         } catch (e) {}
       })();
     </script>
@@ -54,7 +53,7 @@
     <style>
       body {
         font-family:
-          "Commissioner",
+          "Inter",
           system-ui,
           -apple-system,
           BlinkMacSystemFont,

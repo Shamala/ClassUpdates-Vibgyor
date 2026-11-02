@@ -89,7 +89,7 @@
           title={canRename ? "Click to edit child's name" : ""}
           onclick={canRename ? editStudentName : null}>{displayName}</span
         >
-        <span id="mobile-student-meta" class="text-[10px] text-slate-500 dark:text-slate-400"
+        <span id="mobile-student-meta" class="text-[10px] text-slate-600 dark:text-slate-400"
           >{student ? `${student.grade} ${student.section}` : ""}</span
         >
       </div>
@@ -122,7 +122,7 @@
             <option value="">Loading dates...</option>
           {/each}
         </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400 dark:text-slate-500">
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-600 dark:text-slate-400">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
@@ -233,7 +233,7 @@
             >
               {displayName}
             </div>
-            <div id="student-meta" class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+            <div id="student-meta" class="text-[10px] text-slate-600 dark:text-slate-400 leading-tight">
               {student ? `${student.grade} ${student.section} • ${student.school}` : ""}
             </div>
           </div>
@@ -245,8 +245,8 @@
           title={stamp?.stale
             ? "These class updates have not been refreshed recently, so they may be out of date."
             : "When these class updates were last refreshed from the school portal."}
-          class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 whitespace-nowrap{stamp?.stale
-            ? ' text-amber-600 dark:text-amber-400'
+          class="text-[10px] font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap{stamp?.stale
+            ? ' text-amber-700 dark:text-amber-400'
             : ''}"
           class:hidden={!stamp}>{stamp?.text ?? ""}</span
         >
@@ -258,7 +258,7 @@
           title={shell.classBoard
             ? "Lock the board on this device and ask for the passcode again"
             : "Sign out of Hubble Orion"}
-          class="p-2 sm:px-2.5 sm:py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+          class="p-2 sm:px-2.5 sm:py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 text-slate-600 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
