@@ -20,7 +20,7 @@
         V
       </div>
       <h2 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">VIBGYOR Parent Portal</h2>
-      <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+      <p class="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">
         Sign in with your Hubble Orion credentials to access your child's daily diary, homework, and circulars.
       </p>
     </div>

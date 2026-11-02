@@ -40,7 +40,7 @@
           </span>
           <div>
             <h4 class="font-extrabold text-slate-900 dark:text-white text-sm">Weekly Dictation Bank</h4>
-            <p class="text-[11px] text-slate-600 dark:text-slate-400">
+            <p class="text-[11px] text-slate-600 dark:text-slate-300">
               Consolidated vocabulary list for Friday surprise dictation practice
             </p>
           </div>
@@ -79,7 +79,7 @@
           </span>
           <div>
             <h4 class="font-extrabold text-slate-900 dark:text-white text-sm">Weekly Homework Deadlines</h4>
-            <p class="text-[11px] text-slate-600 dark:text-slate-400">
+            <p class="text-[11px] text-slate-600 dark:text-slate-300">
               Reinforcement worksheets assigned across the week
             </p>
           </div>
@@ -101,7 +101,7 @@
                   />
                   <div>
                     <span class="font-bold text-slate-800 dark:text-slate-200">{getCanonicalSubject(item.subject)}</span>
-                    <p class="text-slate-600 dark:text-slate-400">{item.reinforcement || "NIL"}</p>
+                    <p class="text-slate-700 dark:text-slate-300">{item.reinforcement || "NIL"}</p>
                   </div>
                 </div>
                 <div class="text-right font-medium">
@@ -135,7 +135,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/80 pb-2 mb-3">
               <div>
                 <h5 class="font-bold text-slate-900 dark:text-white text-sm">{getDayName(day.date)}</h5>
-                <span class="text-xs text-slate-600 dark:text-slate-400">{day.display_date}</span>
+                <span class="text-xs text-slate-600 dark:text-slate-300">{day.display_date}</span>
               </div>
               {#if day.homework.length > 0}
                 <span
@@ -158,7 +158,7 @@
 
             <!-- Homework only, as a list -->
             <div class="mt-2">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">
                 Assigned Homework
               </div>
               {#if day.homework.length === 0}
@@ -183,7 +183,7 @@
                             <span class="text-[10px] text-amber-700 dark:text-amber-400 font-bold shrink-0">⏳ Due</span>
                           {/if}
                         </div>
-                        <div class="text-slate-600 dark:text-slate-400 text-[11px] leading-snug mt-0.5">
+                        <div class="text-slate-700 dark:text-slate-300 text-[11px] leading-snug mt-0.5">
                           {p.reinforcement || "NIL"}
                         </div>
                         {#if hasDueDate(p)}

@@ -45,7 +45,7 @@
         V
       </div>
       <h1 class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Class Updates</h1>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1.5">
+      <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
         Enter the class passcode to view the daily diary, homework and circulars.
       </p>
 
