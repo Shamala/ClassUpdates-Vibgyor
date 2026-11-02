@@ -14,7 +14,7 @@
 
   const ACTIVE = "px-3 py-1 text-xs font-bold bg-indigo-600 text-white rounded-full cursor-pointer";
   const INACTIVE =
-    "px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors";
+    "px-3 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors";
 
   let shown = $derived(
     filterCirculars(state.circulars, state.selectedCircularCategory, state.circularSearchTerm),
@@ -75,13 +75,13 @@
             >
               {c.title}
             </h4>
-            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4 line-clamp-2">
+            <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed mb-4 line-clamp-2">
               {c.summary || "No summary provided."}
             </p>
           </div>
 
           <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700/80 gap-2">
-            <span class="text-[11px] text-slate-600 dark:text-slate-400 font-medium flex items-center gap-1">
+            <span class="text-[11px] text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"

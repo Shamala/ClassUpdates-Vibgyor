@@ -89,7 +89,7 @@
           title={canRename ? "Click to edit child's name" : ""}
           onclick={canRename ? editStudentName : null}>{displayName}</span
         >
-        <span id="mobile-student-meta" class="text-[10px] text-slate-600 dark:text-slate-400"
+        <span id="mobile-student-meta" class="text-[10px] text-slate-600 dark:text-slate-300"
           >{student ? `${student.grade} ${student.section}` : ""}</span
         >
       </div>
@@ -136,7 +136,7 @@
         aria-label="Toggle dark or light theme"
         title={theme.isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
         onclick={toggleTheme}
-        class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-amber-300 shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
+        class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-amber-300 shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
       >
         <!-- Sun Icon (shown when in dark mode) -->
         <svg id="theme-sun-icon" class="w-4 h-4" class:hidden={!theme.isDark} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,7 +233,7 @@
             >
               {displayName}
             </div>
-            <div id="student-meta" class="text-[10px] text-slate-600 dark:text-slate-400 leading-tight">
+            <div id="student-meta" class="text-[10px] text-slate-600 dark:text-slate-300 leading-tight">
               {student ? `${student.grade} ${student.section} • ${student.school}` : ""}
             </div>
           </div>
@@ -258,7 +258,7 @@
           title={shell.classBoard
             ? "Lock the board on this device and ask for the passcode again"
             : "Sign out of Hubble Orion"}
-          class="p-2 sm:px-2.5 sm:py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 text-slate-600 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+          class="p-2 sm:px-2.5 sm:py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 text-slate-600 hover:text-rose-600 dark:text-slate-300 dark:hover:text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path

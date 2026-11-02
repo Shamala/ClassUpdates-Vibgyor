@@ -59,192 +59,53 @@ body {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Period badges based on subject */
-.subject-badge-math {
-  background-color: #dbeafe;
-  color: #1e40af;
-  border-color: #bfdbfe;
+/* Tags: subject badges, subject card headers and circular category badges. Colours come from the
+   ShaMallya tag tokens, which switch on data-theme (kept in step with the .dark class), so there
+   are no separate dark rules. Every hue also has a neutral variant (.tag-neutral). */
+.tag-blue {
+  background-color: var(--shamallya-semantic-color-tag-blue-background);
+  color: var(--shamallya-semantic-color-tag-blue-text);
+  border-color: var(--shamallya-semantic-color-tag-blue-border);
 }
-.subject-badge-english {
-  background-color: #fef3c7;
-  color: #92400e;
-  border-color: #fde68a;
+.tag-amber {
+  background-color: var(--shamallya-semantic-color-tag-amber-background);
+  color: var(--shamallya-semantic-color-tag-amber-text);
+  border-color: var(--shamallya-semantic-color-tag-amber-border);
 }
-.subject-badge-science {
-  background-color: #dcfce7;
-  color: #166534;
-  border-color: #bbf7d0;
+.tag-green {
+  background-color: var(--shamallya-semantic-color-tag-green-background);
+  color: var(--shamallya-semantic-color-tag-green-text);
+  border-color: var(--shamallya-semantic-color-tag-green-border);
 }
-.subject-badge-robotics {
-  background-color: #f3e8ff;
-  color: #6b21a8;
-  border-color: #e9d5ff;
+.tag-purple {
+  background-color: var(--shamallya-semantic-color-tag-purple-background);
+  color: var(--shamallya-semantic-color-tag-purple-text);
+  border-color: var(--shamallya-semantic-color-tag-purple-border);
 }
-.subject-badge-kannada {
-  background-color: #ffedd5;
-  color: #9a3412;
-  border-color: #fed7aa;
+.tag-orange {
+  background-color: var(--shamallya-semantic-color-tag-orange-background);
+  color: var(--shamallya-semantic-color-tag-orange-text);
+  border-color: var(--shamallya-semantic-color-tag-orange-border);
 }
-.subject-badge-hindi {
-  background-color: #fee2e2;
-  color: #991b1b;
-  border-color: #fecaca;
+.tag-red {
+  background-color: var(--shamallya-semantic-color-tag-red-background);
+  color: var(--shamallya-semantic-color-tag-red-text);
+  border-color: var(--shamallya-semantic-color-tag-red-border);
 }
-.subject-badge-spa {
-  background-color: #fce7f3;
-  color: #9d174d;
-  border-color: #fbcfe8;
+.tag-pink {
+  background-color: var(--shamallya-semantic-color-tag-pink-background);
+  color: var(--shamallya-semantic-color-tag-pink-text);
+  border-color: var(--shamallya-semantic-color-tag-pink-border);
 }
-.subject-badge-computers {
-  background-color: #e0e7ff;
-  color: #3730a3;
-  border-color: #c7d2fe;
+.tag-indigo {
+  background-color: var(--shamallya-semantic-color-tag-indigo-background);
+  color: var(--shamallya-semantic-color-tag-indigo-text);
+  border-color: var(--shamallya-semantic-color-tag-indigo-border);
 }
-.subject-badge-default {
-  background-color: #f1f5f9;
-  color: #334155;
-  border-color: #e2e8f0;
-}
-
-/* Subject Card Headers matching pill colors */
-.subject-header-math {
-  background-color: #e0edff;
-  color: #1e3a8a;
-  border-color: #bfdbfe;
-}
-.subject-header-english {
-  background-color: #fef3c7;
-  color: #78350f;
-  border-color: #fde68a;
-}
-.subject-header-science {
-  background-color: #dcfce7;
-  color: #14532d;
-  border-color: #bbf7d0;
-}
-.subject-header-robotics {
-  background-color: #f3e8ff;
-  color: #581c87;
-  border-color: #e9d5ff;
-}
-.subject-header-kannada {
-  background-color: #ffedd5;
-  color: #7c2d12;
-  border-color: #fed7aa;
-}
-.subject-header-hindi {
-  background-color: #fee2e2;
-  color: #7f1d1d;
-  border-color: #fecaca;
-}
-.subject-header-spa {
-  background-color: #fce7f3;
-  color: #831843;
-  border-color: #fbcfe8;
-}
-.subject-header-computers {
-  background-color: #e0e7ff;
-  color: #312e81;
-  border-color: #c7d2fe;
-}
-.subject-header-default {
-  background-color: #f1f5f9;
-  color: #1e293b;
-  border-color: #e2e8f0;
-}
-
-/* Dark Mode: Subject Card Headers */
-.dark .subject-header-math {
-  background-color: rgba(30, 58, 138, 0.4);
-  color: #93c5fd;
-  border-color: rgba(59, 130, 246, 0.35);
-}
-.dark .subject-header-english {
-  background-color: rgba(120, 53, 15, 0.4);
-  color: #fde68a;
-  border-color: rgba(245, 158, 11, 0.35);
-}
-.dark .subject-header-science {
-  background-color: rgba(20, 83, 45, 0.4);
-  color: #86efac;
-  border-color: rgba(34, 197, 94, 0.35);
-}
-.dark .subject-header-robotics {
-  background-color: rgba(88, 28, 135, 0.4);
-  color: #d8b4fe;
-  border-color: rgba(168, 85, 247, 0.35);
-}
-.dark .subject-header-kannada {
-  background-color: rgba(124, 45, 18, 0.4);
-  color: #fdba74;
-  border-color: rgba(249, 115, 22, 0.35);
-}
-.dark .subject-header-hindi {
-  background-color: rgba(127, 29, 29, 0.4);
-  color: #fca5a5;
-  border-color: rgba(239, 68, 68, 0.35);
-}
-.dark .subject-header-spa {
-  background-color: rgba(131, 24, 67, 0.4);
-  color: #f9a8d4;
-  border-color: rgba(236, 72, 153, 0.35);
-}
-.dark .subject-header-computers {
-  background-color: rgba(49, 46, 129, 0.4);
-  color: #a5b4fc;
-  border-color: rgba(99, 102, 241, 0.35);
-}
-.dark .subject-header-default {
-  background-color: rgba(30, 41, 59, 0.7);
-  color: #cbd5e1;
-  border-color: #334155;
-}
-
-/* Dark Mode: Subject Badges */
-.dark .subject-badge-math {
-  background-color: rgba(30, 58, 138, 0.45);
-  color: #bfdbfe;
-  border-color: rgba(59, 130, 246, 0.4);
-}
-.dark .subject-badge-english {
-  background-color: rgba(120, 53, 15, 0.45);
-  color: #fde68a;
-  border-color: rgba(245, 158, 11, 0.4);
-}
-.dark .subject-badge-science {
-  background-color: rgba(20, 83, 45, 0.45);
-  color: #bbf7d0;
-  border-color: rgba(34, 197, 94, 0.4);
-}
-.dark .subject-badge-robotics {
-  background-color: rgba(88, 28, 135, 0.45);
-  color: #e9d5ff;
-  border-color: rgba(168, 85, 247, 0.4);
-}
-.dark .subject-badge-kannada {
-  background-color: rgba(124, 45, 18, 0.45);
-  color: #fed7aa;
-  border-color: rgba(249, 115, 22, 0.4);
-}
-.dark .subject-badge-hindi {
-  background-color: rgba(127, 29, 29, 0.45);
-  color: #fecaca;
-  border-color: rgba(239, 68, 68, 0.4);
-}
-.dark .subject-badge-spa {
-  background-color: rgba(131, 24, 67, 0.45);
-  color: #fbcfe8;
-  border-color: rgba(236, 72, 153, 0.4);
-}
-.dark .subject-badge-computers {
-  background-color: rgba(49, 46, 129, 0.45);
-  color: #c7d2fe;
-  border-color: rgba(99, 102, 241, 0.4);
-}
-.dark .subject-badge-default {
-  background-color: #1e293b;
-  color: #94a3b8;
-  border-color: #334155;
+.tag-neutral {
+  background-color: var(--shamallya-semantic-color-tag-neutral-background);
+  color: var(--shamallya-semantic-color-tag-neutral-text);
+  border-color: var(--shamallya-semantic-color-tag-neutral-border);
 }
 
 /* Homework indicator dot animation */

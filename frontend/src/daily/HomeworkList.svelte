@@ -58,7 +58,7 @@
           </svg>
         </div>
         <h4 class="font-bold text-slate-800 dark:text-white">No Homework Assigned Today!</h4>
-        <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+        <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">
           All classwork was completed in school. Enjoy reading time with your child!
         </p>
       </div>
