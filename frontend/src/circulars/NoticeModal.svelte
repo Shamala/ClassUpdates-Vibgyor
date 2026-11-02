@@ -30,12 +30,12 @@
           <span id="notice-category-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold {getCircularCategoryBadge(circular.category)}">
             {circular.category}
           </span>
-          <span id="notice-date" class="text-xs text-slate-400 dark:text-slate-500">{formatDatePretty(circular.publish_date)}</span>
+          <span id="notice-date" class="text-xs text-slate-600 dark:text-slate-400">{formatDatePretty(circular.publish_date)}</span>
         </div>
         <button
           id="close-notice-modal"
           onclick={closeNotice}
-          class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg cursor-pointer"
+          class="text-slate-600 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg cursor-pointer"
           aria-label="Close"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@
             </span>
             <div>
               <div class="font-bold text-slate-800 dark:text-slate-200">Hubble Orion Portal</div>
-              <div class="text-slate-500 dark:text-slate-400 font-mono text-[11px]">{ORION_APP_URL}</div>
+              <div class="text-slate-600 dark:text-slate-400 font-mono text-[11px]">{ORION_APP_URL}</div>
             </div>
           </div>
           <a

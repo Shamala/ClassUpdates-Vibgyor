@@ -40,7 +40,7 @@
           </span>
           <div>
             <h4 class="font-extrabold text-slate-900 dark:text-white text-sm">Weekly Dictation Bank</h4>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+            <p class="text-[11px] text-slate-600 dark:text-slate-400">
               Consolidated vocabulary list for Friday surprise dictation practice
             </p>
           </div>
@@ -57,7 +57,7 @@
               </span>
             {/each}
           {:else}
-            <span class="text-xs text-slate-400 dark:text-slate-500">No words found for this week.</span>
+            <span class="text-xs text-slate-600 dark:text-slate-400">No words found for this week.</span>
           {/if}
         {/if}
       </div>
@@ -67,7 +67,7 @@
     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-xs">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
-          <span class="p-2 bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 rounded-xl">
+          <span class="p-2 bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-400 rounded-xl">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -79,7 +79,7 @@
           </span>
           <div>
             <h4 class="font-extrabold text-slate-900 dark:text-white text-sm">Weekly Homework Deadlines</h4>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+            <p class="text-[11px] text-slate-600 dark:text-slate-400">
               Reinforcement worksheets assigned across the week
             </p>
           </div>
@@ -114,7 +114,7 @@
               </div>
             {/each}
           {:else}
-            <div class="text-xs text-slate-400 dark:text-slate-500">No homework assigned this week.</div>
+            <div class="text-xs text-slate-600 dark:text-slate-400">No homework assigned this week.</div>
           {/if}
         {/if}
       </div>
@@ -135,7 +135,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/80 pb-2 mb-3">
               <div>
                 <h5 class="font-bold text-slate-900 dark:text-white text-sm">{getDayName(day.date)}</h5>
-                <span class="text-xs text-slate-400 dark:text-slate-400">{day.display_date}</span>
+                <span class="text-xs text-slate-600 dark:text-slate-400">{day.display_date}</span>
               </div>
               {#if day.homework.length > 0}
                 <span
@@ -143,7 +143,7 @@
                   >{day.homework.length} HW</span
                 >
               {:else}
-                <span class="text-xs text-slate-400 dark:text-slate-500">No HW</span>
+                <span class="text-xs text-slate-600 dark:text-slate-400">No HW</span>
               {/if}
             </div>
 
@@ -158,12 +158,12 @@
 
             <!-- Homework only, as a list -->
             <div class="mt-2">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-2">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
                 Assigned Homework
               </div>
               {#if day.homework.length === 0}
                 <div
-                  class="text-xs text-slate-400 dark:text-slate-500 italic py-3 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700"
+                  class="text-xs text-slate-600 dark:text-slate-400 italic py-3 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700"
                 >
                   No homework assigned
                 </div>
@@ -180,7 +180,7 @@
                           {#if p.is_completed}
                             <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold shrink-0">✓ Done</span>
                           {:else}
-                            <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold shrink-0">⏳ Due</span>
+                            <span class="text-[10px] text-amber-700 dark:text-amber-400 font-bold shrink-0">⏳ Due</span>
                           {/if}
                         </div>
                         <div class="text-slate-600 dark:text-slate-400 text-[11px] leading-snug mt-0.5">
@@ -202,7 +202,7 @@
           {#if day.date > today}
             <button
               disabled
-              class="mt-4 w-full text-center text-xs font-semibold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700/40 py-1.5 rounded-lg cursor-not-allowed border border-slate-200/60 dark:border-slate-700/60"
+              class="mt-4 w-full text-center text-xs font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/40 py-1.5 rounded-lg cursor-not-allowed border border-slate-200/60 dark:border-slate-700/60"
               title="Timetable updates are not yet available for future dates"
             >
               Not Available Yet

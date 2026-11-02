@@ -3,13 +3,17 @@
   "private": true,
   "description": "Build tooling for the parent dashboard: Vite + Svelte for the page, Tailwind for the stylesheet.",
   "scripts": {
+    "predev": "npm run build:tokens",
     "dev": "vite",
+    "prebuild": "npm run build:tokens",
     "build": "npm run build:css && vite build",
     "preview": "vite preview",
     "build:css": "tailwindcss -i styles/tailwind.src.css -o frontend/tailwind.css --minify",
-    "watch:css": "tailwindcss -i styles/tailwind.src.css -o frontend/tailwind.css --watch"
+    "watch:css": "tailwindcss -i styles/tailwind.src.css -o frontend/tailwind.css --watch",
+    "build:tokens": "cp node_modules/@shamallya-ui/tokens/dist/tokens.css frontend/shamallya-tokens.css"
   },
   "devDependencies": {
+    "@shamallya-ui/tokens": "^0.1.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "svelte": "^5.57.1",
     "tailwindcss": "^3.4.0",

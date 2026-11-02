@@ -52,7 +52,7 @@
   <div id="circulars-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {#if shown.length === 0}
       <div
-        class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center text-slate-400 dark:text-slate-500 text-sm"
+        class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center text-slate-600 dark:text-slate-400 text-sm"
       >
         No circulars match your current filter.
       </div>
@@ -66,7 +66,7 @@
               <span class="text-xs font-bold px-2.5 py-0.5 rounded-full {getCircularCategoryBadge(c.category)}">
                 {c.category}
               </span>
-              <span class="text-xs text-slate-400 dark:text-slate-500">{formatDatePretty(c.publish_date)}</span>
+              <span class="text-xs text-slate-600 dark:text-slate-400">{formatDatePretty(c.publish_date)}</span>
             </div>
             <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
             <h4
@@ -81,7 +81,7 @@
           </div>
 
           <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700/80 gap-2">
-            <span class="text-[11px] text-slate-400 dark:text-slate-400 font-medium flex items-center gap-1">
+            <span class="text-[11px] text-slate-600 dark:text-slate-400 font-medium flex items-center gap-1">
               <svg class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"

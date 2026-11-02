@@ -15,9 +15,11 @@ const VERBATIM = [
   "manifest.json",
   "tailwind.css",
   "style.css",
+  "shamallya-tokens.css",
   "class_data.enc.js",
   "static_data.js",
   ...readdirSync(resolve(FRONTEND, "icons")).map((name) => `icons/${name}`),
+  ...readdirSync(resolve(FRONTEND, "fonts")).map((name) => `fonts/${name}`),
 ];
 
 // The data files change on every sync without the app changing, so they do not

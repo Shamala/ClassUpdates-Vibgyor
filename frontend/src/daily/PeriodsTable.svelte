@@ -19,7 +19,7 @@
       <h3 class="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">
         Class Work & Timetable
       </h3>
-      <p class="text-xs text-slate-500 dark:text-slate-400">
+      <p class="text-xs text-slate-600 dark:text-slate-400">
         Periods 1 to 10 covering classroom worksheets (CWSH) and assessed skills
       </p>
     </div>
@@ -27,7 +27,7 @@
 
   <div id="periods-container">
     {#if state.dailyData && groups.length === 0}
-      <div class="p-4 text-slate-400 dark:text-slate-500 text-sm">No periods found for this date.</div>
+      <div class="p-4 text-slate-600 dark:text-slate-400 text-sm">No periods found for this date.</div>
     {:else if groups.length > 0}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {#each groups as g (g.cleanSubject)}
@@ -50,7 +50,7 @@
                     <div class="flex items-center gap-1.5 shrink-0" title="Active Homework Assigned">
                       <span class="hw-pulse-dot w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
                       <span
-                        class="bg-amber-500 text-white font-extrabold text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full shadow-xs"
+                        class="bg-amber-500 text-slate-900 font-extrabold text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full shadow-xs"
                       >
                         HW
                       </span>
@@ -71,15 +71,15 @@
               <!-- Body: topic and sub-topic -->
               <div class="p-4 space-y-2">
                 <div class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-baseline gap-1.5">
-                  <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-400 tracking-wider shrink-0"
+                  <span class="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 tracking-wider shrink-0"
                     >Topic:</span
                   >
                   <span class="leading-snug">{joinOrNil(g.topics, " • ")}</span>
                 </div>
                 {#if subTopicDisplay !== "NIL"}
-                  <div class="text-xs text-slate-500 dark:text-slate-400 flex items-baseline gap-1.5">
+                  <div class="text-xs text-slate-600 dark:text-slate-400 flex items-baseline gap-1.5">
                     <span
-                      class="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-400 tracking-wider shrink-0"
+                      class="text-[10px] uppercase font-semibold text-slate-600 dark:text-slate-400 tracking-wider shrink-0"
                       >Sub Topic:</span
                     >
                     <span class="leading-snug">{subTopicDisplay}</span>
@@ -93,11 +93,11 @@
               <div
                 class="pt-3 border-t border-slate-100 dark:border-slate-700/80 flex items-center justify-between text-xs"
               >
-                <span class="text-slate-400 dark:text-slate-400 font-medium">Class Work:</span>
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Class Work:</span>
                 <span
                   class="font-bold {cwDisplay !== 'NIL'
                     ? 'text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded border border-indigo-100 dark:border-indigo-800/60'
-                    : 'text-slate-400 dark:text-slate-500'}"
+                    : 'text-slate-600 dark:text-slate-400'}"
                 >
                   {cwDisplay}
                 </span>
@@ -105,7 +105,7 @@
 
               {#if skillDisplay !== "NIL"}
                 <div class="flex items-center justify-between text-xs">
-                  <span class="text-slate-400 dark:text-slate-400 font-medium">Skill Assessed:</span>
+                  <span class="text-slate-600 dark:text-slate-400 font-medium">Skill Assessed:</span>
                   <span
                     class="text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded font-medium border border-emerald-100 dark:border-emerald-800/60"
                     >{skillDisplay}</span
@@ -135,7 +135,7 @@
                         <div class="flex-1">
                           <span
                             class="font-bold text-slate-800 dark:text-slate-200 {hw.is_completed
-                              ? 'line-through text-slate-400 dark:text-slate-500'
+                              ? 'line-through text-slate-600 dark:text-slate-400'
                               : ''}"
                           >
                             {hw.reinforcement}

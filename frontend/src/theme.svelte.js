@@ -9,6 +9,8 @@ export const theme = $state({ isDark: false });
 
 function apply(isDark) {
   document.documentElement.classList.toggle("dark", isDark);
+  // The ShaMallya tokens switch on data-theme, so it follows the class.
+  document.documentElement.dataset.theme = isDark ? "dark" : "light";
   theme.isDark = isDark;
 }
 

@@ -16,6 +16,8 @@ const PRECACHE_ASSETS = [
   "./index.html",
   "./tailwind.css",
   "./style.css",
+  "./shamallya-tokens.css",
+  "./fonts/inter-latin-wght-normal.woff2",
   ...APP_ASSETS,
   "./static_data.js",
   "./class_data.enc.js",
