@@ -11,6 +11,7 @@
   import HomeworkList from "./HomeworkList.svelte";
   import TeacherNote from "./TeacherNote.svelte";
   import PeriodsTable from "./PeriodsTable.svelte";
+  import Attachments from "./Attachments.svelte";
 </script>
 
 <div id="view-daily" class="space-y-6" class:hidden={state.currentTab !== "daily"}>
@@ -63,5 +64,6 @@
 
   <HomeworkList />
   <TeacherNote />
+  <Attachments />
   <PeriodsTable />
 </div>

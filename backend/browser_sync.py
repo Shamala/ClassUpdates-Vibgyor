@@ -7,6 +7,7 @@ syncs official circulars, and downloads daily class update PDFs.
 import json
 import os
 import re
+import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
@@ -19,6 +20,7 @@ except ImportError:
 
 from backend.database import (
     add_circular,
+    add_update_image,
     get_student_profile,
     is_placeholder_student_name,
     init_db,
@@ -83,6 +85,24 @@ def _filename_date(name: str, year: int) -> Optional[str]:
         except ValueError:
             return None
     return None
+
+
+IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
+
+
+def image_data_uri(path: str, max_side: int = 1400) -> str:
+    """A downscaled JPEG as a data URI, small enough to ride in the encrypted bundle."""
+    import base64
+    import io
+
+    from PIL import Image, ImageOps
+
+    with Image.open(path) as img:
+        img = ImageOps.exif_transpose(img).convert("RGB")
+        img.thumbnail((max_side, max_side))
+        buf = io.BytesIO()
+        img.save(buf, "JPEG", quality=80, optimize=True)
+    return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
 def class_update_date(item: Dict[str, Any], file_name: str, parsed: Dict[str, Any]) -> Optional[str]:
@@ -325,6 +345,27 @@ def run_orion_browser_sync(
         pub_date = created_at_raw.split("T")[0] if "T" in created_at_raw else created_at_raw[:10]
         attachments = item.get("attachment") or []
 
+        # Photos (e.g. a viva timetable) can arrive on any kind of notification;
+        # show them on the day they were posted.
+        for file_url in attachments:
+            if not file_url:
+                continue
+            name = urllib.parse.unquote(
+                file_url.split("filename%3D%22communication%2F")[-1].split("%22")[0]
+                if "filename%3D%22communication%2F" in file_url
+                else file_url.split("?")[0].split("/")[-1]
+            )
+            day = _posted_date(item)
+            if not (name.lower().endswith(IMAGE_EXTENSIONS) and day):
+                continue
+            try:
+                dest = os.path.join(target_downloads, name)
+                if not os.path.exists(dest) or os.path.getsize(dest) == 0:
+                    urllib.request.urlretrieve(file_url, dest)
+                add_update_image(day, name, image_data_uri(dest), db_path=db_path)
+            except Exception as img_err:
+                print(f"[browser_sync] Error reading image {name}: {img_err}")
+
         if slug == "Class Updates":
             for file_url in attachments:
                 if not file_url:
@@ -343,6 +384,9 @@ def run_orion_browser_sync(
                         downloaded_files.append(clean_name)
                     except Exception as dl_err:
                         print(f"[browser_sync] Error downloading {clean_name}: {dl_err}")
+
+                if clean_name.lower().endswith(IMAGE_EXTENSIONS):
+                    continue  # stored as a photo above
 
                 # Parse and upsert into database
                 if os.path.exists(dest_path) and os.path.getsize(dest_path) > 0:

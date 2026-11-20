@@ -56,6 +56,13 @@ def init_db(db_path: Optional[str] = None):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
+        CREATE TABLE IF NOT EXISTS update_images (
+            date TEXT NOT NULL,               -- YYYY-MM-DD
+            name TEXT NOT NULL,
+            data_uri TEXT NOT NULL,           -- downscaled JPEG, so it can ride in the encrypted bundle
+            UNIQUE(date, name)
+        );
+
         CREATE TABLE IF NOT EXISTS periods (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             update_id INTEGER NOT NULL,
@@ -510,6 +517,17 @@ def get_available_dates(db_path: Optional[str] = None) -> List[Dict[str, Any]]:
     return result
 
 
+def add_update_image(date: str, name: str, data_uri: str, db_path: Optional[str] = None):
+    conn = get_db_connection(db_path)
+    conn.execute(
+        "INSERT INTO update_images (date, name, data_uri) VALUES (?, ?, ?) "
+        "ON CONFLICT(date, name) DO UPDATE SET data_uri = excluded.data_uri",
+        (date, name, data_uri),
+    )
+    conn.commit()
+    conn.close()
+
+
 def get_daily_update(date_str: str, db_path: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """Retrieves full breakdown for a single day."""
     conn = get_db_connection(db_path)
@@ -527,6 +545,8 @@ def get_daily_update(date_str: str, db_path: Optional[str] = None) -> Optional[D
         ORDER BY period_number ASC
     """, (date_str,))
     period_rows = cursor.fetchall()
+    cursor.execute("SELECT data_uri FROM update_images WHERE date = ? ORDER BY name", (date_str,))
+    images = [r["data_uri"] for r in cursor.fetchall()]
     conn.close()
 
     periods = []
@@ -560,6 +580,7 @@ def get_daily_update(date_str: str, db_path: Optional[str] = None) -> Optional[D
         "completed_homework_count": hw_completed_count,
         "all_homework_completed": (hw_count > 0 and hw_count == hw_completed_count),
         "periods": periods,
+        "images": images,
     }
 
 

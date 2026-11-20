@@ -195,6 +195,7 @@ def sanitise(payload: Dict[str, Any]) -> Dict[str, Any]:
         update["words_raw"] = ",".join(update["words_of_the_day"])
         update["teacher_note"] = "Sample teacher note for the demo dashboard."
         update["source_pdf"] = "sample.pdf"
+        update["images"] = []
         for period in update.get("periods", []) or []:
             period["topic"] = "Sample topic"
             period["sub_topic"] = "Sample sub-topic"
